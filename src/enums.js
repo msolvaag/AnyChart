@@ -60,7 +60,8 @@ anychart.enums.ChartTypes = {
   TAG_CLOUD: 'tag-cloud',
   VENN: 'venn',
   HILO: 'hilo',
-  WATERFALL: 'waterfall'
+  WATERFALL: 'waterfall',
+  CALENDAR: 'calendar'
 };
 
 
