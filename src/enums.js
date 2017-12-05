@@ -1361,6 +1361,8 @@ anychart.enums.EventType = {
   DRAG_END: 'dragend',
 
   SCROLL_CHANGE: 'scrollchange',
+  SCROLLING: 'scrolling',
+  SCROLL_END: 'scrollend',
 
   SPLITTER_CHANGE: 'splitterchange',
 
