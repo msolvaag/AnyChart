@@ -13,7 +13,6 @@ goog.require('anychart.calendarModule.Chart');
  */
 anychart.calendar = function(opt_data) {
   var chart = new anychart.calendarModule.Chart(opt_data);
-  //TODO(AntonKagakin): rework to enum
   chart.setType(anychart.enums.ChartTypes.CALENDAR);
 
   chart.setupInternal(true, anychart.getFullTheme('calendar'));

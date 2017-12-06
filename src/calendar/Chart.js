@@ -45,11 +45,18 @@ anychart.calendarModule.Chart.DESCRIPTORS = (function() {
   var map = {};
   var single = anychart.enums.PropertyHandlerType.SINGLE_ARG;
   var multi = anychart.enums.PropertyHandlerType.MULTI_ARG;
+  function monthNormalizer(opt_value) {
+    if (opt_value == 'auto') return opt_value;
+    return anychart.utils.toNumber(opt_value) || 'auto';
+  }
+  function weekStartNormalizer(opt_value) {
+    return goog.math.clamp((anychart.utils.toNumber(opt_value) || 0), 0, 6);
+  }
   anychart.core.settings.createDescriptors(map, [
     // chart properties
-    [single, 'startMonth', anychart.core.settings.numberNormalizer],
-    [single, 'endMonth', anychart.core.settings.numberNormalizer],
-    [single, 'weekStart', anychart.core.settings.numberNormalizer],
+    [single, 'startMonth', monthNormalizer],
+    [single, 'endMonth', monthNormalizer],
+    [single, 'weekStart', weekStartNormalizer],
 
     // color properties
     // stroke for month with data
@@ -64,6 +71,28 @@ anychart.calendarModule.Chart.DESCRIPTORS = (function() {
   return map;
 })();
 anychart.core.settings.populate(anychart.calendarModule.Chart, anychart.calendarModule.Chart.DESCRIPTORS);
+
+
+//endregion
+//region --- Complex properties
+/**
+ * .
+ */
+anychart.calendarModule.Chart.prototype.colorRange = function() {};
+
+
+/**
+ * .
+ */
+anychart.calendarModule.Chart.prototype.colorScale = function() {};
+
+
+//endregion
+//region --- Infrastructure
+/** @inheritDoc */
+anychart.calendarModule.Chart.prototype.calculate = function() {
+  anychart.calendarModule.Chart.base(this, 'calculate');
+};
 
 
 //endregion
@@ -95,8 +124,10 @@ anychart.calendarModule.Chart.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.calendarModule.Chart.prototype.setupByJSON = function(config, opt_default) {
   anychart.calendarModule.Chart.base(this, 'setupByJSON', config, opt_default);
-
-  anychart.core.settings.deserialize(this, anychart.calendarModule.Chart.DESCRIPTORS, config);
+  if (opt_default)
+    anychart.core.settings.copy(this.themeSettings, anychart.calendarModule.Chart.DESCRIPTORS, config);
+  else
+    anychart.core.settings.deserialize(this, anychart.calendarModule.Chart.DESCRIPTORS, config);
 };
 
 
