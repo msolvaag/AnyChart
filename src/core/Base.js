@@ -270,6 +270,7 @@ anychart.ConsistencyState = {
   STOCK_PLOT_NO_DATA_LABEL: 1 << 15,
   //---------------------------------- PRICE INDICATOR STATES (VB) ---------------------------------
   STOCK_PRICE_INDICATOR_LABEL: 1 << 6,
+  STOCK_PRICE_INDICATOR_SERIES: 1 << 7,
   //---------------------------------- STOCK DATETIME AXIS (VB) ----------------------------------------
   STOCK_DTAXIS_BACKGROUND: 1 << 6,
   //---------------------------------- STOCK SCROLLER (SCROLLER) ----------------------------------------
