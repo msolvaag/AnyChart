@@ -347,6 +347,7 @@ anychart.stockModule.CurrentPriceIndicator.prototype.axis = function(opt_value) 
  */
 anychart.stockModule.CurrentPriceIndicator.prototype.remove = function() {
   this.rootLayer.parent(null);
+  this.invalidate(anychart.ConsistencyState.CONTAINER);
 };
 
 
