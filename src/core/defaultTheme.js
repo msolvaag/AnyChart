@@ -2193,6 +2193,37 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'progressBarAnchor': 'left-center',
     //all another settings should be set to 'null' for serialization demerging purposes
 
+    'bar': {
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['bar'];
+          var bounds = this['predictedBounds'];
+          anychart.graphics.vector.primitives.roundedRect(path, bounds, 0);
+        }
+      }
+    },
+
+    'milestone': {
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['bar'];
+          var bounds = this['predictedBounds'];
+          var radius = bounds.width / 2;
+          anychart.graphics.vector.primitives.diamond(path, bounds.left + radius, bounds.top + radius, radius);
+        }
+      }
+    },
+
     'connectorFill': '#545f69',
     'connectorStroke': '#545f69',
     'baselineAbove': false,

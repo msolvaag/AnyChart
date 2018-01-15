@@ -4606,6 +4606,16 @@ anychart.enums.ShapeType = {
 
 
 /**
+ * Normalizes shape type.
+ * @param {anychart.enums.ShapeType|string} value - Shape type.
+ * @return {anychart.enums.ShapeType} - Normalized type.
+ */
+anychart.enums.normalizeShapeType = function(value) {
+  return /** @type {anychart.enums.ShapeType} */(anychart.enums.normalize(anychart.enums.ShapeType, value, anychart.enums.ShapeType.PATH));
+};
+
+
+/**
  * Color type.
  * @enum {number}
  */
