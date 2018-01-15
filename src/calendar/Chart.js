@@ -4,10 +4,12 @@ goog.provide('anychart.calendarModule.Chart');
 
 /**
  * AnyChart Calendar class.
+ * @param {(anychart.data.View|anychart.data.Set|Array|string)=} opt_data Data for the chart.
+ * @param {(anychart.enums.TextParsingMode|anychart.data.TextParsingSettings)=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings here as a hash map.
  * @constructor
  * @extends {anychart.core.SeparateChart}
  */
-anychart.calendarModule.Chart = function() {
+anychart.calendarModule.Chart = function(opt_data, opt_csvSettings) {
   anychart.calendarModule.Chart.base(this, 'constructor');
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, []);
@@ -40,14 +42,16 @@ anychart.calendarModule.Chart.prototype.SUPPORTED_CONSISTENCY_STATES =
 /**
  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
-anychart.calendarModule.Chart.DESCRIPTORS = (function() {
+anychart.calendarModule.Chart.OWN_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
   var single = anychart.enums.PropertyHandlerType.SINGLE_ARG;
   var multi = anychart.enums.PropertyHandlerType.MULTI_ARG;
   function monthNormalizer(opt_value) {
     if (opt_value == 'auto') return opt_value;
-    return anychart.utils.toNumber(opt_value) || 'auto';
+    var numValue = anychart.utils.toNumber(opt_value);
+    numValue = numValue ? goog.math.clamp(numValue, 0, 11) : 'auto';
+    return numValue;
   }
   function weekStartNormalizer(opt_value) {
     return goog.math.clamp((anychart.utils.toNumber(opt_value) || 0), 0, 6);
@@ -70,7 +74,7 @@ anychart.calendarModule.Chart.DESCRIPTORS = (function() {
   ]);
   return map;
 })();
-anychart.core.settings.populate(anychart.calendarModule.Chart, anychart.calendarModule.Chart.DESCRIPTORS);
+anychart.core.settings.populate(anychart.calendarModule.Chart, anychart.calendarModule.Chart.OWN_DESCRIPTORS);
 
 
 //endregion
@@ -115,7 +119,7 @@ anychart.calendarModule.Chart.prototype.serialize = function() {
   var json = anychart.calendarModule.Chart.base(this, 'serialize');
   json['type'] = this.getType();
 
-  anychart.core.settings.serialize(this, anychart.calendarModule.Chart.DESCRIPTORS, json, 'Calendar');
+  anychart.core.settings.serialize(this, anychart.calendarModule.Chart.OWN_DESCRIPTORS, json, 'Calendar');
 
   return {'chart': json};
 };
@@ -124,10 +128,7 @@ anychart.calendarModule.Chart.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.calendarModule.Chart.prototype.setupByJSON = function(config, opt_default) {
   anychart.calendarModule.Chart.base(this, 'setupByJSON', config, opt_default);
-  if (opt_default)
-    anychart.core.settings.copy(this.themeSettings, anychart.calendarModule.Chart.DESCRIPTORS, config);
-  else
-    anychart.core.settings.deserialize(this, anychart.calendarModule.Chart.DESCRIPTORS, config);
+  anychart.core.settings.deserialize(this, anychart.calendarModule.Chart.OWN_DESCRIPTORS, config, opt_default);
 };
 
 
