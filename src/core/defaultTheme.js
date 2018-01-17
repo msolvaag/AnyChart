@@ -2208,6 +2208,35 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       }
     },
 
+    'parent': {
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['bar'];
+          var bounds = this['predictedBounds'];
+
+          var right = bounds.left + bounds.width;
+          var top = bounds.top + bounds.height;
+          var top2 = bounds.top + bounds.height * 1.4;
+          
+          path
+              .moveTo(bounds.left, bounds.top)
+              .lineTo(right, bounds.top)
+              .lineTo(right, top2)
+              .lineTo(right - 1, top2)
+              .lineTo(right - 1, top)
+              .lineTo(bounds.left + 1, top)
+              .lineTo(bounds.left + 1, top2)
+              .lineTo(bounds.left, top2)
+              .close();
+        }
+      }
+    },
+
     'milestone': {
       'rendering': {
         /**

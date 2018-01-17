@@ -7,15 +7,22 @@ goog.provide('anychart.ganttModule.rendering.Context');
  * @param {anychart.ganttModule.elements.Base} element - Related element.
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - Related data item.
  * @param {anychart.math.Rect} predictedBounds - Default predicted bounds to display element.
+ * @param {Object} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
  * @param {number=} opt_periodIndex - Period index for resources timeline.
  * @constructor
  */
-anychart.ganttModule.rendering.Context = function(element, item, predictedBounds, opt_periodIndex) {
+anychart.ganttModule.rendering.Context = function(element, item, predictedBounds, tag, opt_periodIndex) {
   /**
    *
    * @type {anychart.ganttModule.elements.Base}
    */
   this.element = element;
+
+  /**
+   *
+   * @type {Object}
+   */
+  this.tag = tag;
 
   /**
    *
@@ -29,7 +36,7 @@ anychart.ganttModule.rendering.Context = function(element, item, predictedBounds
    */
   this['item'] = item;
 
-  this['shapes'] = this.element.shapeManager.getShapesGroup(item, void 0, void 0, void 0, opt_periodIndex);
+  this['shapes'] = this.element.shapeManager.getShapesGroup(item, tag, void 0, void 0, void 0, opt_periodIndex);
 
   if (goog.isDef(opt_periodIndex)) {
     /**
@@ -55,5 +62,5 @@ anychart.ganttModule.rendering.Context = function(element, item, predictedBounds
  * @return {Object.<string, acgraph.vector.Shape>}
  */
 anychart.ganttModule.rendering.Context.prototype.getShapesGroup = function(opt_only, opt_baseZIndex, opt_shape) {
-  return this.element.shapeManager.getShapesGroup(this['item'], opt_only, opt_baseZIndex, opt_shape, this['periodIndex']);
+  return this.element.shapeManager.getShapesGroup(this['item'], this.tag, opt_only, opt_baseZIndex, opt_shape, this['periodIndex']);
 };

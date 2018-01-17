@@ -51,7 +51,7 @@ anychart.ganttModule.elements.Base = function(timeline, opt_type) {
    */
   this.resolutionChainCache_ = null;
 
-  this.renderingSettings = new anychart.ganttModule.rendering.Settings(this.timeline_);
+  this.renderingSettings = new anychart.ganttModule.rendering.Settings(this.timeline_, this);
   this.renderingSettings.listenSignals(this.renderingSettingsInvalidated_, this);
   this.recreateShapeManager();
 };

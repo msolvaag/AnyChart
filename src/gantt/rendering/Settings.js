@@ -13,11 +13,12 @@ goog.require('goog.array');
 /**
  *
  * @param {anychart.ganttModule.TimeLine} timeline - Timeline that rendering settings belong to.
+ * @param {anychart.ganttModule.elements.Base} element - Related element.
  * @constructor
  * @implements {anychart.core.settings.IResolvable}
  * @extends {anychart.core.Base}
  */
-anychart.ganttModule.rendering.Settings = function(timeline) {
+anychart.ganttModule.rendering.Settings = function(timeline, element) {
   anychart.ganttModule.rendering.Settings.base(this, 'constructor');
 
   /**
@@ -26,6 +27,13 @@ anychart.ganttModule.rendering.Settings = function(timeline) {
    * @private
    */
   this.tl_ = timeline;
+
+  /**
+   * Related element.
+   * @type {anychart.ganttModule.elements.Base}
+   * @private
+   */
+  this.element_ = element;
 
   /**
    * Current rendering settings shapes configurations.
@@ -227,13 +235,13 @@ anychart.ganttModule.rendering.Settings.prototype.getShapesConfig = function() {
 //region -- Drawing call.
 /**
  *
- * @param {anychart.ganttModule.elements.Base} element - .
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - .
  * @param {anychart.math.Rect} predictedBounds - .
+ * @param {Object} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
  * @param {number=} opt_periodIndex - .
  */
-anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(element, item, predictedBounds, opt_periodIndex) {
-  var context = new anychart.ganttModule.rendering.Context(element, item, predictedBounds, opt_periodIndex);
+anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(item, predictedBounds, tag, opt_periodIndex) {
+  var context = new anychart.ganttModule.rendering.Context(this.element_, item, predictedBounds, tag, opt_periodIndex);
   var drawer = this.getOption('drawer');
   drawer.call(context, context);
 };

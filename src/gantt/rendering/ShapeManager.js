@@ -240,28 +240,29 @@ anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
 /**
  * Returns an object with all defined paths for the next point.
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item
+ * @param {Object} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
  * @param {Object.<string>=} opt_only If set - contains a subset of shape names that should be returned.
  * @param {number=} opt_baseZIndex - zIndex that is used as a base zIndex for all shapes of the group.
  * @param {acgraph.vector.Shape=} opt_shape Foreign shape.
  * @param {number=} opt_periodIndex - .
  * @return {Object.<string, acgraph.vector.Shape>}
  */
-anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex) {
-
-  //@param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item
+anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, tag, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex) {
   var res = {};
   var names = opt_only || this.defs;
 
   for (var name in names) {
     var descriptor = names[name];
     if (descriptor.shapeType == anychart.enums.ShapeType.NONE && opt_shape) {
-      if (anychart.utils.instanceOf(opt_shape, acgraph.vector.Shape))
+      if (anychart.utils.instanceOf(opt_shape, acgraph.vector.Shape)) {
         res[name] = this.configureShape(name, item, opt_baseZIndex || 0, opt_shape, opt_periodIndex);
+        res[name].tag = tag;
+      }
     } else {
       res[name] = this.createShape(name, item, opt_baseZIndex || 0, opt_periodIndex);
+      res[name].tag = tag;
     }
   }
-  // this.postProcessor(this.series, res, state);
   return res;
 };
 
