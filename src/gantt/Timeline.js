@@ -451,6 +451,14 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
 
 
   /**
+   * Full elements enumeration.
+   * @type {Array.<anychart.ganttModule.elements.Base>}
+   * @private
+   */
+  this.elements_ = [this.bar_];
+
+
+  /**
    *
    * @type {anychart.ganttModule.elements.Base}
    * @private
@@ -584,6 +592,10 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
   ]);
 
   this.controller.timeline(this);
+
+  if (!this.controller.isResources()) {
+    this.elements_.push(this.parent_, this.baseline_, this.milestone_, this.progress_);
+  }
 };
 goog.inherits(anychart.ganttModule.TimeLine, anychart.ganttModule.BaseGrid);
 
@@ -602,6 +614,22 @@ anychart.ganttModule.TimeLine.SUPPORTED_SIGNALS = anychart.ganttModule.BaseGrid.
 anychart.ganttModule.TimeLine.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ganttModule.BaseGrid.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.TIMELINE_SCALES;
+
+
+/**
+ * @typedef {{
+ *   isElement: boolean,
+ *   id: (number|string),
+ *   type: anychart.enums.TLElementTypes,
+ *   item: (anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem),
+ *   labels: anychart.core.ui.LabelsFactory,
+ *   bounds: anychart.math.Rect,
+ *   periodIndex: number,
+ *   period: Object,
+ *   label: anychart.core.ui.LabelsFactory.Label
+ * }}
+ */
+anychart.ganttModule.TimeLine.Tag;
 
 
 //region -- Normalisers adaptation
@@ -1104,6 +1132,37 @@ anychart.ganttModule.TimeLine.prototype.baseline = function(opt_value) {
     return this;
   }
   return this.baseline_;
+};
+
+
+/**
+ *
+ * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - Item.
+ * @param {anychart.enums.TLElementTypes} type - Element type.
+ * @param {anychart.math.Rect} bounds - Bounds.
+ * @param {number=} opt_periodIndex - Period index.
+ *
+ * @return {anychart.ganttModule.TimeLine.Tag}
+ */
+anychart.ganttModule.TimeLine.prototype.createTag = function(item, type, bounds, opt_periodIndex) {
+  var tag = {
+    isElement: true,
+    id: item.get(anychart.enums.GanttDataFields.ID),
+    type: type,
+    item: item,
+    labels: this.getLabelsFactoryByType_(type),
+    bounds: bounds
+  };
+
+  if (goog.isDef(opt_periodIndex)) {
+    tag.periodIndex = opt_periodIndex;
+    var periods = item.get(anychart.enums.GanttDataFields.PERIODS);
+    tag.period = periods[opt_periodIndex];
+    if (goog.isDef(tag.period))
+      tag.pointLabelSettings = tag.period['label'];
+  }
+
+  return /** @type {anychart.ganttModule.TimeLine.Tag} */ (tag);
 };
 
 
@@ -3817,7 +3876,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsPeriods_ = function(dataItem, tota
           var top = this.fixBarTop_(coord.y, height, anchor) + offsetNorm;
           var bounds = new anychart.math.Rect(coord.x, top, width, height);
 
-          this.drawBar_(bounds, dataItem, anychart.enums.TLElementTypes.PERIOD, void 0, j);
+          var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.PERIOD, bounds, j);
+          this.bar().rendering().callDrawer(dataItem, bounds, tag, j);
         }
       }
     }
@@ -3867,31 +3927,12 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     this.fixBaselineBarsPositioning_(actualBounds, baselineBounds, isParent);
     var element = isParent ? this.parent() : this.bar();
     var type = isParent ? anychart.enums.TLElementTypes.PARENT : anychart.enums.TLElementTypes.BASE;
-    var labels = isParent ? this.parentLabels() : this.baseLabels();
 
-    var tag = {
-      isElement: true,
-      id: dataItem.get(anychart.enums.GanttDataFields.ID),
-      type: type,
-      item: dataItem,
-      typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (labels),
-      currBounds: actualBounds
-    };
-
-    var baselineTag = {
-      isElement: true,
-      id: dataItem.get(anychart.enums.GanttDataFields.ID),
-      type: anychart.enums.TLElementTypes.BASELINE,
-      item: dataItem,
-      typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.baselineLabels()),
-      currBounds: baselineBounds
-    };
+    var tag = this.createTag(dataItem, type, actualBounds);
+    var baselineTag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASELINE, baselineBounds);
 
     element.rendering().callDrawer(dataItem, actualBounds, tag);
     this.baseline().rendering().callDrawer(dataItem, baselineBounds, baselineTag);
-
-    // this.drawBar_(actualBounds, dataItem, actualType, anychart.enums.GanttDataFields.ACTUAL);
-    // this.drawBar_(baselineBounds, dataItem, anychart.enums.TLElementTypes.BASELINE, anychart.enums.GanttDataFields.BASELINE);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -3902,19 +3943,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
 
-      var progressTag = {
-        isElement: true,
-        id: dataItem.get(anychart.enums.GanttDataFields.ID),
-        type: anychart.enums.TLElementTypes.PROGRESS,
-        item: dataItem,
-        typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.progressLabels()),
-        currBounds: progressBounds
-      };
-
+      var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, progressBounds);
       this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
-
-      // var progressBar = this.drawBar_(progressBounds, dataItem, anychart.enums.TLElementTypes.PROGRESS, anychart.enums.GanttDataFields.PROGRESS);
-      // progressBar.currBounds = progressBounds;
     }
   }
 };
@@ -3994,17 +4024,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsParent_ = function(dataItem, total
     var actualItemBounds = new anychart.math.Rect(actualLeft, totalTop, actualWidth, itemHeight);
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PARENT, actualItemBounds);
 
-    var tag = {
-      isElement: true,
-      id: dataItem.get(anychart.enums.GanttDataFields.ID),
-      type: anychart.enums.TLElementTypes.PARENT,
-      item: dataItem,
-      typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.parentLabels()),
-      currBounds: actualBounds
-    };
-
+    var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.PARENT, actualBounds);
     this.parent().rendering().callDrawer(dataItem, actualBounds, tag);
-    // this.drawBar_(actualBounds, dataItem, anychart.enums.TLElementTypes.PARENT, anychart.enums.GanttDataFields.ACTUAL);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -4014,21 +4035,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsParent_ = function(dataItem, total
       var progressWidth = /** @type {number} */ (progressValue) * actualWidth;
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
-
-      var progressTag = {
-        isElement: true,
-        id: dataItem.get(anychart.enums.GanttDataFields.ID),
-        type: anychart.enums.TLElementTypes.PROGRESS,
-        item: dataItem,
-        typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.progressLabels()),
-        currBounds: progressBounds
-      };
-
+      var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, progressBounds);
       this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
-
-
-      // var progressBar = this.drawBar_(progressBounds, dataItem, anychart.enums.TLElementTypes.PROGRESS, anychart.enums.GanttDataFields.PROGRESS);
-      // progressBar.currBounds = progressBounds;
     }
   }
 };
@@ -4060,18 +4068,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsProgress_ = function(dataItem, tot
     var actualItemBounds = new anychart.math.Rect(actualLeft, totalTop, actualWidth, itemHeight);
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.BASE, actualItemBounds);
 
-    var tag = {
-      isElement: true,
-      id: dataItem.get(anychart.enums.GanttDataFields.ID),
-      type: anychart.enums.TLElementTypes.BASE,
-      item: dataItem,
-      typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.baseLabels()),
-      currBounds: actualBounds
-    };
-
+    var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASE, actualBounds);
     this.bar().rendering().callDrawer(dataItem, actualBounds, tag);
-
-    // this.drawBar_(actualBounds, dataItem, anychart.enums.TLElementTypes.BASE, anychart.enums.GanttDataFields.ACTUAL);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -4081,20 +4079,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsProgress_ = function(dataItem, tot
       var progressWidth = /** @type {number} */ (progressValue) * actualWidth;
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
-
-      var progressTag = {
-        isElement: true,
-        id: dataItem.get(anychart.enums.GanttDataFields.ID),
-        type: anychart.enums.TLElementTypes.PROGRESS,
-        item: dataItem,
-        typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.progressLabels()),
-        currBounds: progressBounds
-      };
-
+      var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, actualBounds);
       this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
-
-      // var progressBar = this.drawBar_(progressBounds, dataItem, anychart.enums.TLElementTypes.PROGRESS, anychart.enums.GanttDataFields.PROGRESS);
-      // progressBar.currBounds = progressBounds;
     }
 
   }
@@ -4131,72 +4117,13 @@ anychart.ganttModule.TimeLine.prototype.drawAsMilestone_ = function(dataItem, to
     var centerLeft = Math.round(this.pixelBoundsCache.left + this.pixelBoundsCache.width * ratio) + pixelShift;
     var itemBounds = new anychart.math.Rect(centerLeft - halfHeight, totalTop, height, itemHeight);
     var bounds = this.getBarBounds_(anychart.enums.TLElementTypes.MILESTONE, itemBounds);
-    // var centerTop = Math.round(bounds.top + bounds.height / 2) + pixelShift;
 
-
-    // var milestone = this.genElement_();
-    //
-    // milestone.tag = dataItem.get(anychart.enums.GanttDataFields.ID);
-    // milestone.type = anychart.enums.TLElementTypes.MILESTONE;
-    // milestone.item = dataItem;
-    // milestone.typeLabels = /** @type {anychart.core.ui.LabelsFactory} */ (this.milestoneLabels());
-
-
-
-    // var left = centerLeft - halfHeight;
-    // var top = centerTop - halfHeight;
-    // var right = centerLeft + halfHeight;
-    // var bottom = centerTop + halfHeight;
-
-    // milestone
-    //     .zIndex(anychart.ganttModule.TimeLine.BASE_Z_INDEX)
-    //     .moveTo(left, centerTop) //left corner
-    //     .lineTo(centerLeft, top) //top corner
-    //     .lineTo(right, centerTop) //right corner
-    //     .lineTo(centerLeft, bottom) //bottom corner
-    //     .close();
-
-    // milestone.currBounds = bounds;
-    var tag = {
-      isElement: true,
-      id: dataItem.get(anychart.enums.GanttDataFields.ID),
-      type: anychart.enums.TLElementTypes.MILESTONE,
-      item: dataItem,
-      typeLabels: /** @type {anychart.core.ui.LabelsFactory} */ (this.milestoneLabels()),
-      currBounds: bounds
-    };
-
+    var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.MILESTONE, bounds);
     this.milestone().rendering().callDrawer(dataItem, bounds, tag);
 
     this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
     dataItem.meta('relBounds', bounds);
     this.controller.data().resumeSignalsDispatching(false);
-
-    // var isSelected = dataItem == this.selectedItem;
-    // var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-    // if (isSelected) {
-    //   var selectedElementFill = resolver('selectedElementFill', anychart.enums.ColorType.FILL, false)(this, 0, this.selectedItem);
-    //   var selectedElementStroke = resolver('selectedElementStroke', anychart.enums.ColorType.STROKE, false)(this, 0, this.selectedItem);
-    // }
-    // var milestoneFill = resolver('milestoneFill', anychart.enums.ColorType.FILL, false)(this, 0, dataItem);
-    // var milestoneStroke = resolver('milestoneStroke', anychart.enums.ColorType.STROKE, false)(this, 0, dataItem);
-    // if (settings) {
-    //   var fill;
-    //   if (isSelected) {
-    //     fill = selectedElementFill;
-    //     stroke = selectedElementStroke;
-    //   } else {
-    //     fill = goog.isDef(settings[anychart.enums.GanttDataFields.FILL]) ?
-    //         acgraph.vector.normalizeFill(settings[anychart.enums.GanttDataFields.FILL]) :
-    //         milestoneFill;
-    //   }
-    //
-    //   milestone.fill(/** @type {acgraph.vector.Fill} */(fill)).stroke(/** @type {acgraph.vector.Stroke} */(stroke));
-    // } else {
-    //   milestone
-    //       .fill(/** @type {acgraph.vector.Fill} */(isSelected ? selectedElementFill : milestoneFill))
-    //       .stroke(/** @type {acgraph.vector.Stroke} */(isSelected ? selectedElementStroke : milestoneStroke));
-    // }
 
   }
 };
@@ -4908,68 +4835,72 @@ anychart.ganttModule.TimeLine.prototype.positionFinal = function() {
 anychart.ganttModule.TimeLine.prototype.drawLabels_ = function(opt_event, opt_skipDrawing) {
   this.labels().suspendSignalsDispatching();
   this.labels().clear();
-  for (var i = 0; i < this.visElements_.length; i++) {
-    var el = this.visElements_[i];
-    if (el.type == anychart.enums.TLElementTypes.CONNECTOR || !el.item)
-      continue;
 
-    var context = this.createFormatProvider(el.item, el.period, el.periodIndex);
-    el.label = this.labels().add(context, {
-      'value': {
-        'x': 0,
-        'y': 0
+  for (var i = 0; i < this.elements_.length; i++) {
+    var element = this.elements_[i];
+    var tagsData = element.shapeManager.getTagsData();
+    for (var j in tagsData) {
+      if (tagsData.hasOwnProperty(j)) {
+        var tag = tagsData[j];
+        if (tag.isElement) {
+
+          var context = this.createFormatProvider(tag.item, tag.period, tag.periodIndex);
+          tag.label = this.labels().add(context, {
+            'value': {
+              'x': 0,
+              'y': 0
+            }
+          });
+
+          var pointLabels = tag.labelPointSettings;
+          var typeLabels = tag.labels;
+          var normalLabels = this.labels();
+
+          var pointLabelsEnabled = pointLabels && goog.isDef(pointLabels['enabled']) ? pointLabels['enabled'] : null;
+          var typeLabelsEnabled = typeLabels && goog.isDef(typeLabels.enabled()) ? typeLabels.enabled() : null;
+
+          var draw = false;
+          if (goog.isNull(pointLabelsEnabled)) {
+            if (goog.isNull(typeLabelsEnabled)) {
+              draw = normalLabels.enabled();
+            } else {
+              draw = typeLabelsEnabled;
+            }
+          } else {
+            draw = pointLabelsEnabled;
+          }
+
+          if (draw) {
+            tag.label.resetSettings();
+            tag.label.enabled(true);
+
+            tag.label.state('labelOwnSettings', tag.label.ownSettings, 0);
+            tag.label.state('pointState', pointLabels, 1);
+            tag.label.state('typeLabels', typeLabels, 2);
+            tag.label.state('normalLabels', normalLabels, 3);
+            tag.label.state('typeThemeLabels', typeLabels.themeSettings, 4);
+            tag.label.state('normalThemeLabels', normalLabels.themeSettings, 5);
+
+            var position = anychart.enums.normalizeAnchor(tag.label.getFinalSettings('position'));
+            var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(tag.bounds, position)};
+            tag.label.positionProvider(positionProvider);
+
+            var values = context.values();
+            values['label'] = {value: tag.label, type: anychart.enums.TokenType.UNKNOWN};
+            context.propagate();
+
+            tag.label.formatProvider(context);
+
+            this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
+            tag.item.meta('label', tag.label);
+            this.controller.data().resumeSignalsDispatching(false);
+          } else {
+            tag.label.enabled(false);
+          }
+          tag.label.draw();
+        }
       }
-    });
-
-    var pointLabels = el.labelPointSettings;
-    var typeLabels = el.typeLabels;
-    var normalLabels = this.labels();
-
-    var pointLabelsEnabled = pointLabels && goog.isDef(pointLabels['enabled']) ? pointLabels['enabled'] : null;
-    var typeLabelsEnabled = typeLabels && goog.isDef(typeLabels.enabled()) ? typeLabels.enabled() : null;
-
-    var draw = false;
-    if (goog.isNull(pointLabelsEnabled)) {
-      if (goog.isNull(typeLabelsEnabled)) {
-        draw = normalLabels.enabled();
-      } else {
-        draw = typeLabelsEnabled;
-      }
-    } else {
-      draw = pointLabelsEnabled;
     }
-
-    if (draw) {
-      // var rect = this.getContentLayer().rect(el.currBounds.left, el.currBounds.top, el.currBounds.width, el.currBounds.height);
-      // rect.stroke('2px green');
-
-      el.label.resetSettings();
-      el.label.enabled(true);
-
-      el.label.state('labelOwnSettings', el.label.ownSettings, 0);
-      el.label.state('pointState', pointLabels, 1);
-      el.label.state('typeLabels', typeLabels, 2);
-      el.label.state('normalLabels', normalLabels, 3);
-      el.label.state('typeThemeLabels', typeLabels.themeSettings, 4);
-      el.label.state('normalThemeLabels', normalLabels.themeSettings, 5);
-
-      var position = anychart.enums.normalizeAnchor(el.label.getFinalSettings('position'));
-      var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(el.currBounds, position)};
-      el.label.positionProvider(positionProvider);
-
-      var values = context.values();
-      values['label'] = {value: el.label, type: anychart.enums.TokenType.UNKNOWN};
-      context.propagate();
-
-      el.label.formatProvider(context);
-
-      this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
-      el.item.meta('label', el.label);
-      this.controller.data().resumeSignalsDispatching(false);
-    } else {
-      el.label.enabled(false);
-    }
-    el.label.draw();
   }
 
   this.labels().resumeSignalsDispatching(!opt_skipDrawing);
@@ -5341,6 +5272,7 @@ anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_defau
 anychart.ganttModule.TimeLine.prototype.disposeInternal = function() {
   goog.dispose(this.horizontalScrollBar_);
   this.horizontalScrollBar_ = null;
+  goog.disposeAll(this.elements_);
   anychart.ganttModule.TimeLine.base(this, 'disposeInternal');
 };
 

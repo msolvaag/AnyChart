@@ -106,6 +106,13 @@ anychart.ganttModule.rendering.ShapeManager = function(timeline, visualElement, 
       shapeType: type
     };
   }
+
+  /**
+   *
+   * @type {Object.<string, anychart.ganttModule.TimeLine.Tag>}
+   * @private
+   */
+  this.tagsData_ = {};
 };
 goog.inherits(anychart.ganttModule.rendering.ShapeManager, goog.Disposable);
 
@@ -187,6 +194,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(
 
   shape.fill(fill);
   shape.stroke(stroke);
+  shape.setParentEventTarget(this.tl_);
   // shape.disableStrokeScaling(this.disableStrokeScaling_);
   shape.zIndex(descriptor.zIndex + baseZIndex);
 
@@ -250,6 +258,8 @@ anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
 anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, tag, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex) {
   var res = {};
   var names = opt_only || this.defs;
+  var uid = String(item.get(anychart.enums.GanttDataFields.ID)) + (goog.isDef(opt_periodIndex) ? String(opt_periodIndex) : '');
+  this.tagsData_[uid] = tag;
 
   for (var name in names) {
     var descriptor = names[name];
@@ -267,6 +277,15 @@ anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(
 };
 
 
+/**
+ * Returns current tags data.
+ * @return {Object.<string, anychart.ganttModule.TimeLine.Tag>}
+ */
+anychart.ganttModule.rendering.ShapeManager.prototype.getTagsData = function() {
+  return this.tagsData_;
+};
+
+
 //endregion
 //region -- Disposing.
 /** @inheritDoc */
@@ -276,8 +295,10 @@ anychart.ganttModule.rendering.ShapeManager.prototype.disposeInternal = function
     this.shapePools[type].length = 0;
     this.usedShapes[type].length = 0;
   }
+
   this.layer = null;
   this.defs = null;
+  this.tagsData_ = null;
   anychart.ganttModule.rendering.ShapeManager.base(this, 'disposeInternal');
 };
 
