@@ -299,6 +299,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.disposeInternal = function
   this.layer = null;
   this.defs = null;
   this.tagsData_ = null;
+
   anychart.ganttModule.rendering.ShapeManager.base(this, 'disposeInternal');
 };
 
