@@ -482,6 +482,7 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
    * @private
    */
   this.progress_ = new anychart.ganttModule.elements.Base(this, anychart.enums.TLElementTypes.PROGRESS);
+  this.progress_.rendering().shapes([anychart.ganttModule.rendering.shapes.progressConfig]);
   this.progress_.parent(this.bar_);
   this.progress_.listenSignals(this.visualElementInvalidated_, this);
 
@@ -2793,10 +2794,9 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
     var orig = evt['originalEvent'];
     var domTarget = orig['domTarget'];
     if (this.editable) {
-      var el;
-      if (domTarget && anychart.utils.instanceOf(domTarget, anychart.ganttModule.BaseGrid.Element)) {
-        el = /** @type {anychart.ganttModule.BaseGrid.Element} */ (domTarget);
-        var dataItem = evt['item'];
+      if (domTarget && domTarget.tag && domTarget.tag.isElement) {
+        var tag = /** @type {anychart.ganttModule.TimeLine.Tag} */ (domTarget.tag);
+        var dataItem = tag['item'];
         var id = dataItem.get(anychart.enums.GanttDataFields.ID);
         if (!goog.isDef(this.lastHoveredBarItemId_))
           this.lastHoveredBarItemId_ = id;
@@ -2814,8 +2814,8 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
             this.lastHoveredPeriodIndex_ = periodIndex;
         }
 
-        if (el.currBounds && !this.dragging) {
-          var b = el.currBounds;
+        if (tag.bounds && !this.dragging) {
+          var b = tag.bounds;
 
           this.getEditPreviewPath_()
               .clear()
@@ -2826,15 +2826,15 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
               .close();
 
           this.editPreviewPath_.item = dataItem;
-          this.editPreviewPath_.type = el.type;
+          this.editPreviewPath_.type = tag.type;
 
           if (period) this.editPreviewPath_.period = period;
 
           if (goog.isDef(periodIndex)) this.editPreviewPath_.periodIndex = periodIndex;
 
           // ------ Drawing progress ------
-          if (dataItem && (el.type == anychart.enums.TLElementTypes.BASE || el.type == anychart.enums.TLElementTypes.PARENT ||
-              el.type == anychart.enums.TLElementTypes.PROGRESS)) {
+          if (dataItem && (tag.type == anychart.enums.TLElementTypes.BASE || tag.type == anychart.enums.TLElementTypes.PARENT ||
+              tag.type == anychart.enums.TLElementTypes.PROGRESS)) {
             var progressValue = goog.isDef(dataItem.meta('progressValue')) ?
                 dataItem.meta('progressValue') :
                 dataItem.meta('autoProgress');
@@ -2862,7 +2862,7 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
           var right = b.left + b.width;
 
           // ------ Drawing any resizeable bar ------
-          if (dataItem && el.type != anychart.enums.TLElementTypes.MILESTONE) {
+          if (dataItem && tag.type != anychart.enums.TLElementTypes.MILESTONE) {
             this.getEditRightThumbPath_()
                 .clear()
                 .moveTo(right + 1, b.top)
@@ -2881,10 +2881,10 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
 
             this.editRightThumbPath_.bounds = b;
             this.editRightThumbPath_.item = dataItem;
-            this.editRightThumbPath_.type = el.type;
+            this.editRightThumbPath_.type = tag.type;
             this.editLeftThumbPath_.bounds = b;
             this.editLeftThumbPath_.item = dataItem;
-            this.editLeftThumbPath_.type = el.type;
+            this.editLeftThumbPath_.type = tag.type;
 
             if (period) {
               this.editRightThumbPath_.period = period;
@@ -2901,7 +2901,7 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
             this.getEditRightThumbPath_().clear();
           }
 
-          if (dataItem && el.type != anychart.enums.TLElementTypes.BASELINE) {
+          if (dataItem && tag.type != anychart.enums.TLElementTypes.BASELINE) {
             var rTop = b.top + b.height / 2;
             var finishDrawer = anychart.utils.getMarkerDrawer(this.editFinishConnectorMarkerType_);
             var finishSize = this.editFinishConnectorMarkerSize_ / 2;
@@ -2920,10 +2920,10 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
                 startSize);
 
             this.editFinishConnectorPath_.item = dataItem;
-            this.editFinishConnectorPath_.type = el.type;
+            this.editFinishConnectorPath_.type = tag.type;
             this.editFinishConnectorPath_.index = evt['hoveredIndex'] + this.controller.startIndex();
             this.editStartConnectorPath_.item = dataItem;
-            this.editStartConnectorPath_.type = el.type;
+            this.editStartConnectorPath_.type = tag.type;
             this.editStartConnectorPath_.index = evt['hoveredIndex'] + this.controller.startIndex();
 
             if (period) {
@@ -2945,8 +2945,8 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
           var startItem = path.item;
           var startIndex = path.index;
 
-          if (el.type != anychart.enums.TLElementTypes.BASELINE &&
-              el.type != anychart.enums.TLElementTypes.CONNECTOR) {
+          if (tag.type != anychart.enums.TLElementTypes.BASELINE &&
+              tag.type != anychart.enums.TLElementTypes.CONNECTOR) {
 
             var from, to;
 
@@ -2967,7 +2967,7 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
 
             var originalEvent = evt['originalEvent'];
             var left = originalEvent.clientX - this.container().getStage().getClientPosition().x;
-            var elBounds = el.currBounds;
+            var elBounds = tag.bounds;
             var dropRatio = (left - elBounds.left) / elBounds.width;
             var startStart = this.currentConnectorDragger_.isStart;
             var dropStart = dropRatio < .5;
@@ -3191,9 +3191,10 @@ anychart.ganttModule.TimeLine.prototype.addMouseUp = function(evt) {
       var destinationPeriodIndex = evt['periodIndex'];
       var originalEvent = evt['originalEvent'];
       var domTarget = originalEvent['domTarget'];
-      if (anychart.utils.instanceOf(domTarget, anychart.ganttModule.BaseGrid.Element) && domTarget.type != anychart.enums.TLElementTypes.BASELINE) {
+      var tag = domTarget ? domTarget.tag : void 0;
+      if (tag && tag.isElement && tag.type != anychart.enums.TLElementTypes.BASELINE) {
         var left = originalEvent.clientX - this.container().getStage().getClientPosition().x;
-        var elBounds = domTarget.currBounds;
+        var elBounds = tag.bounds;
         var dropRatio = (left - elBounds.left) / elBounds.width;
 
         var circle = this.currentConnectorDragger_.isStart ? this.editStartConnectorPath_ : this.editFinishConnectorPath_;
@@ -3367,21 +3368,28 @@ anychart.ganttModule.TimeLine.prototype.getInteractivityEvent = function(event) 
   var evt = anychart.ganttModule.TimeLine.base(this, 'getInteractivityEvent', event);
   var target = (evt && evt['originalEvent']) ? evt['originalEvent']['domTarget'] : null;
 
-  if (evt && target && this.controller.isResources()) {
-    if (goog.isObject(target.period) && goog.isDef(target.periodIndex)) { //Usually this is Live Edit case.
-      evt['period'] = target.period;
-      evt['periodIndex'] = target.periodIndex;
-    } else { //Otherwise.
-      var id = target.tag;
-      if (goog.isDefAndNotNull(target.tag)) {
-        var periodData = this.controller.getPeriodsMap()[id];
-        if (periodData) {
-          evt['period'] = periodData['period'];
-          evt['periodIndex'] = periodData['periodIndex'];
-        }
-      }
+  if (evt && target) {
+    var bounds = this.getPixelBounds();
+    var ratio = Math.abs(bounds.left - event.offsetX) / (bounds.width);
+    var timestamp = this.scale().ratioToTimestamp(ratio);
+
+    var domTarget = event.domTarget;
+    var elType;
+    if (domTarget && domTarget.tag && goog.isDef(domTarget.tag.type)) {
+      elType = domTarget.tag.type;
+    }
+
+    evt['hoverRatio'] = ratio;
+    evt['hoverDateTime'] = timestamp;
+    if (elType)
+      evt['elementType'] = elType;
+
+    if (this.controller.isResources() && target.tag) {
+      evt['period'] = target.tag.period;
+      evt['periodIndex'] = target.tag.periodIndex;
     }
   }
+
   return evt;
 };
 
@@ -3504,7 +3512,7 @@ anychart.ganttModule.TimeLine.prototype.drawTimelineElements_ = function() {
 
   this.drawConnectors_();
 
-  //Clearing remaining elements.
+  // Clearing remaining elements.
   for (var i = this.visElementsInUse_, l = this.visElements_.length; i < l; i++) {
     var el = this.visElements_[i];
     el.reset();
@@ -3512,171 +3520,171 @@ anychart.ganttModule.TimeLine.prototype.drawTimelineElements_ = function() {
 };
 
 
-/**
- * Draws a single bar with its markers and labels.
- * @param {anychart.math.Rect} bounds - Bounds of bar.
- * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related tree data item.
- * @param {anychart.enums.TLElementTypes} type - Type of bar.
- * @param {anychart.enums.GanttDataFields=} opt_field - Field that contains a setting for fill, stroke, labels and markers.
- * @param {number=} opt_periodIndex - Period index for resources timeline.
- * @return {!acgraph.vector.Element} - Bar itself.
- * @private
- */
-anychart.ganttModule.TimeLine.prototype.drawBar_ = function(bounds, item, type, opt_field, opt_periodIndex) {
-  var isTreeDataItem = !goog.isDef(opt_periodIndex);
-  var period = {};
-  if (!isTreeDataItem)
-    period = item.get(anychart.enums.GanttDataFields.PERIODS)[opt_periodIndex];
-
-  var settings; //It is always a raw object.
-  if (opt_field) {
-    settings = isTreeDataItem ? item.get(opt_field) : period[opt_field];
-  } else {
-    /*
-      Here field is not specified.
-      It means that if it is an instance of tree data item, we color a bar with default color.
-      If it is not tree data item (it is period - actually a raw object), it contains all visual settings in itself.
-      TODO (A.Kudryavtsev): Bad english.
-     */
-    settings = isTreeDataItem ? null : period;
-  }
-
-  var isParent = false;
-  var isProgress = false;
-  var selectedBar = isTreeDataItem ?
-      (this.selectedItem == item) :
-      (this.selectedPeriodId_ == period[anychart.enums.GanttDataFields.ID]);
-
-  var zIndex, defaultFill, defaultStroke;
-  var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-
-  switch (opt_field) {
-    case anychart.enums.GanttDataFields.BASELINE:
-      zIndex = anychart.ganttModule.TimeLine.BASELINE_Z_INDEX;
-      defaultFill = resolver('baselineFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-      defaultStroke = resolver('baselineStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-      break;
-    case anychart.enums.GanttDataFields.PROGRESS:
-      zIndex = anychart.ganttModule.TimeLine.PROGRESS_Z_INDEX;
-      defaultFill = resolver('progressFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-      defaultStroke = resolver('progressStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-      isProgress = true;
-      break;
-    default:
-      zIndex = anychart.ganttModule.TimeLine.BASE_Z_INDEX;
-      isParent = (isTreeDataItem && item.numChildren());
-      if (isParent) {
-        defaultFill = resolver('parentFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-        defaultStroke = resolver('parentStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-      } else {
-        defaultFill = resolver('baseFill', anychart.enums.ColorType.FILL, false)(this, 0, item, void 0, void 0, opt_periodIndex);
-        defaultStroke = resolver('baseStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item, void 0, void 0, opt_periodIndex);
-      }
-
-      this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
-      if (isTreeDataItem) {
-        item.meta('relBounds', bounds);
-      } else {
-        if (!goog.isArray(item.meta('periodBounds'))) {
-          item.setMeta('periodBounds', []);
-        }
-        item.setMeta('periodBounds', opt_periodIndex, bounds);
-      }
-      this.controller.data().resumeSignalsDispatching(false);
-
-  }
-
-  var stroke = /** @type {acgraph.vector.Stroke} */ (settings && goog.isDef(settings[anychart.enums.GanttDataFields.STROKE]) ?
-      acgraph.vector.normalizeStroke(settings[anychart.enums.GanttDataFields.STROKE]) :
-      defaultStroke);
-
-
-  var bar = this.genElement_();
-  bar.disablePointerEvents(isProgress);
-  bar.item = item;
-  bar.typeLabels = this.getLabelsFactoryByType_(type);
-  bar.labelPointSettings = settings ? settings['label'] : null;
-
-  bar.tag = isTreeDataItem ? item.get(anychart.enums.GanttDataFields.ID) : period[anychart.enums.GanttDataFields.ID];
-  bar.type = type;
-
-  if (!isTreeDataItem) {
-    bar.period = period;
-    bar.periodIndex = opt_periodIndex;
-  }
-
-  var lineThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (stroke));
-
-  var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
-
-  var roundLeft = Math.round(bounds.left) + pixelShift;
-  var roundTop = Math.round(bounds.top) + pixelShift;
-  var roundRight = Math.round(bounds.left + bounds.width) + pixelShift;
-  var roundHeight = Math.round(bounds.top + bounds.height) + pixelShift;
-  bar.currBounds = new anychart.math.Rect(roundLeft, roundTop, roundRight - roundLeft, roundHeight - roundTop);
-
-  bar
-      .zIndex(zIndex)
-      .moveTo(roundLeft, roundTop)
-      .lineTo(roundRight, roundTop);
-
-  if (isParent) {
-    var roundHeight2 = (bounds.top + bounds.height * 1.4) + pixelShift;
-    bar
-        .lineTo(roundRight, roundHeight2)
-        .lineTo(roundRight - 1, roundHeight2)
-        .lineTo(roundRight - 1, roundHeight)
-        .lineTo(roundLeft + 1, roundHeight)
-        .lineTo(roundLeft + 1, roundHeight2)
-        .lineTo(roundLeft, roundHeight2);
-  } else {
-    bar
-        .lineTo(roundRight, roundHeight)
-        .lineTo(roundLeft, roundHeight);
-  }
-  bar.close();
-
-  if (selectedBar) {
-    var selectedElementFill = resolver('selectedElementFill', anychart.enums.ColorType.FILL, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
-    var selectedElementStroke = resolver('selectedElementStroke', anychart.enums.ColorType.STROKE, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
-  }
-
-  if (settings) {
-    var rawStartMarker = settings[anychart.enums.GanttDataFields.START_MARKER];
-    if (rawStartMarker) {
-      var startMarker = this.markers().add({value: {x: bounds.left, y: bounds.top}});
-      startMarker
-          .size(bounds.height / 2)
-          .setup(rawStartMarker);
-    }
-
-    var rawEndMarker = settings[anychart.enums.GanttDataFields.END_MARKER];
-    if (rawEndMarker) {
-      var endMarker = this.markers().add({value: {x: bounds.left + bounds.width, y: bounds.top}});
-      endMarker
-          .size(bounds.height / 2)
-          .setup(rawEndMarker);
-    }
-
-    var fill;
-    if (selectedBar) {
-      fill = selectedElementFill;
-      stroke = selectedElementStroke;
-    } else {
-      fill = goog.isDef(settings[anychart.enums.GanttDataFields.FILL]) ?
-          acgraph.vector.normalizeFill(settings[anychart.enums.GanttDataFields.FILL]) :
-          defaultFill;
-    }
-
-    bar.fill(/** @type {acgraph.vector.Fill} */(fill)).stroke(/** @type {acgraph.vector.Stroke} */(stroke));
-  } else { //Default coloring.
-    bar
-        .fill(/** @type {acgraph.vector.Fill} */(selectedBar ? selectedElementFill : defaultFill))
-        .stroke(/** @type {acgraph.vector.Stroke} */(selectedBar ? selectedElementStroke : defaultStroke));
-  }
-
-  return bar;
-};
+// /**
+//  * Draws a single bar with its markers and labels.
+//  * @param {anychart.math.Rect} bounds - Bounds of bar.
+//  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related tree data item.
+//  * @param {anychart.enums.TLElementTypes} type - Type of bar.
+//  * @param {anychart.enums.GanttDataFields=} opt_field - Field that contains a setting for fill, stroke, labels and markers.
+//  * @param {number=} opt_periodIndex - Period index for resources timeline.
+//  * @return {!acgraph.vector.Element} - Bar itself.
+//  * @private
+//  */
+// anychart.ganttModule.TimeLine.prototype.drawBar_ = function(bounds, item, type, opt_field, opt_periodIndex) {
+//   var isTreeDataItem = !goog.isDef(opt_periodIndex);
+//   var period = {};
+//   if (!isTreeDataItem)
+//     period = item.get(anychart.enums.GanttDataFields.PERIODS)[opt_periodIndex];
+//
+//   var settings; //It is always a raw object.
+//   if (opt_field) {
+//     settings = isTreeDataItem ? item.get(opt_field) : period[opt_field];
+//   } else {
+//     /*
+//       Here field is not specified.
+//       It means that if it is an instance of tree data item, we color a bar with default color.
+//       If it is not tree data item (it is period - actually a raw object), it contains all visual settings in itself.
+//       TODO (A.Kudryavtsev): Bad english.
+//      */
+//     settings = isTreeDataItem ? null : period;
+//   }
+//
+//   var isParent = false;
+//   var isProgress = false;
+//   var selectedBar = isTreeDataItem ?
+//       (this.selectedItem == item) :
+//       (this.selectedPeriodId_ == period[anychart.enums.GanttDataFields.ID]);
+//
+//   var zIndex, defaultFill, defaultStroke;
+//   var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
+//
+//   switch (opt_field) {
+//     case anychart.enums.GanttDataFields.BASELINE:
+//       zIndex = anychart.ganttModule.TimeLine.BASELINE_Z_INDEX;
+//       defaultFill = resolver('baselineFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
+//       defaultStroke = resolver('baselineStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
+//       break;
+//     case anychart.enums.GanttDataFields.PROGRESS:
+//       zIndex = anychart.ganttModule.TimeLine.PROGRESS_Z_INDEX;
+//       defaultFill = resolver('progressFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
+//       defaultStroke = resolver('progressStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
+//       isProgress = true;
+//       break;
+//     default:
+//       zIndex = anychart.ganttModule.TimeLine.BASE_Z_INDEX;
+//       isParent = (isTreeDataItem && item.numChildren());
+//       if (isParent) {
+//         defaultFill = resolver('parentFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
+//         defaultStroke = resolver('parentStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
+//       } else {
+//         defaultFill = resolver('baseFill', anychart.enums.ColorType.FILL, false)(this, 0, item, void 0, void 0, opt_periodIndex);
+//         defaultStroke = resolver('baseStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item, void 0, void 0, opt_periodIndex);
+//       }
+//
+//       this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
+//       if (isTreeDataItem) {
+//         item.meta('relBounds', bounds);
+//       } else {
+//         if (!goog.isArray(item.meta('periodBounds'))) {
+//           item.setMeta('periodBounds', []);
+//         }
+//         item.setMeta('periodBounds', opt_periodIndex, bounds);
+//       }
+//       this.controller.data().resumeSignalsDispatching(false);
+//
+//   }
+//
+//   var stroke = /** @type {acgraph.vector.Stroke} */ (settings && goog.isDef(settings[anychart.enums.GanttDataFields.STROKE]) ?
+//       acgraph.vector.normalizeStroke(settings[anychart.enums.GanttDataFields.STROKE]) :
+//       defaultStroke);
+//
+//
+//   var bar = this.genElement_();
+//   bar.disablePointerEvents(isProgress);
+//   bar.item = item;
+//   bar.typeLabels = this.getLabelsFactoryByType_(type);
+//   bar.labelPointSettings = settings ? settings['label'] : null;
+//
+//   bar.tag = isTreeDataItem ? item.get(anychart.enums.GanttDataFields.ID) : period[anychart.enums.GanttDataFields.ID];
+//   bar.type = type;
+//
+//   if (!isTreeDataItem) {
+//     bar.period = period;
+//     bar.periodIndex = opt_periodIndex;
+//   }
+//
+//   var lineThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (stroke));
+//
+//   var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
+//
+//   var roundLeft = Math.round(bounds.left) + pixelShift;
+//   var roundTop = Math.round(bounds.top) + pixelShift;
+//   var roundRight = Math.round(bounds.left + bounds.width) + pixelShift;
+//   var roundHeight = Math.round(bounds.top + bounds.height) + pixelShift;
+//   bar.currBounds = new anychart.math.Rect(roundLeft, roundTop, roundRight - roundLeft, roundHeight - roundTop);
+//
+//   bar
+//       .zIndex(zIndex)
+//       .moveTo(roundLeft, roundTop)
+//       .lineTo(roundRight, roundTop);
+//
+//   if (isParent) {
+//     var roundHeight2 = (bounds.top + bounds.height * 1.4) + pixelShift;
+//     bar
+//         .lineTo(roundRight, roundHeight2)
+//         .lineTo(roundRight - 1, roundHeight2)
+//         .lineTo(roundRight - 1, roundHeight)
+//         .lineTo(roundLeft + 1, roundHeight)
+//         .lineTo(roundLeft + 1, roundHeight2)
+//         .lineTo(roundLeft, roundHeight2);
+//   } else {
+//     bar
+//         .lineTo(roundRight, roundHeight)
+//         .lineTo(roundLeft, roundHeight);
+//   }
+//   bar.close();
+//
+//   if (selectedBar) {
+//     var selectedElementFill = resolver('selectedElementFill', anychart.enums.ColorType.FILL, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
+//     var selectedElementStroke = resolver('selectedElementStroke', anychart.enums.ColorType.STROKE, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
+//   }
+//
+//   if (settings) {
+//     var rawStartMarker = settings[anychart.enums.GanttDataFields.START_MARKER];
+//     if (rawStartMarker) {
+//       var startMarker = this.markers().add({value: {x: bounds.left, y: bounds.top}});
+//       startMarker
+//           .size(bounds.height / 2)
+//           .setup(rawStartMarker);
+//     }
+//
+//     var rawEndMarker = settings[anychart.enums.GanttDataFields.END_MARKER];
+//     if (rawEndMarker) {
+//       var endMarker = this.markers().add({value: {x: bounds.left + bounds.width, y: bounds.top}});
+//       endMarker
+//           .size(bounds.height / 2)
+//           .setup(rawEndMarker);
+//     }
+//
+//     var fill;
+//     if (selectedBar) {
+//       fill = selectedElementFill;
+//       stroke = selectedElementStroke;
+//     } else {
+//       fill = goog.isDef(settings[anychart.enums.GanttDataFields.FILL]) ?
+//           acgraph.vector.normalizeFill(settings[anychart.enums.GanttDataFields.FILL]) :
+//           defaultFill;
+//     }
+//
+//     bar.fill(/** @type {acgraph.vector.Fill} */(fill)).stroke(/** @type {acgraph.vector.Stroke} */(stroke));
+//   } else { //Default coloring.
+//     bar
+//         .fill(/** @type {acgraph.vector.Fill} */(selectedBar ? selectedElementFill : defaultFill))
+//         .stroke(/** @type {acgraph.vector.Stroke} */(selectedBar ? selectedElementStroke : defaultStroke));
+//   }
+//
+//   return bar;
+// };
 
 
 /**
@@ -3931,8 +3939,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     var tag = this.createTag(dataItem, type, actualBounds);
     var baselineTag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASELINE, baselineBounds);
 
-    element.rendering().callDrawer(dataItem, actualBounds, tag);
     this.baseline().rendering().callDrawer(dataItem, baselineBounds, baselineTag);
+    element.rendering().callDrawer(dataItem, actualBounds, tag);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -3942,7 +3950,6 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
       var progressWidth = /** @type {number} */ (progressValue) * actualBounds.width;
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
-
       var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, progressBounds);
       this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
     }
@@ -4539,7 +4546,6 @@ anychart.ganttModule.TimeLine.prototype.drawSegment_ = function(fromLeft, fromTo
         top < (this.pixelBoundsCache.top + this.pixelBoundsCache.height) &&
         bottom > this.pixelBoundsCache.top) { //Segment or the part of it is visible.
 
-      //path = /** @type {acgraph.vector.Path} */ (this.getDrawLayer().genNextChild());
       path = this.genElement_();
       path.type = anychart.enums.TLElementTypes.CONNECTOR;
 

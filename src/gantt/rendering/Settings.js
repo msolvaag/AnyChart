@@ -198,7 +198,8 @@ anychart.ganttModule.rendering.Settings.prototype.shapes = function(opt_value) {
             shapeType: anychart.enums.normalizeShapeType(item['shapeType']),
             fillName: item['fillName'],
             strokeName: item['strokeName'],
-            zIndex: +item['zIndex'] || 0
+            zIndex: +item['zIndex'] || 0,
+            disablePointerEvents: !!item.disablePointerEvents
           };
         })) :
         null;
@@ -212,7 +213,8 @@ anychart.ganttModule.rendering.Settings.prototype.shapes = function(opt_value) {
           'shapeType': item.shapeType,
           'fillName': item.fillName,
           'strokeName': item.strokeName,
-          'zIndex': item.zIndex
+          'zIndex': item.zIndex,
+          'disablePointerEvents': item.disablePointerEvents
         };
       })
   );

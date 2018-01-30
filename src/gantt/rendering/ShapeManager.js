@@ -103,7 +103,8 @@ anychart.ganttModule.rendering.ShapeManager = function(timeline, visualElement, 
       stroke: stroke,
       zIndex: +shapeConfig.zIndex,
       cls: cls,
-      shapeType: type
+      shapeType: type,
+      disablePointerEvents: !!shapeConfig.disablePointerEvents
     };
   }
 
@@ -195,30 +196,8 @@ anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(
   shape.fill(fill);
   shape.stroke(stroke);
   shape.setParentEventTarget(this.tl_);
-  // shape.disableStrokeScaling(this.disableStrokeScaling_);
+  shape.disablePointerEvents(!!descriptor.disablePointerEvents);
   shape.zIndex(descriptor.zIndex + baseZIndex);
-
-  // if (this.addInterctivityInfo) {
-  //   this.setupInteractivity(shape, descriptor.isHatchFill, indexOrGlobal);
-  // }
-
-  // var fillCondition = !(fill ||
-  // (state != anychart.PointState.NORMAL && descriptor.fill(this.series, anychart.PointState.NORMAL)) ||
-  // (state != anychart.PointState.HOVER && descriptor.fill(this.series, anychart.PointState.HOVER)) ||
-  // (state != anychart.PointState.SELECT && descriptor.fill(this.series, anychart.PointState.SELECT)));
-  //
-  // var layerCondition = opt_needLayer ? descriptor.isHatchFill && fillCondition : descriptor.isHatchFill;
-  //
-  // if (layerCondition) {
-  //   if (fillCondition) {
-  //     shape.parent(null);
-  //   } else {
-  //     shape.parent(this.layer);
-  //   }
-  // } else if (opt_needLayer) {
-  //   shape.parent(this.layer);
-  // }
-
   shape.parent(this.layer);
   return shape;
 };
@@ -248,7 +227,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
 /**
  * Returns an object with all defined paths for the next point.
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item
- * @param {Object} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
+ * @param {anychart.ganttModule.TimeLine.Tag} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
  * @param {Object.<string>=} opt_only If set - contains a subset of shape names that should be returned.
  * @param {number=} opt_baseZIndex - zIndex that is used as a base zIndex for all shapes of the group.
  * @param {acgraph.vector.Shape=} opt_shape Foreign shape.

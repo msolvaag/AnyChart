@@ -2021,16 +2021,16 @@ anychart.enums.normalizeGanttRangeAnchor = function(value, opt_default) {
 /**
  * Timeline visual element types.
  * In current time (21 Jul 2015) doesn't need to be exported.
- * @enum {number}
+ * @enum {string}
  */
 anychart.enums.TLElementTypes = {
-  PARENT: 0,
-  BASE: 1,
-  PROGRESS: 2,
-  BASELINE: 3,
-  MILESTONE: 4,
-  PERIOD: 5,
-  CONNECTOR: 6
+  PARENT: 'parent',
+  BASE: 'base',
+  PROGRESS: 'progress',
+  BASELINE: 'baseline',
+  MILESTONE: 'milestone',
+  PERIOD: 'period',
+  CONNECTOR: 'connector'
 };
 
 
