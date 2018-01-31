@@ -157,9 +157,10 @@ anychart.ganttModule.rendering.ShapeManager.prototype.setContainer = function(va
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item
  * @param {number} baseZIndex
  * @param {number=} opt_periodIndex
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  * @return {acgraph.vector.Shape}
  */
-anychart.ganttModule.rendering.ShapeManager.prototype.createShape = function(name, item, baseZIndex, opt_periodIndex) {
+anychart.ganttModule.rendering.ShapeManager.prototype.createShape = function(name, item, baseZIndex, opt_periodIndex, opt_selected) {
   var descriptor = this.defs[name];
   var shapeType = descriptor.shapeType;
 
@@ -173,7 +174,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.createShape = function(nam
   this.shapePoolPointers[shapeType]++;
   this.usedShapes[shapeType].push(shape);
 
-  return this.configureShape(name, item, baseZIndex, shape, opt_periodIndex);
+  return this.configureShape(name, item, baseZIndex, shape, opt_periodIndex, opt_selected);
 };
 
 
@@ -184,14 +185,15 @@ anychart.ganttModule.rendering.ShapeManager.prototype.createShape = function(nam
  * @param {number} baseZIndex
  * @param {acgraph.vector.Shape} shape
  * @param {number=} opt_periodIndex
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  * @return {acgraph.vector.Shape}
  * @protected
  */
-anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(name, item, baseZIndex, shape, opt_periodIndex) {
+anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(name, item, baseZIndex, shape, opt_periodIndex, opt_selected) {
   var descriptor = this.defs[name];
 
-  var fill = this.visualElement_.getFill(item, opt_periodIndex);
-  var stroke = this.visualElement_.getStroke(item, opt_periodIndex);
+  var fill = this.visualElement_.getFill(item, opt_periodIndex, opt_selected);
+  var stroke = this.visualElement_.getStroke(item, opt_periodIndex, opt_selected);
 
   shape.fill(fill);
   shape.stroke(stroke);
@@ -234,9 +236,10 @@ anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
  * @param {number=} opt_baseZIndex - zIndex that is used as a base zIndex for all shapes of the group.
  * @param {acgraph.vector.Shape=} opt_shape Foreign shape.
  * @param {number=} opt_periodIndex - .
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  * @return {Object.<string, acgraph.vector.Shape>}
  */
-anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, tag, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex) {
+anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, tag, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex, opt_selected) {
   var res = {};
   var names = opt_only || this.defs;
   var uid = goog.getUid(item) + (goog.isDef(opt_periodIndex) ? ('_' + String(opt_periodIndex)) : '');
@@ -246,11 +249,11 @@ anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(
     var descriptor = names[name];
     if (descriptor.shapeType == anychart.enums.ShapeType.NONE && opt_shape) {
       if (anychart.utils.instanceOf(opt_shape, acgraph.vector.Shape)) {
-        res[name] = this.configureShape(name, item, opt_baseZIndex || 0, opt_shape, opt_periodIndex);
+        res[name] = this.configureShape(name, item, opt_baseZIndex || 0, opt_shape, opt_periodIndex, opt_selected);
         res[name].tag = tag;
       }
     } else {
-      res[name] = this.createShape(name, item, opt_baseZIndex || 0, opt_periodIndex);
+      res[name] = this.createShape(name, item, opt_baseZIndex || 0, opt_periodIndex, opt_selected);
       res[name].tag = tag;
     }
   }

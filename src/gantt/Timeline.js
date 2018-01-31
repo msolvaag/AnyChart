@@ -3848,6 +3848,27 @@ anychart.ganttModule.TimeLine.prototype.getBarBounds_ = function(type, itemBound
 
 
 /**
+ * Sets calculated bounds to item meta.
+ * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - Item.
+ * @param {anychart.math.Rect} bounds - Bounds to set.
+ * @param {number=} opt_periodIndex - Period index.
+ * @private
+ */
+anychart.ganttModule.TimeLine.prototype.setRelatedBounds_ = function(item, bounds, opt_periodIndex) {
+  this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
+  if (goog.isDef(opt_periodIndex)) {
+    if (!goog.isArray(item.meta('periodBounds'))) {
+      item.setMeta('periodBounds', []);
+    }
+    item.setMeta('periodBounds', opt_periodIndex, bounds);
+  } else {
+    item.meta('relBounds', bounds);
+  }
+  this.controller.data().resumeSignalsDispatching(false);
+};
+
+
+/**
  * Draws data item as periods.
  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} dataItem - Current tree data item.
  * @param {number} totalTop - Pixel value of total top. Is needed to place item correctly.
@@ -3860,6 +3881,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsPeriods_ = function(dataItem, tota
     for (var j = 0; j < periods.length; j++) {
       var start = dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, j, anychart.enums.GanttDataFields.START);
       var end = dataItem.getMeta(anychart.enums.GanttDataFields.PERIODS, j, anychart.enums.GanttDataFields.END);
+      var id = dataItem.get(anychart.enums.GanttDataFields.PERIODS, j, anychart.enums.GanttDataFields.ID);
 
       if (goog.isNumber(start) && goog.isNumber(end)) {
         var startRatio = this.scale_.timestampToRatio(start);
@@ -3888,7 +3910,8 @@ anychart.ganttModule.TimeLine.prototype.drawAsPeriods_ = function(dataItem, tota
           var bounds = new anychart.math.Rect(coord.x, top, width, height);
 
           var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.PERIOD, bounds, j);
-          this.bar().rendering().callDrawer(dataItem, bounds, tag, j);
+          this.setRelatedBounds_(dataItem, bounds, j);
+          this.bar().rendering().callDrawer(dataItem, bounds, tag, j, this.selectedPeriodId_ == id);
         }
       }
     }
@@ -3942,8 +3965,11 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     var tag = this.createTag(dataItem, type, actualBounds);
     var baselineTag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASELINE, baselineBounds);
 
-    this.baseline().rendering().callDrawer(dataItem, baselineBounds, baselineTag);
-    element.rendering().callDrawer(dataItem, actualBounds, tag);
+    var isSelected = this.selectedItem == dataItem;
+    this.baseline().rendering().callDrawer(dataItem, baselineBounds, baselineTag, void 0, isSelected);
+
+    this.setRelatedBounds_(dataItem, actualBounds);
+    element.rendering().callDrawer(dataItem, actualBounds, tag, void 0, isSelected);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -3954,7 +3980,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
       var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, progressBounds);
-      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
+      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag, void 0, isSelected);
     }
   }
 };
@@ -4035,7 +4061,9 @@ anychart.ganttModule.TimeLine.prototype.drawAsParent_ = function(dataItem, total
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PARENT, actualItemBounds);
 
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.PARENT, actualBounds);
-    this.parent().rendering().callDrawer(dataItem, actualBounds, tag);
+    this.setRelatedBounds_(dataItem, actualBounds);
+    var isSelected = this.selectedItem == dataItem;
+    this.parent().rendering().callDrawer(dataItem, actualBounds, tag, void 0, isSelected);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -4046,7 +4074,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsParent_ = function(dataItem, total
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
       var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, progressBounds);
-      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
+      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag, void 0, isSelected);
     }
   }
 };
@@ -4079,7 +4107,9 @@ anychart.ganttModule.TimeLine.prototype.drawAsProgress_ = function(dataItem, tot
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.BASE, actualItemBounds);
 
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASE, actualBounds);
-    this.bar().rendering().callDrawer(dataItem, actualBounds, tag);
+    this.setRelatedBounds_(dataItem, actualBounds);
+    var isSelected = this.selectedItem == dataItem;
+    this.bar().rendering().callDrawer(dataItem, actualBounds, tag, void 0, isSelected);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
         dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE) :
@@ -4090,7 +4120,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsProgress_ = function(dataItem, tot
       var progressItemBounds = new anychart.math.Rect(actualBounds.left, actualBounds.top, progressWidth, actualBounds.height);
       var progressBounds = this.getBarBounds_(anychart.enums.TLElementTypes.PROGRESS, progressItemBounds);
       var progressTag = this.createTag(dataItem, anychart.enums.TLElementTypes.PROGRESS, actualBounds);
-      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag);
+      this.progress().rendering().callDrawer(dataItem, progressBounds, progressTag, void 0, isSelected);
     }
 
   }
@@ -4129,12 +4159,9 @@ anychart.ganttModule.TimeLine.prototype.drawAsMilestone_ = function(dataItem, to
     var bounds = this.getBarBounds_(anychart.enums.TLElementTypes.MILESTONE, itemBounds);
 
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.MILESTONE, bounds);
-    this.milestone().rendering().callDrawer(dataItem, bounds, tag);
-
-    this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
-    dataItem.meta('relBounds', bounds);
-    this.controller.data().resumeSignalsDispatching(false);
-
+    this.setRelatedBounds_(dataItem, bounds);
+    var isSelected = this.selectedItem == dataItem;
+    this.milestone().rendering().callDrawer(dataItem, bounds, tag, void 0, isSelected);
   }
 };
 

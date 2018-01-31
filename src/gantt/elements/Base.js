@@ -239,11 +239,13 @@ anychart.ganttModule.elements.Base.prototype.getStrokeOptionName = function() {
  * Gets fill represented as suitable for acgraph coloring.
  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related data item.
  * @param {number=} opt_periodIndex - Related period index.
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  * @return {acgraph.vector.Fill}
  */
-anychart.ganttModule.elements.Base.prototype.getFill = function(item, opt_periodIndex) {
+anychart.ganttModule.elements.Base.prototype.getFill = function(item, opt_periodIndex, opt_selected) {
   var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-  var resolved = resolver(this.getFillOptionName(), anychart.enums.ColorType.FILL, false);
+  var optionName = opt_selected ? 'selectedElementFill' : this.getFillOptionName();
+  var resolved = resolver(optionName, anychart.enums.ColorType.FILL, false);
   return /** @type {acgraph.vector.Fill} */ (resolved(this.getTimeline(), 0, item, void 0, void 0, opt_periodIndex));
 };
 
@@ -252,11 +254,13 @@ anychart.ganttModule.elements.Base.prototype.getFill = function(item, opt_period
  * Gets stroke represented as suitable for acgraph coloring.
  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related data item.
  * @param {number=} opt_periodIndex - Related period index.
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  * @return {acgraph.vector.Stroke}
  */
-anychart.ganttModule.elements.Base.prototype.getStroke = function(item, opt_periodIndex) {
+anychart.ganttModule.elements.Base.prototype.getStroke = function(item, opt_periodIndex, opt_selected) {
   var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-  var resolved = resolver(this.getStrokeOptionName(), anychart.enums.ColorType.STROKE, false);
+  var optionName = opt_selected ? 'selectedElementStroke' : this.getStrokeOptionName();
+  var resolved = resolver(optionName, anychart.enums.ColorType.STROKE, false);
   return /** @type {acgraph.vector.Stroke} */ (resolved(this.getTimeline(), 0, item, void 0, void 0, opt_periodIndex));
 };
 

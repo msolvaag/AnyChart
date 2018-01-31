@@ -241,9 +241,10 @@ anychart.ganttModule.rendering.Settings.prototype.getShapesConfig = function() {
  * @param {anychart.math.Rect} predictedBounds - .
  * @param {Object} tag - Tag data object. NOTE: not optional because current implementation (16 Jan 2018) depends on this data a lot.
  * @param {number=} opt_periodIndex - .
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
  */
-anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(item, predictedBounds, tag, opt_periodIndex) {
-  var context = new anychart.ganttModule.rendering.Context(this.element_, item, predictedBounds, tag, opt_periodIndex);
+anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(item, predictedBounds, tag, opt_periodIndex, opt_selected) {
+  var context = new anychart.ganttModule.rendering.Context(this.element_, item, predictedBounds, tag, opt_periodIndex, opt_selected);
   var drawer = this.getOption('drawer');
   drawer.call(context, context);
 };
