@@ -198,6 +198,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(
   shape.setParentEventTarget(this.tl_);
   shape.disablePointerEvents(!!descriptor.disablePointerEvents);
   shape.zIndex(descriptor.zIndex + baseZIndex);
+
   shape.parent(this.layer);
   return shape;
 };

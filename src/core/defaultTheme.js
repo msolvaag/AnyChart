@@ -2191,7 +2191,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
           var shapes = this['shapes'];
           var path = shapes['bar'];
           var bounds = this['predictedBounds'];
-          anychart.graphics.vector.primitives.roundedRect(path, bounds, 0);
+          anychart.graphics['vector']['primitives']['roundedRect'](path, bounds, 0);
         }
       }
     },
@@ -2210,7 +2210,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
           var right = bounds.left + bounds.width;
           var top = bounds.top + bounds.height;
           var top2 = bounds.top + bounds.height * 1.4;
-          
           path
               .moveTo(bounds.left, bounds.top)
               .lineTo(right, bounds.top)
@@ -2236,7 +2235,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
           var path = shapes['bar'];
           var bounds = this['predictedBounds'];
           var radius = bounds.width / 2;
-          anychart.graphics.vector.primitives.diamond(path, bounds.left + radius, bounds.top + radius, radius);
+          anychart.graphics['vector']['primitives']['diamond'](path, bounds.left + radius, bounds.top + radius, radius);
         }
       }
     },
