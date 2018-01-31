@@ -209,6 +209,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.configureShape = function(
  */
 anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
   var type, shapes, shape, i;
+  this.tagsData_ = {};
   for (type in this.usedShapes) {
     shapes = this.usedShapes[type];
     for (i = 0; i < shapes.length; i++) {
@@ -238,7 +239,7 @@ anychart.ganttModule.rendering.ShapeManager.prototype.clearShapes = function() {
 anychart.ganttModule.rendering.ShapeManager.prototype.getShapesGroup = function(item, tag, opt_only, opt_baseZIndex, opt_shape, opt_periodIndex) {
   var res = {};
   var names = opt_only || this.defs;
-  var uid = String(item.get(anychart.enums.GanttDataFields.ID)) + (goog.isDef(opt_periodIndex) ? String(opt_periodIndex) : '');
+  var uid = goog.getUid(item) + (goog.isDef(opt_periodIndex) ? ('_' + String(opt_periodIndex)) : '');
   this.tagsData_[uid] = tag;
 
   for (var name in names) {

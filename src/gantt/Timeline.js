@@ -3478,7 +3478,10 @@ anychart.ganttModule.TimeLine.prototype.getLabelsFactoryByType_ = function(type)
  * @private
  */
 anychart.ganttModule.TimeLine.prototype.drawTimelineElements_ = function() {
-  this.getDrawLayer().removeChildren();
+  for (var j = 0; j < this.elements_.length; j++) {
+    var element = this.elements_[j];
+    element.shapeManager.clearShapes();
+  }
 
   var markers = goog.array.concat(this.lineMarkers_, this.rangeMarkers_, this.textMarkers_);
 
