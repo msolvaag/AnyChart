@@ -1517,6 +1517,18 @@ anychart.stockModule.Plot.prototype.getAxisByIndex = function(index) {
 };
 
 
+/** @inheritDoc */
+anychart.stockModule.Plot.prototype.getXAxisByIndex = function(index) {
+  return this.xAxis_;
+};
+
+
+/** @inheritDoc */
+anychart.stockModule.Plot.prototype.getYAxisByIndex = function(index) {
+  return this.yAxes_[index]
+};
+
+
 /**
  * Return z-index for grid.
  * @param {boolean} isMajor .
@@ -1863,8 +1875,6 @@ anychart.stockModule.Plot.prototype.draw = function() {
     crosshair.suspendSignalsDispatching();
     crosshair.parentBounds(this.getPlotBounds());
     crosshair.container(this.rootLayer_);
-    crosshair.xAxis(this.xAxis_);
-    crosshair.yAxis(this.yAxes_[/** @type {number} */(this.crosshair_.yLabel().axisIndex())]);
     crosshair.draw();
     crosshair.resumeSignalsDispatching(false);
 

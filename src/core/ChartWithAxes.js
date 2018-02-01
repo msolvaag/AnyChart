@@ -659,6 +659,26 @@ anychart.core.ChartWithAxes.prototype.getAxisByIndex = function(index) {
 
 
 /**
+ * Gets xAxis by index.
+ * @param {number} index - Index to be found.
+ * @return {anychart.core.Axis|undefined}
+ */
+anychart.core.ChartWithAxes.prototype.getXAxisByIndex = function(index) {
+  return this.xAxes_[index];
+};
+
+
+/**
+ * Gets yAxis by index.
+ * @param {number} index - Index to be found.
+ * @return {anychart.core.Axis|undefined}
+ */
+anychart.core.ChartWithAxes.prototype.getYAxisByIndex = function(index) {
+  return this.yAxes_[index];
+};
+
+
+/**
  * @param {anychart.core.Axis} axis
  * @protected
  */
@@ -1327,8 +1347,8 @@ anychart.core.ChartWithAxes.prototype.drawContent = function(bounds) {
     crosshair.suspendSignalsDispatching();
     crosshair.parentBounds(this.dataBounds);
     crosshair.container(this.rootElement);
-    crosshair.xAxis(this.xAxes_[/** @type {number} */(this.crosshair_.xLabel().axisIndex())]);
-    crosshair.yAxis(this.yAxes_[/** @type {number} */(this.crosshair_.yLabel().axisIndex())]);
+    //crosshair.xAxis(this.xAxes_[/** @type {number} */(this.crosshair_.xLabel().axisIndex())]);
+    //crosshair.yAxis(this.yAxes_[/** @type {number} */(this.crosshair_.yLabel().axisIndex())]);
     crosshair.draw();
     crosshair.resumeSignalsDispatching(false);
 

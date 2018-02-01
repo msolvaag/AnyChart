@@ -775,6 +775,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           'stock'
         ], [
           ['.crosshair.', [
+            'defaultLabelSettings',
             [[
               'x',
               'y'
