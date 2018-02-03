@@ -1875,6 +1875,7 @@ anychart.stockModule.Plot.prototype.draw = function() {
     crosshair.suspendSignalsDispatching();
     crosshair.parentBounds(this.getPlotBounds());
     crosshair.container(this.rootLayer_);
+    crosshair.xAxis(this.xAxis_);
     crosshair.draw();
     crosshair.resumeSignalsDispatching(false);
 
@@ -2387,6 +2388,7 @@ anychart.stockModule.Plot.prototype.isLastPlot = function(opt_value) {
 anychart.stockModule.Plot.prototype.crosshair = function(opt_value) {
   if (!this.crosshair_) {
     this.crosshair_ = new anychart.core.ui.Crosshair();
+    this.crosshair_.setInteractivityTarget(this);
     this.registerDisposable(this.crosshair_);
     this.crosshair_.listenSignals(this.onCrosshairSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_CROSSHAIR, anychart.Signal.NEEDS_REDRAW);

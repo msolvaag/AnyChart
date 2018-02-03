@@ -1347,8 +1347,6 @@ anychart.core.ChartWithAxes.prototype.drawContent = function(bounds) {
     crosshair.suspendSignalsDispatching();
     crosshair.parentBounds(this.dataBounds);
     crosshair.container(this.rootElement);
-    //crosshair.xAxis(this.xAxes_[/** @type {number} */(this.crosshair_.xLabel().axisIndex())]);
-    //crosshair.yAxis(this.yAxes_[/** @type {number} */(this.crosshair_.yLabel().axisIndex())]);
     crosshair.draw();
     crosshair.resumeSignalsDispatching(false);
 

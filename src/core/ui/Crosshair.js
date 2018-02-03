@@ -15,14 +15,22 @@ goog.require('goog.array');
  * @extends {anychart.core.VisualBase}
  * @implements {anychart.core.settings.IResolvable}
  */
-anychart.core.ui.Crosshair = function() {
+anychart.core.ui.Crosshair = function(opt_plot) {
   anychart.core.ui.Crosshair.base(this, 'constructor');
+
+  this.plot_ = opt_plot;
 
   /**
    * @type {anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Chart|anychart.stockModule.Plot}
    * @private
    */
   this.interactivityTarget_ = null;
+
+  /**
+   * @type {anychart.core.Axis|anychart.mapModule.elements.Axis|anychart.stockModule.Axis}
+   * @private
+   */
+  this.xAxis_ = null;
 
   /**
    * @type {acgraph.vector.Path}
@@ -195,6 +203,9 @@ anychart.core.ui.Crosshair.prototype.parent = function(opt_value) {
       if (goog.isNull(opt_value)) { //removing parent.
         //this.parent_ is not null here.
         this.parent_.unlistenSignals(this.parentInvalidated_, this);
+        var labels = goog.array.concat(this.xLabels_, this.yLabels_);
+        for (var i = 0; i < labels.length; i++)
+          /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]).parent(null);
         this.xLabel().parent(null);
         this.yLabel().parent(null);
         delete this.parent_.childrenMap[uid];
@@ -256,6 +267,23 @@ anychart.core.ui.Crosshair.prototype.parentInvalidated_ = function(e) {
 anychart.core.ui.Crosshair.prototype.labelInvalidated = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
     this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+  }
+};
+
+
+/**
+ * For stock.
+ * @param {(anychart.core.Axis|anychart.mapModule.elements.Axis|anychart.stockModule.Axis)=} opt_value
+ * @return {anychart.core.Axis|anychart.mapModule.elements.Axis|anychart.stockModule.Axis|anychart.core.ui.Crosshair}
+ */
+anychart.core.ui.Crosshair.prototype.xAxis = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    if (this.xAxis_ != opt_value) {
+      this.xAxis_ = opt_value;
+    }
+    return this;
+  } else {
+    return this.xAxis_;
   }
 };
 
@@ -446,6 +474,15 @@ anychart.core.ui.Crosshair.prototype.interactivityTarget = function(opt_value) {
     return this;
   }
   return this.interactivityTarget_;
+};
+
+
+/**
+ * Used in stock plot.
+ * @param {anychart.stockModule.Plot} target
+ */
+anychart.core.ui.Crosshair.prototype.setInteractivityTarget = function(target) {
+  this.interactivityTarget_ = target;
 };
 
 
@@ -700,39 +737,63 @@ anychart.core.ui.Crosshair.prototype.drawLabel_ = function(axis, xDirection, lab
 
 
 /**
+ * Sets label format and auto anchor.
+ * @param {(anychart.core.Axis|anychart.mapModule.elements.Axis|anychart.stockModule.Axis)} axis
+ * @param {anychart.core.ui.CrosshairLabel} label
+ */
+anychart.core.ui.Crosshair.prototype.setLabelFormatAndAnchor = function(axis, label) {
+  var axisLabelsFormat = /** @type {Function} */(axis.labels().getOption('format'));
+  if (!label.format() || (axis && label.format() != axisLabelsFormat))
+    label.format(axisLabelsFormat);
+
+  var autoAnchor = this.getAnchorByAxis_(axis);
+  label.autoAnchor(autoAnchor);
+};
+
+
+/**
  * Draws labels.
  * @param {Array.<anychart.core.ui.CrosshairLabel>} labels labels array.
  * @param {boolean} xDirection whether we are drawing xLabels or yLabels
  * @param {number} mouseX - .
  * @param {number} mouseY - .
+ * @param {number=} opt_ratio - Ratio value set directly. Used for stock plot to provide plot's date alignment without
+ *  considering mouse ratio.
  * @private
  */
-anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, mouseX, mouseY) {
-  var i, label, axisIndex, axis, autoAnchor, axisLabelsFormat, lineDrawed;
+anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, mouseX, mouseY, opt_ratio) {
+  var i, label, axisIndex, axis, lineDrawed;
   var axisProvider = /** @type {(anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Chart|anychart.stockModule.Plot)} */(this.interactivityTarget());
+  var isStock = goog.isDef(opt_ratio);
+  if (isStock) {
+    for (i = 0; i < labels.length; i++) {
+      label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
+      if (label) {
+        this.setLabelFormatAndAnchor(this.xAxis_, label);
+        if (label.hasOwnOption('enabled') && label.ownSettings['enabled'])
+          this.drawLabel_(this.xAxis_, xDirection, i, mouseX, mouseY, opt_ratio);
+        else
+          this.hideXLabel(label);
+      }
+    }
+  } else {
+    var getAxisByIndex = xDirection ? axisProvider.getXAxisByIndex : axisProvider.getYAxisByIndex;
+    for (i = 0; i < labels.length; i++) {
+      label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
+      if (label) {
+        axisIndex = label.axisIndex();
+        axis = /** @type {anychart.core.Axis} */(getAxisByIndex.call(axisProvider, axisIndex));
 
-  var getAxisByIndex = xDirection ? axisProvider.getXAxisByIndex : axisProvider.getYAxisByIndex;
-  lineDrawed = false;
-  for (i = 0; i < labels.length; i++) {
-    label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
-    if (label) {
-      axisIndex = label.axisIndex();
-      axis = /** @type {anychart.core.Axis} */(getAxisByIndex.call(axisProvider, axisIndex));
-
-      if (axis && this.canDrawForAxis(axis)) {
-        axisLabelsFormat = /** @type {Function} */(axis.labels().getOption('format'));
-        if (!label.format() || (axis && label.format() != axisLabelsFormat))
-          label.format(axisLabelsFormat);
-
-        autoAnchor = this.getAnchorByAxis_(axis);
-        label.autoAnchor(autoAnchor);
-        if (!lineDrawed) {
-          this.drawLine_(axis, xDirection, mouseX, mouseY);
-          lineDrawed = true;
+        if (axis && this.canDrawForAxis(axis)) {
+          this.setLabelFormatAndAnchor(axis, label);
+          if (!lineDrawed) {
+            this.drawLine_(axis, xDirection, mouseX, mouseY);
+            lineDrawed = true;
+          }
+          this.drawLabel_(axis, xDirection, i, mouseX, mouseY);
+        } else {
+          this.hideX(label);
         }
-        this.drawLabel_(axis, xDirection, i, mouseX, mouseY);
-      } else {
-        this.hideX(label);
       }
     }
   }
@@ -755,17 +816,17 @@ anychart.core.ui.Crosshair.prototype.autoHighlightX = function(x, opt_showXLabel
       if (goog.isDef(opt_y)) {
         var chartOffset = this.container().getStage().getClientPosition();
         opt_y = opt_y - chartOffset.y;
-        this.drawLine_(this.yAxis_, x, opt_y);
-        this.drawLabel_(this.yAxis_, x, opt_y);
+        this.drawLabels_(this.yLabels_, false, x, opt_y);
       }
     }
 
-    if (opt_showXLabel || (this.xLabel_.hasOwnOption('enabled') && this.xLabel_.ownSettings['enabled'])) {
-      this.drawLabel_(this.xAxis_, x, opt_y || 0, opt_ratio);
+    this.drawLine_(this.xAxis_, true, x, opt_y || 0);
+    //(this.xLabel_.hasOwnOption('enabled') && this.xLabel_.ownSettings['enabled']);
+    if (opt_showXLabel) {
+      this.drawLabels_(this.xLabels_, true, x, opt_y || 0, opt_ratio);
     } else {
-      this.xLabel_.container(null).remove();
+      this.hideXLabel();
     }
-    this.drawLine_(this.xAxis_, x, opt_y || 0);
   }
 };
 

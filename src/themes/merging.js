@@ -773,15 +773,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'map',
           'stock'
-        ], [
-          ['.crosshair.', [
-            'defaultLabelSettings',
-            [[
-              'x',
-              'y'
-            ], 'Label']
-          ]]
-        ]]
+        ], '.crosshair.defaultLabelSettings']
       ]
     },
     {
