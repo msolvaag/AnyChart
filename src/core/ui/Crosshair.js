@@ -15,10 +15,8 @@ goog.require('goog.array');
  * @extends {anychart.core.VisualBase}
  * @implements {anychart.core.settings.IResolvable}
  */
-anychart.core.ui.Crosshair = function(opt_plot) {
+anychart.core.ui.Crosshair = function() {
   anychart.core.ui.Crosshair.base(this, 'constructor');
-
-  this.plot_ = opt_plot;
 
   /**
    * @type {anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Chart|anychart.stockModule.Plot}
@@ -386,8 +384,54 @@ anychart.core.ui.Crosshair.prototype.yLabel = function(opt_indexOrValue, opt_val
 };
 
 
+/**
+ * Getter for x labels.
+ * @return {Array.<anychart.core.ui.CrosshairLabel>}
+ */
+anychart.core.ui.Crosshair.prototype.getXLabels = function() {
+  return this.xLabels_;
+};
+
+
+/**
+ * Getter for y labels.
+ * @return {Array.<anychart.core.ui.CrosshairLabel>}
+ */
+anychart.core.ui.Crosshair.prototype.getYLabels = function() {
+  return this.yLabels_;
+};
+
+
 //endregion
 //region -- Draw.
+/**
+ * @param {Array.<anychart.core.ui.CrosshairLabel>} labels
+ * @param {acgraph.vector.ILayer} container
+ */
+anychart.core.ui.Crosshair.prototype.setLabelsContainer = function(labels, container) {
+  var labelsLength = labels.length;
+  for (var i = 0; i < labelsLength; i++) {
+    var label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
+    if (label)
+      label.container(container);
+  }
+};
+
+
+/**
+ * @param {Array.<anychart.core.ui.CrosshairLabel>} labels
+ * @param {anychart.math.Rect} bounds
+ */
+anychart.core.ui.Crosshair.prototype.setParentBounds = function(labels, bounds) {
+  var labelsLength = labels.length;
+  for (var i = 0; i < labelsLength; i++) {
+    var label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
+    if (label)
+      label.parentBounds(bounds);
+  }
+};
+
+
 /**
  * Create xLine, yLine and Labels
  * @return {!anychart.core.ui.Crosshair} {@link anychart.core.ui.Crosshair} instance for method chaining.
@@ -409,16 +453,12 @@ anychart.core.ui.Crosshair.prototype.draw = function() {
 
   var i, label;
   var labels = goog.array.concat(this.xLabels_, this.yLabels_);
-  var labelsLenght = labels.length;
+  var labelsLength = labels.length;
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
     this.xLine.parent(container);
     this.yLine.parent(container);
 
-    for (i = 0; i < labelsLenght; i++) {
-      label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
-      if (label)
-        label.container(container);
-    }
+    this.setLabelsContainer(labels, container);
 
     this.markConsistent(anychart.ConsistencyState.CONTAINER);
   }
@@ -427,7 +467,7 @@ anychart.core.ui.Crosshair.prototype.draw = function() {
     this.xLine.zIndex(zIndex);
     this.yLine.zIndex(zIndex);
 
-    for (i = 0; i < labelsLenght; i++) {
+    for (i = 0; i < labelsLength; i++) {
       label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
       if (label)
         label.setAutoZIndex(zIndex);
@@ -437,12 +477,7 @@ anychart.core.ui.Crosshair.prototype.draw = function() {
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
-    for (i = 0; i < labelsLenght; i++) {
-      label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
-      if (label)
-        label.parentBounds(bounds);
-    }
-
+    this.setParentBounds(labels, bounds);
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
   }
 
