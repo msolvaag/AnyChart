@@ -190,6 +190,60 @@ anychart.core.ui.Crosshair.prototype.getHighPriorityResolutionChain = function()
 //endregion
 //region -- Parental relations
 /**
+ * Sets null as parent for all labels.
+ */
+anychart.core.ui.Crosshair.prototype.setLabelsParentNull = function() {
+  var labels = goog.array.concat(this.xLabels_, this.yLabels_);
+  for (var i = 0; i < labels.length; i++) {
+    var label = labels[i];
+    if (label)
+      label.parent(null);
+  }
+};
+
+
+/**
+ * @param {Array.<anychart.core.ui.CrosshairLabel>} parentLabels
+ * @param {boolean} isX
+ */
+anychart.core.ui.Crosshair.prototype.setParentForLabels = function(parentLabels, isX) {
+  var childLabels = isX ? this.getXLabels() : this.getYLabels();
+  for (var i = 0; i < parentLabels.length; i++) {
+    if (parentLabels[i] && childLabels[i]) { // there is parent label with index i and child label with same index
+      childLabels[i].parent(parentLabels[i]);
+    }
+  }
+};
+
+
+/**
+ * @param {anychart.core.ui.CrosshairLabel} parentOrChildLabel
+ * @param {number} index
+ * @param {boolean} isX
+ */
+anychart.core.ui.Crosshair.prototype.propagateParentalRelationship = function(parentOrChildLabel, index, isX) {
+  var labels, childLabel, parentLabel;
+
+  // check if we have children (means that <this> crosshair instance is Stock crosshair)
+  for (var uid in this.childrenMap) {
+    var plotCrosshair = this.childrenMap[uid];
+    labels = isX ? plotCrosshair.getXLabels() : plotCrosshair.getYLabels();
+    childLabel = labels[index];
+    if (childLabel)
+      childLabel.parent(parentOrChildLabel);
+  }
+
+  // check if we have parent (means that <this> crosshair instance is Plot crosshair)
+  if (this.parent_) {
+    labels = isX ? this.parent_.getXLabels() : this.parent_.getYLabels();
+    parentLabel = labels[index];
+    if (parentLabel)
+      parentOrChildLabel.parent(parentLabel);
+  }
+};
+
+
+/**
  * Gets/sets new parent title.
  * @param {anychart.core.ui.Crosshair=} opt_value - Value to set.
  * @return {anychart.core.ui.Crosshair} - Current value or itself for method chaining.
@@ -201,19 +255,15 @@ anychart.core.ui.Crosshair.prototype.parent = function(opt_value) {
       if (goog.isNull(opt_value)) { //removing parent.
         //this.parent_ is not null here.
         this.parent_.unlistenSignals(this.parentInvalidated_, this);
-        var labels = goog.array.concat(this.xLabels_, this.yLabels_);
-        for (var i = 0; i < labels.length; i++)
-          /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]).parent(null);
-        this.xLabel().parent(null);
-        this.yLabel().parent(null);
+        this.setLabelsParentNull();
         delete this.parent_.childrenMap[uid];
         this.parent_ = null;
       } else {
         if (this.parent_)
           this.parent_.unlistenSignals(this.parentInvalidated_, this);
         this.parent_ = opt_value;
-        this.xLabel().parent(this.parent_.xLabel());
-        this.yLabel().parent(this.parent_.yLabel());
+        this.setParentForLabels(this.parent_.getXLabels(), true);
+        this.setParentForLabels(this.parent_.getYLabels(), false);
         this.parent_.childrenMap[uid] = this;
         this.parent_.listenSignals(this.parentInvalidated_, this);
       }
@@ -221,7 +271,6 @@ anychart.core.ui.Crosshair.prototype.parent = function(opt_value) {
     return this;
   }
   return this.parent_;
-
 };
 
 
@@ -342,6 +391,7 @@ anychart.core.ui.Crosshair.prototype.xLabel = function(opt_indexOrValue, opt_val
     label = new anychart.core.ui.CrosshairLabel();
     label.setup(this.defaultLabelSettings());
     this.xLabels_[index] = label;
+    this.propagateParentalRelationship(label, index, true);
     label.listenSignals(this.labelInvalidated, this);
   }
   if (goog.isDef(value)) {
@@ -373,6 +423,7 @@ anychart.core.ui.Crosshair.prototype.yLabel = function(opt_indexOrValue, opt_val
     label = new anychart.core.ui.CrosshairLabel();
     label.setup(this.defaultLabelSettings());
     this.yLabels_[index] = label;
+    this.propagateParentalRelationship(label, index, false);
     label.listenSignals(this.labelInvalidated, this);
   }
   if (goog.isDef(value)) {
