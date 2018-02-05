@@ -798,7 +798,7 @@ anychart.core.ui.Crosshair.prototype.setLabelFormatAndAnchor = function(axis, la
  */
 anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, mouseX, mouseY, opt_ratio) {
   var i, label, axisIndex, axis, lineDrawed;
-  var axisProvider = /** @type {(anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Chart|anychart.stockModule.Plot)} */(this.interactivityTarget());
+  var axisProvider = /** @type {(anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Plot)} */(this.interactivityTarget());
   var isStock = goog.isDef(opt_ratio);
   if (isStock) {
     for (i = 0; i < labels.length; i++) {
@@ -816,7 +816,7 @@ anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, 
     for (i = 0; i < labels.length; i++) {
       label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
       if (label) {
-        axisIndex = label.axisIndex();
+        axisIndex = /** @type {number} */(label.axisIndex());
         axis = /** @type {anychart.core.Axis} */(getAxisByIndex.call(axisProvider, axisIndex));
 
         if (axis && this.canDrawForAxis(axis)) {

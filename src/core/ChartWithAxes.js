@@ -658,21 +658,13 @@ anychart.core.ChartWithAxes.prototype.getAxisByIndex = function(index) {
 };
 
 
-/**
- * Gets xAxis by index.
- * @param {number} index - Index to be found.
- * @return {anychart.core.Axis|undefined}
- */
+/** @inheritDoc */
 anychart.core.ChartWithAxes.prototype.getXAxisByIndex = function(index) {
   return this.xAxes_[index];
 };
 
 
-/**
- * Gets yAxis by index.
- * @param {number} index - Index to be found.
- * @return {anychart.core.Axis|undefined}
- */
+/** @inheritDoc */
 anychart.core.ChartWithAxes.prototype.getYAxisByIndex = function(index) {
   return this.yAxes_[index];
 };

@@ -1525,7 +1525,7 @@ anychart.stockModule.Plot.prototype.getXAxisByIndex = function(index) {
 
 /** @inheritDoc */
 anychart.stockModule.Plot.prototype.getYAxisByIndex = function(index) {
-  return this.yAxes_[index]
+  return this.yAxes_[index];
 };
 
 

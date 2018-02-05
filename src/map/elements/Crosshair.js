@@ -68,8 +68,8 @@ anychart.mapModule.elements.Crosshair.prototype.show = function(event) {
       var xRatio = scale.transformX(x);
       var yRatio = scale.transformY(y);
 
-      this.drawLabels_(this.getXLabels(), true, xRatio, xStroke, x);
-      this.drawLabels_(this.getYLabels(), false, yRatio, yStroke, y);
+      this.drawLabels(this.getXLabels(), true, xRatio, xStroke, x);
+      this.drawLabels(this.getYLabels(), false, yRatio, yStroke, y);
 
     } else {
       this.hide();
@@ -113,8 +113,8 @@ anychart.mapModule.elements.Crosshair.prototype.update = function(opt_x, opt_y) 
   var yStroke = /** @type {acgraph.vector.Stroke} */(this.getOption('yStroke'));
 
   if (xRatio > 0 && xRatio < 1 && yRatio > 0 && yRatio < 1) {
-    this.drawLabels_(this.getXLabels(), true, xRatio, xStroke, lon);
-    this.drawLabels_(this.getYLabels(), false, xRatio, xStroke, lat);
+    this.drawLabels(this.getXLabels(), true, xRatio, xStroke, lon);
+    this.drawLabels(this.getYLabels(), false, xRatio, yStroke, lat);
   } else {
     this.hide();
   }
@@ -362,9 +362,8 @@ anychart.mapModule.elements.Crosshair.prototype.getLabelsFormatProvider = functi
  * @param {number} ratio
  * @param {acgraph.vector.Stroke} stroke
  * @param {number} coord
- * @private
  */
-anychart.mapModule.elements.Crosshair.prototype.drawLabels_ = function(labels, isX, ratio, stroke, coord) {
+anychart.mapModule.elements.Crosshair.prototype.drawLabels = function(labels, isX, ratio, stroke, coord) {
   var axisProvider = /** @type {anychart.mapModule.Chart} */(this.interactivityTarget());
   var i, label, axisIndex, axis;
   var lineDrawed = false;
@@ -375,8 +374,8 @@ anychart.mapModule.elements.Crosshair.prototype.drawLabels_ = function(labels, i
   for (i = 0; i < labels.length; i++) {
     label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
     if (label) {
-      axisIndex = label.axisIndex();
-      axis = getAxisByIndex.call(axisProvider, axisIndex);
+      axisIndex = /** @type {number} */(label.axisIndex());
+      axis = /** @type {anychart.mapModule.elements.Axis} */(getAxisByIndex.call(axisProvider, axisIndex));
       if (axis && this.canDrawForAxis(axis) && ratio > 0 && ratio < 1) {
         if (!lineDrawed && hasStroke) {
           this.drawLine(axis, line, coord);
