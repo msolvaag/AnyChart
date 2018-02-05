@@ -1111,6 +1111,25 @@ anychart.core.ui.Crosshair.prototype.enabled = function(opt_value) {
 anychart.core.ui.Crosshair.prototype.serialize = function() {
   var json = anychart.core.ui.Crosshair.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.ui.Crosshair.DESCRIPTORS, json, 'Crosshair');
+
+  var i, labels;
+  labels = [];
+
+  for (i = 0; i < this.xLabels_.length; i++) {
+    if (this.xLabels_[i])
+      labels.push(this.xLabels_[i].serialize());
+  }
+  if (labels.length > 0)
+    json['xLabels'] = labels;
+
+  labels = [];
+  for (i = 0; i < this.yLabels_.length; i++) {
+    if (this.yLabels_[i])
+      labels.push(this.yLabels_[i].serialize());
+  }
+  if (labels.length > 0)
+    json['yLabels'] = labels;
+
   return json;
 };
 
@@ -1121,8 +1140,18 @@ anychart.core.ui.Crosshair.prototype.setupByJSON = function(config, opt_default)
   anychart.core.settings.deserialize(this, anychart.core.ui.Crosshair.DESCRIPTORS, config, opt_default);
   this.defaultLabelSettings(config['defaultLabelSettings']);
 
-  //this.xLabel().setupInternal(!!opt_default, config['xLabel']);
-  //this.yLabel().setupInternal(!!opt_default, config['yLabel']);
+  var i, labels;
+  labels = config['xLabels'];
+  if (goog.isArray(labels)) {
+    for (i = 0; i < labels.length; i++)
+      this.xLabel(i, labels[i]);
+  }
+
+  labels = config['yLabels'];
+  if (goog.isArray(labels)) {
+    for (i = 0; i < labels.length; i++)
+      this.yLabel(i, labels[i]);
+  }
 };
 
 
