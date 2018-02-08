@@ -538,7 +538,8 @@ anychart.ganttModule.BaseGrid.prototype.createFormatProvider = function(item, op
   var values = {
     'item': {value: item, type: anychart.enums.TokenType.UNKNOWN},
     'name': {value: item.get(anychart.enums.GanttDataFields.NAME), type: anychart.enums.TokenType.STRING},
-    'id': {value: item.get(anychart.enums.GanttDataFields.ID), type: anychart.enums.TokenType.STRING}
+    'id': {value: item.get(anychart.enums.GanttDataFields.ID), type: anychart.enums.TokenType.STRING},
+    'linearIndex': {value: item.meta('index') + 1, type: anychart.enums.TokenType.NUMBER}
   };
 
   if (isResources) {

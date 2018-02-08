@@ -2029,15 +2029,12 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
        * @this {*}
        * @return {string}
        */
-      'format': function() {
-        var name = this['name'];
-        return (name !== void 0) ? name + '' : '';
-      }
+      'format': '{%name}'
     },
     'defaultColumnSettings': {
       'width': 90,
       'buttonCursor': 'pointer',
-      'cellTextSettings': {
+      'labels': {
         'enabled': true,
         'wordBreak': 'break-all',
         'anchor': 'left-top',
@@ -2061,25 +2058,13 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         'background': {
           'enabled': false
         }
-      },
-      /**
-       * @this {*}
-       * @return {string}
-       */
-      'format': function() {
-        return '';
       }
     },
     'columns': [
       {
         'width': 50,
-        /**
-         * @this {*}
-         * @return {string}
-         */
-        'format': function() {
-          var val = this['item']['meta']('index');
-          return (val != null) ? (val + 1) + '' : '';
+        'labels': {
+          'format': '{%linearIndex}'
         },
         'title': {
           'text': '#'
@@ -2089,16 +2074,14 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         'width': 170,
         'collapseExpandButtons': true,
         'depthPaddingMultiplier': 15,
-        /**
-         * @this {*}
-         * @return {string}
-         */
-        'format': function() {
-          var val = this['name'];
-          return (val != null) ? (val + '') : '';
+        'labels': {
+          'format': '{%name}'
         },
         'title': {
           'text': 'Name'
+        },
+        'onEdit': function(val) {
+          return {'name': val};
         }
       }
     ]
