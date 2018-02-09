@@ -97,12 +97,14 @@ anychart.ui.EditInput.prototype.applyBounds_ = function() {
 
 /**
  *
+ * @param {string=} opt_value - Text value to set.
  * @param {anychart.math.Rect=} opt_bounds - Bounds where to show.
  */
-anychart.ui.EditInput.prototype.show = function(opt_bounds) {
+anychart.ui.EditInput.prototype.show = function(opt_value, opt_bounds) {
   var element = this.getElement();
   this.bounds(opt_bounds);
   if (element) {
+    this.setValue(opt_value || '');
     goog.style.setElementShown(element, true);
   }
 };
@@ -143,12 +145,12 @@ anychart.ui.EditInput.prototype.keyPressHandler_ = function(e) {
   var evt = this.wrapEvent_(e, anychart.enums.EventType.EDIT_INPUT_KEY_PRESS);
   if (this.dispatchEvent(evt)) {
     if (e.keyCode == goog.events.KeyCodes.ENTER || e.keyCode == goog.events.KeyCodes.ESC) {
-      if (e.keyCode == goog.events.KeyCodes.ENTER) {
-        evt = this.wrapEvent_(e, anychart.enums.EventType.EDIT_INPUT_SUBMIT);
-        if (this.dispatchEvent(evt)) {
-          this.hide(); //this dispatches blur events
-        }
-      } else {
+      var type = e.keyCode == goog.events.KeyCodes.ENTER ?
+          anychart.enums.EventType.EDIT_INPUT_SUBMIT :
+          anychart.enums.EventType.EDIT_INPUT_ESCAPE;
+
+      evt = this.wrapEvent_(e, type);
+      if (this.dispatchEvent(evt)) {
         this.hide(); //this dispatches blur events
       }
     }

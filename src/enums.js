@@ -1520,6 +1520,7 @@ anychart.enums.EventType = {
   // EDIT_INPUT_BEFORE_SHOW: 'editinputbeforeshow',
   // EDIT_INPUT_SHOW: 'editinputshow',
   EDIT_INPUT_SUBMIT: 'editinputsubmit',
+  EDIT_INPUT_ESCAPE: 'editinputescape',
   EDIT_INPUT_BLUR: 'editinputblur',
   EDIT_INPUT_FOCUS: 'editinputfocus',
   EDIT_INPUT_KEY_PRESS: 'editinputkeypress',

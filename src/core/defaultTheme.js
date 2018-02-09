@@ -2025,10 +2025,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       'separator': {
         'enabled': true
       },
-      /**
-       * @this {*}
-       * @return {string}
-       */
       'format': '{%name}'
     },
     'defaultColumnSettings': {

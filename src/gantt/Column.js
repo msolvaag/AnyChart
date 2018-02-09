@@ -146,17 +146,17 @@ anychart.ganttModule.Column = function(dataGrid) {
 
 
   /**
-   * Pixel bounds cache.
-   * @type {?anychart.math.Rect}
-   * @private
-   */
-  this.pixelBoundsCache_ = null;
-
-  /**
    * @type {function(string):(undefined|Object.<string, *>)}
    * @private
    */
   this.onEdit_ = goog.nullFunction;
+
+  /**
+   * Labels text values.
+   * @type {Array<string>}
+   * @private
+   */
+  this.labelsTexts_ = [];
 
   /**
    * Function that overrides text settings for label.
@@ -225,7 +225,7 @@ anychart.ganttModule.Column.prototype.setColumnFormat = function(fieldName, pres
     var width = settings['width'];
     var textStyle = settings['textStyle'];
 
-    if (goog.isDef(formatter)) this.format(function() {
+    if (goog.isDef(formatter)) this.labels().format(function() {
       var item = this['item'];
       return formatter(item.get(fieldName));
     });
@@ -698,6 +698,7 @@ anychart.ganttModule.Column.prototype.draw = function() {
           this.pixelBoundsCache_.height);
 
       var counter = -1;
+      this.labelsTexts_.length = 0;
       for (var i = startIndex; i <= endIndex; i++) {
         var item = data[i];
         if (!item) break;
@@ -755,6 +756,9 @@ anychart.ganttModule.Column.prototype.draw = function() {
         label.resumeSignalsDispatching(false);
         label.draw();
 
+        this.labelsTexts_.push(/** @type {string} */ (label.getTextElement().text()));
+        // console.log(label.textElement.text());
+
         totalTop = (newTop + this.dataGrid_.rowStrokeThickness);
       }
 
@@ -798,6 +802,15 @@ anychart.ganttModule.Column.prototype.draw = function() {
     if (manualSuspend) stage.resume();
   }
   return this;
+};
+
+
+/**
+ *
+ * @return {Array.<string>}
+ */
+anychart.ganttModule.Column.prototype.getLabelTexts = function() {
+  return this.labelsTexts_;
 };
 
 
@@ -846,6 +859,9 @@ anychart.ganttModule.Column.prototype.setupByJSON = function(json, opt_default) 
 
 
 //exports
+/**
+ * @suppress {deprecated}
+ */
 (function() {
   var proto = anychart.ganttModule.Column.prototype;
   proto['title'] = proto.title;

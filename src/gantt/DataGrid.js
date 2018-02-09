@@ -841,6 +841,7 @@ anychart.ganttModule.DataGrid.prototype.specialInvalidated = function() {
 anychart.ganttModule.DataGrid.prototype.editInputSubmitHandler_ = function(e) {
   var val = e['value'];
   var onEdit = this.editColumn_.onEdit();
+  // console.log('from submit', this.submitted_ ? 'NOT WRITING' : 'WRITING');
   if (goog.isFunction(onEdit)) {
     var changes = onEdit(val);
     if (changes && goog.typeOf(changes) == 'object' && this.editItem_) {
@@ -851,6 +852,8 @@ anychart.ganttModule.DataGrid.prototype.editInputSubmitHandler_ = function(e) {
           this.editItem_.set(key, changes[key]);
       }
       tree.resumeSignalsDispatching(true);
+      this.submitted_ = true;
+      this.escaped_ = false;
     }
   }
 };
@@ -862,7 +865,22 @@ anychart.ganttModule.DataGrid.prototype.editInputSubmitHandler_ = function(e) {
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.editInputBlurHandler_ = function(e) {
+  // console.log('From blur', this.submitted_ || this.escaped_ ? 'NOT WRITING' : 'WRITING');
+  if (!this.submitted_ && !this.escaped_) {
+    this.editInputSubmitHandler_.call(this, e);
+    this.escaped_ = false;
+  }
+};
 
+
+/**
+ *
+ * @param {goog.events.Event} e - Event.
+ * @private
+ */
+anychart.ganttModule.DataGrid.prototype.editInputEscapeHandler_ = function(e) {
+  this.escaped_ = true;
+  // console.log('From escape');
 };
 
 
@@ -872,7 +890,8 @@ anychart.ganttModule.DataGrid.prototype.editInputBlurHandler_ = function(e) {
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.editInputFocusHandler_ = function(e) {
-
+  this.interactivityHandler.lockInteractivity(true);
+  this.submitted_ = false;
 };
 
 
@@ -882,7 +901,11 @@ anychart.ganttModule.DataGrid.prototype.editInputFocusHandler_ = function(e) {
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.editInputHideHandler_ = function(e) {
+  // console.log('From hide');
+  this.escaped_ = false;
+  this.submitted_ = false;
   this.editInput_.reset();
+  this.interactivityHandler.lockInteractivity(false);
 };
 
 
@@ -895,9 +918,10 @@ anychart.ganttModule.DataGrid.prototype.initEditInput_ = function() {
     this.editInput_ = new anychart.ui.EditInput();
 
     var stage = this.interactivityHandler.container().getStage();
-    this.editInput_.render(stage.container());
+    this.editInput_.render(/** @type {Element} */ (stage.container()));
 
     this.editInput_.listen(anychart.enums.EventType.EDIT_INPUT_SUBMIT, this.editInputSubmitHandler_, false, this);
+    this.editInput_.listen(anychart.enums.EventType.EDIT_INPUT_ESCAPE, this.editInputEscapeHandler_, false, this);
     this.editInput_.listen(anychart.enums.EventType.EDIT_INPUT_BLUR, this.editInputBlurHandler_, false, this);
     this.editInput_.listen(anychart.enums.EventType.EDIT_INPUT_FOCUS, this.editInputFocusHandler_, false, this);
     // this.editInput_.listen(anychart.enums.EventType.EDIT_INPUT_KEY_PRESS, this.editInputKeyPressHandler_, false, this);
@@ -933,8 +957,8 @@ anychart.ganttModule.DataGrid.prototype.getColumnBounds_ = function(columnStraig
 
 /**
  * Gets input bounds.
- * @param e
- * @return {anychart.math.Rect}
+ * @param {Object} e - Event.
+ * @return {?anychart.math.Rect}
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.getInputBounds_ = function(e) {
@@ -942,7 +966,7 @@ anychart.ganttModule.DataGrid.prototype.getInputBounds_ = function(e) {
   var left = eX - this.pixelBoundsCache.left;
   var ind = ~goog.array.binarySearch(this.columnsWidthsCache_, left);
   var colBounds = this.getColumnBounds_(ind);
-  return new anychart.math.Rect(colBounds.left, e['startY'], colBounds.width - 2, e['endY'] - e['startY'] - 2);
+  return colBounds ? new anychart.math.Rect(colBounds.left, e['startY'], colBounds.width - 2, e['endY'] - e['startY'] - 2) : null;
 };
 
 
@@ -955,8 +979,18 @@ anychart.ganttModule.DataGrid.prototype.addMouseDblClick = function(e) {
     this.interactive = false;
     this.initEditInput_();
     this.editItem_ = e['item'];
-    this.editInput_.show(this.getInputBounds_(e));
-    this.editInput_.focusAndSelect();
+    var hoveredIndex = e['hoveredIndex'];
+
+    var bounds = this.getInputBounds_(e);
+    if (bounds) {
+      var val = '';
+      if (this.editColumn_) {
+        var colLabelTexts = this.editColumn_.getLabelTexts();
+        val = colLabelTexts[hoveredIndex];
+      }
+      this.editInput_.show(val, this.getInputBounds_(e));
+      this.editInput_.focusAndSelect();
+    }
   }
 };
 

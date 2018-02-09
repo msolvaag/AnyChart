@@ -363,6 +363,12 @@ anychart.ganttModule.BaseGrid = function(opt_controller, opt_isResource) {
   this.tooltip_ = null;
 
   /**
+   * @type {acgraph.vector.Rect}
+   * @private
+   */
+  this.lockInteractivityRect_ = null;
+
+  /**
    * @type {boolean}
    */
   this.preventClickAfterDrag = false;
@@ -2046,6 +2052,9 @@ anychart.ganttModule.BaseGrid.prototype.drawInternal = function(positionRecalcul
     this.base_.listenOnce(acgraph.events.EventType.TOUCHSTART, this.dragMouseDown_, false, this);
 
     this.initDom();
+
+    this.lockInteractivityRect_ = stage.rect();
+    this.lockInteractivityRect_.stroke('none').fill('#000 0.1').zIndex(1e10);
   }
 
 
@@ -2174,6 +2183,18 @@ anychart.ganttModule.BaseGrid.prototype.drawInternal = function(positionRecalcul
  * Additional actions while DOM initialization.
  */
 anychart.ganttModule.BaseGrid.prototype.initDom = goog.nullFunction;
+
+
+/**
+ * @inheritDoc
+ */
+anychart.ganttModule.BaseGrid.prototype.lockInteractivity = function(lock) {
+  if (lock) {
+    this.lockInteractivityRect_.setBounds(this.pixelBoundsCache);
+  } else {
+    this.lockInteractivityRect_.setBounds(new anychart.math.Rect(0, 0, 0, 0));
+  }
+};
 
 
 /**
