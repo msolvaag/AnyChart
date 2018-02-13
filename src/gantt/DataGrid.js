@@ -966,7 +966,13 @@ anychart.ganttModule.DataGrid.prototype.getInputBounds_ = function(e) {
   var left = eX - this.pixelBoundsCache.left;
   var ind = ~goog.array.binarySearch(this.columnsWidthsCache_, left);
   var colBounds = this.getColumnBounds_(ind);
-  return colBounds ? new anychart.math.Rect(colBounds.left, e['startY'], colBounds.width - 2, e['endY'] - e['startY'] - 2) : null;
+  if (colBounds.left < 0) {
+    this.horizontalOffset(/** @type {number} */ (this.horizontalOffset()) + colBounds.left);
+    colBounds.left = 0;
+  }
+  var itemHeight = this.controller.getItemHeight(e['item']);
+  var heightReduction = e['hoveredIndex'] ? 2 : 1;
+  return colBounds ? new anychart.math.Rect(colBounds.left, e['startY'], colBounds.width - 2, itemHeight - heightReduction) : null;
 };
 
 
@@ -980,15 +986,36 @@ anychart.ganttModule.DataGrid.prototype.addMouseDblClick = function(e) {
     this.initEditInput_();
     this.editItem_ = e['item'];
     var hoveredIndex = e['hoveredIndex'];
+    var index = e['index'];
+
+    if (index == this.controller.startIndex()) {
+      this.controller.scrollToRow(index);
+    }
+
+    var fixEnd = false;
+    if (index == this.controller.endIndex()) {
+      this.controller.endIndex(index);
+      var gridHeightCache = this.getGridHeightCache();
+      var initialTop = /** @type {number} */ (this.pixelBoundsCache.top + /** @type {number} */ (this.headerHeight()) + 1);
+      var startHeight = hoveredIndex ? gridHeightCache[hoveredIndex - 1] : 0;
+      var startY = initialTop + startHeight;
+      var endY = startY + (gridHeightCache[hoveredIndex] - startHeight - this.rowStrokeThickness) - 2;
+      fixEnd = true;
+    }
 
     var bounds = this.getInputBounds_(e);
+
     if (bounds) {
+      if (fixEnd) {
+        bounds.top = /** @type {number} */ (startY);
+        bounds.height = endY - startY;
+      }
       var val = '';
       if (this.editColumn_) {
         var colLabelTexts = this.editColumn_.getLabelTexts();
         val = colLabelTexts[hoveredIndex];
       }
-      this.editInput_.show(val, this.getInputBounds_(e));
+      this.editInput_.show(val, bounds);
       this.editInput_.focusAndSelect();
     }
   }

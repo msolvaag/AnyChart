@@ -968,6 +968,15 @@ anychart.ganttModule.BaseGrid.prototype.getInteractivityEvent = function(event) 
 
 
 /**
+ *
+ * @return {Array.<number>}
+ */
+anychart.ganttModule.BaseGrid.prototype.getGridHeightCache = function() {
+  return this.gridHeightCache_;
+};
+
+
+/**
  * @inheritDoc
  */
 anychart.ganttModule.BaseGrid.prototype.editing = function(opt_value) {
