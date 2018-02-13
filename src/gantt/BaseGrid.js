@@ -2080,6 +2080,10 @@ anychart.ganttModule.BaseGrid.prototype.drawInternal = function(positionRecalcul
     this.eventsRect_.setBounds(/** @type {anychart.math.Rect} */ (this.pixelBoundsCache));
     this.totalGridsWidth = this.pixelBoundsCache.width;
 
+    if (this.interactivityLocked_) {
+      this.lockInteractivityRect_.setBounds(this.pixelBoundsCache);
+    }
+
     var header = this.pixelBoundsCache.top + this.headerHeight_;
     var headSepTop = header + 0.5;
 
@@ -2198,6 +2202,7 @@ anychart.ganttModule.BaseGrid.prototype.initDom = goog.nullFunction;
  * @inheritDoc
  */
 anychart.ganttModule.BaseGrid.prototype.lockInteractivity = function(lock) {
+  this.interactivityLocked_ = lock;
   if (lock) {
     this.lockInteractivityRect_.setBounds(this.pixelBoundsCache);
   } else {
