@@ -2099,9 +2099,12 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         'enabled': true,
         'margin': 0,
         'vAlign': 'middle',
+        'hAlign': 'center',
         'background': {
           'enabled': false
-        }
+        },
+        'wordWrap': 'normal',
+        'wordBreak': 'normal'
       }
     },
     'columns': [

@@ -321,8 +321,6 @@ anychart.ganttModule.Column.prototype.labels = function(opt_value) {
     this.labels_.listenSignals(this.labelsInvalidated_, this);
 
     this.labels_.setParentEventTarget(this);
-
-    this.registerDisposable(this.labels_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -418,16 +416,10 @@ anychart.ganttModule.Column.prototype.title = function(opt_value) {
     this.title_
         .container(this.getTitleLayer_())
         .margin(0);
-    this.title_['wordWrap']('normal');
-    this.title_['wordBreak']('normal');
-    this.title_['hAlign'](anychart.enums.HAlign.CENTER);
-    this.title_['vAlign'](anychart.enums.VAlign.MIDDLE);
     this.title_.resumeSignalsDispatching(false);
 
     this.title_.listenSignals(this.titleInvalidated_, this);
     this.title_.setParentEventTarget(this);
-
-    this.registerDisposable(this.title_);
   }
 
   if (goog.isDef(opt_value)) {
@@ -462,7 +454,6 @@ anychart.ganttModule.Column.prototype.titleInvalidated_ = function(event) {
 anychart.ganttModule.Column.prototype.getBase_ = function() {
   if (!this.base_) {
     this.base_ = /** @type {acgraph.vector.Layer} */ (acgraph.layer());
-    this.registerDisposable(this.base_);
   }
   return this.base_;
 };
@@ -476,7 +467,6 @@ anychart.ganttModule.Column.prototype.getBase_ = function() {
 anychart.ganttModule.Column.prototype.getTitleLayer_ = function() {
   if (!this.titleLayer_) {
     this.titleLayer_ = /** @type {acgraph.vector.Layer} */ (acgraph.layer());
-    this.registerDisposable(this.titleLayer_);
   }
   return this.titleLayer_;
 };
@@ -493,7 +483,6 @@ anychart.ganttModule.Column.prototype.getTitlePath_ = function() {
     this.getTitleLayer_().addChildAt(this.titlePath_, 0);
     this.titlePath_.fill(/** @type {acgraph.vector.Fill} */ (this.dataGrid_.resolveHeaderFill()));
     this.titlePath_.stroke(null);
-    this.registerDisposable(this.titlePath_);
   }
   return this.titlePath_;
 };
@@ -594,7 +583,6 @@ anychart.ganttModule.Column.prototype.buttonCursor = function(opt_value) {
 anychart.ganttModule.Column.prototype.getCellsLayer_ = function() {
   if (!this.cellsLayer_) {
     this.cellsLayer_ = /** @type {acgraph.vector.Layer} */ (acgraph.layer());
-    this.registerDisposable(this.cellsLayer_);
   }
   return this.cellsLayer_;
 };
@@ -688,19 +676,21 @@ anychart.ganttModule.Column.prototype.draw = function() {
       var startIndex = /** @type {number} */(this.dataGrid_.startIndex());
       var endIndex = /** @type {number} */(this.dataGrid_.endIndex());
       var verticalOffset = this.dataGrid_.verticalOffset();
+      var labels = this.labels();
+      var labelsPadding = labels.padding();
 
       var totalTop = this.pixelBoundsCache_.top + headerHeight + 1 - verticalOffset;
 
-      this.labels().suspendSignalsDispatching();
-      this.labels().clear();
+      labels.suspendSignalsDispatching();
+      labels.clear();
 
-      var paddingLeft = anychart.utils.normalizeSize(/** @type {number|string} */ (this.labels().padding().getOption('left')),
+      var paddingLeft = anychart.utils.normalizeSize(/** @type {number|string} */ (labelsPadding.getOption('left')),
           this.pixelBoundsCache_.width);
-      var paddingRight = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.labels().padding().getOption('right')),
+      var paddingRight = anychart.utils.normalizeSize(/** @type {(number|string)} */ (labelsPadding.getOption('right')),
           this.pixelBoundsCache_.width);
-      var paddingTop = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.labels().padding().getOption('top')),
+      var paddingTop = anychart.utils.normalizeSize(/** @type {(number|string)} */ (labelsPadding.getOption('top')),
           this.pixelBoundsCache_.height);
-      var paddingBottom = anychart.utils.normalizeSize(/** @type {(number|string)} */ (this.labels().padding().getOption('bottom')),
+      var paddingBottom = anychart.utils.normalizeSize(/** @type {(number|string)} */ (labelsPadding.getOption('bottom')),
           this.pixelBoundsCache_.height);
 
       var counter = -1;
@@ -749,8 +739,7 @@ anychart.ganttModule.Column.prototype.draw = function() {
 
         var format = this.dataGrid_.createFormatProvider(item);
 
-        var label = this.labels().add(format,
-            {'value': {'x': this.pixelBoundsCache_.left, 'y': totalTop}});
+        var label = labels.add(format, {'value': {'x': this.pixelBoundsCache_.left, 'y': totalTop}});
 
         label.suspendSignalsDispatching();
 
@@ -773,8 +762,8 @@ anychart.ganttModule.Column.prototype.draw = function() {
         this.buttons_[counter].enabled(false).draw();
       }
 
-      this.labels().resumeSignalsDispatching(false);
-      this.labels().draw();
+      labels.resumeSignalsDispatching(false);
+      labels.draw();
       this.markConsistent(anychart.ConsistencyState.DATA_GRID_COLUMN_POSITION);
     }
 
@@ -820,6 +809,37 @@ anychart.ganttModule.Column.prototype.getLabelTexts = function() {
 };
 
 
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
+anychart.ganttModule.Column.prototype.setupByJSON = function(json, opt_default) {
+  anychart.ganttModule.Column.base(this, 'setupByJSON', json, opt_default);
+
+  this.width(json['width']);
+  this.defaultWidth(json['defaultWidth']);
+  this.collapseExpandButtons(json['collapseExpandButtons']);
+  this.depthPaddingMultiplier(json['depthPaddingMultiplier']);
+  this.cellTextSettings().setupInternal(!!opt_default, json['cellTextSettings']);
+  this.labels().setupInternal(!!opt_default, json['labels']);
+  if (goog.isDef(json['format']))
+    this.format(json['format']);
+  this.buttonCursor(json['buttonCursor']);
+  this.onEdit(json['onEdit']);
+
+  this.title().setupInternal(!!opt_default, json['title']);
+
+  if ('cellTextSettingsOverrider' in json) this.cellTextSettingsOverrider(json['cellTextSettingsOverrider']);
+};
+
+
+/** @inheritDoc */
+anychart.ganttModule.Column.prototype.disposeInternal = function() {
+  anychart.ganttModule.Column.base(this, 'disposeInternal');
+  goog.disposeAll(this.labels_, this.title_, this.titlePath_, this.titleLayer_, this.cellsLayer_, this.base_);
+};
+
+
 /** @inheritDoc */
 anychart.ganttModule.Column.prototype.serialize = function() {
   var json = anychart.ganttModule.Column.base(this, 'serialize');
@@ -841,26 +861,6 @@ anychart.ganttModule.Column.prototype.serialize = function() {
   }
 
   return json;
-};
-
-
-/** @inheritDoc */
-anychart.ganttModule.Column.prototype.setupByJSON = function(json, opt_default) {
-  anychart.ganttModule.Column.base(this, 'setupByJSON', json, opt_default);
-
-  this.width(json['width']);
-  this.defaultWidth(json['defaultWidth']);
-  this.collapseExpandButtons(json['collapseExpandButtons']);
-  this.depthPaddingMultiplier(json['depthPaddingMultiplier']);
-  // this.cellTextSettings(json['cellTextSettings']);
-  this.labels().setupInternal(!!opt_default, json['labels']);
-  this.buttonCursor(json['buttonCursor']);
-  this.onEdit(json['onEdit']);
-
-  this.title(json['title']);
-
-  // if ('format' in json) this.format(json['format']);
-  if ('cellTextSettingsOverrider' in json) this.cellTextSettingsOverrider(json['cellTextSettingsOverrider']);
 };
 
 
