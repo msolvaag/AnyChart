@@ -285,7 +285,8 @@ anychart.ganttModule.Column.prototype.defaultCellTextSettingsOverrider_ = goog.n
  * @return {(string|Function|anychart.ganttModule.Column)}
  */
 anychart.ganttModule.Column.prototype.format = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.format()', 'column.labels().format()'], true);
+  if (goog.isDef(opt_value))
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.format()', 'column.labels().format()'], true);
   var l = /** @type {anychart.core.ui.LabelsFactory} */ (this.labels());
   return l.format(opt_value);
 };
@@ -351,7 +352,8 @@ anychart.ganttModule.Column.prototype.labels = function(opt_value) {
  * @return {(anychart.ganttModule.Column|anychart.core.ui.LabelsFactory)} - Current value or itself for method chaining.
  */
 anychart.ganttModule.Column.prototype.cellTextSettings = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.cellTextSettings()', 'column.labels()'], true);
+  if (goog.isDef(opt_value))
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.cellTextSettings()', 'column.labels()'], true);
   return this.labels(opt_value);
 };
 
