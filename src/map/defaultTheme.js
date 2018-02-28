@@ -295,12 +295,12 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'xStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'yStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'zIndex': 110,
-      'xLabel': {
+      'xLabels': [{
         'axisIndex': 2
-      },
-      'yLabel': {
+      }],
+      'yLabels': [{
         'axisIndex': 3
-      }
+      }]
     },
     'unboundRegions': {'enabled': true, 'fill': '#F7F7F7', 'stroke': '#e0e0e0'},
     'maxBubbleSize': '10%',
