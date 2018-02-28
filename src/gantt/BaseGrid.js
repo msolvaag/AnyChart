@@ -2062,7 +2062,7 @@ anychart.ganttModule.BaseGrid.prototype.drawInternal = function(positionRecalcul
 
     this.initDom();
 
-    this.lockInteractivityRect_ = this.base_.rect();
+    this.lockInteractivityRect_ = stage.rect();
     this.lockInteractivityRect_.stroke('none').fill('#000 0.1').zIndex(1e10);
   }
 
