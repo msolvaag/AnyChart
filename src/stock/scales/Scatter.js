@@ -352,7 +352,7 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     dataMaxKey = goog.math.clamp(this.maxKey, this.dataFullMinKey, this.dataFullMaxKey);
   }
 
-  var minorTickRange = Math.abs(dataMaxKey - dataMinKey) / this.ticksCount_;
+  var minorTickRange = anychart.utils.getIntervalRange(this.unit, this.count) * (this.maxIndex - this.minIndex) / this.ticksCount_;
   if (isNaN(minorTickRange)) {
     this.ticksIterator.setup(
         NaN,
@@ -578,6 +578,27 @@ anychart.stockModule.scales.Scatter.prototype.normalizeTicksRow_ = function(val)
   }
   return unit ? [unit, count] : null;
 };
+
+
+/**
+ * Returns key by index. Index can be fractional - the key will be inter- or extrapolated.
+ * @param {number} index
+ * @return {number}
+ */
+anychart.stockModule.scales.Scatter.prototype.getKeyByIndex = function(index) {
+  return this.keyIndexTransformer.getKeyByIndex(index);
+};
+
+
+/**
+ * Returns index by key. If the key is not in the registry - returns fractional inter/extrapolated index for it.
+ * @param {number} key
+ * @return {number}
+ */
+anychart.stockModule.scales.Scatter.prototype.getIndexByKey = function(key) {
+  return this.keyIndexTransformer.getIndexByKey(key);
+};
+
 
 
 /**

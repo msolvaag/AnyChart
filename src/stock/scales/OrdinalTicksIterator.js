@@ -68,11 +68,16 @@ anychart.stockModule.scales.OrdinalTicksIterator.prototype.advance = function() 
  */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.advanceDate_ = function(value, interval) {
   var aligned = this.scale_.alignByIndex(value.getTime());
-  var prevVal, curr = value.getTime();
-  do {
-    prevVal = curr;
+  var curr = value.getTime();
+
+  value.add(interval);
+  var next = value.getTime();
+  if (next <= aligned) {
+    next = aligned;
+    curr = anychart.utils.alignDateLeft(next, interval, curr);
+    value.setTime(curr);
     value.add(interval);
-    curr = value.getTime();
-  } while (curr < this.end && this.scale_.alignByIndex(curr) == aligned);
-  return prevVal;
+  }
+
+  return curr;
 };

@@ -683,7 +683,12 @@ anychart.stockModule.Axis.prototype.drawLabel_ = function(value, isMajor, bounds
     labels = this.minorLabels();
   }
 
-  var x = Math.round(bounds.left + this.scale_.transformAligned(value) * bounds.width);
+
+  index = Math.ceil(this.scale_.getIndexByKey(value));
+  value = this.scale_.getKeyByIndex(index);
+
+  var ratio = this.scale_.transformInternal(value, index);
+  var x = Math.round(bounds.left + ratio * bounds.width);
   var y = bounds.top;
 
   var formatProvider = this.getLabelsFormatProvider_(value, majorUnit, majorUnitCount, minorUnit, minorUnitCount);
