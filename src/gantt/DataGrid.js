@@ -987,18 +987,20 @@ anychart.ganttModule.DataGrid.prototype.addMouseDblClick = function(e) {
     var hoveredIndex = e['hoveredIndex'];
     var index = e['index'];
 
+    var fixEnd = false;
+    var usedIndex;
+
+
     if (index == this.controller.startIndex()) {
       this.controller.scrollToRow(index);
-    }
-
-    var fixEnd = false;
-    if (index == this.controller.endIndex()) {
+    } else if (index == this.controller.endIndex()) {
       this.controller.endIndex(index);
       var gridHeightCache = this.getGridHeightCache();
+      usedIndex = Math.min(gridHeightCache.length - 1, hoveredIndex);
       var initialTop = /** @type {number} */ (this.pixelBoundsCache.top + /** @type {number} */ (this.headerHeight()) + 1);
-      var startHeight = hoveredIndex ? gridHeightCache[hoveredIndex - 1] : 0;
+      var startHeight = hoveredIndex ? gridHeightCache[usedIndex - 1] : 0;
       var startY = initialTop + startHeight;
-      var endY = startY + (gridHeightCache[hoveredIndex] - startHeight - this.rowStrokeThickness) - 2;
+      var endY = startY + (gridHeightCache[usedIndex] - startHeight - this.rowStrokeThickness) - 2;
       fixEnd = true;
     }
 
@@ -1012,7 +1014,8 @@ anychart.ganttModule.DataGrid.prototype.addMouseDblClick = function(e) {
       var val = '';
       if (this.editColumn_) {
         var colLabelTexts = this.editColumn_.getLabelTexts();
-        val = colLabelTexts[hoveredIndex];
+        usedIndex = Math.min(hoveredIndex, colLabelTexts.length - 1);
+        val = colLabelTexts[usedIndex];
       }
       this.editInput_.show(val, bounds);
       this.editInput_.focusAndSelect();
