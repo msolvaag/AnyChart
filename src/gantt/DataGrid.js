@@ -901,7 +901,6 @@ anychart.ganttModule.DataGrid.prototype.editInputFocusHandler_ = function(e) {
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.editInputHideHandler_ = function(e) {
-  // console.log('From hide');
   this.escaped_ = false;
   this.submitted_ = false;
   this.editInput_.reset();

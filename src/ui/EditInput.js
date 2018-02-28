@@ -151,7 +151,8 @@ anychart.ui.EditInput.prototype.keyPressHandler_ = function(e) {
 
       evt = this.wrapEvent_(e, type);
       if (this.dispatchEvent(evt)) {
-        this.hide(); //this dispatches blur events
+        this.getElement().blur();
+        this.hide();
       }
     }
   }
