@@ -812,7 +812,7 @@ anychart.circularGaugeModule.pointers.Base.prototype.hoverMode = function(opt_va
 /** @inheritDoc */
 anychart.circularGaugeModule.pointers.Base.prototype.serialize = function() {
   var json = anychart.circularGaugeModule.pointers.Base.base(this, 'serialize');
-
+  json['pointerType'] = this.getType();
 
   if (goog.isFunction(this['fill'])) {
     if (goog.isFunction(this.fill())) {

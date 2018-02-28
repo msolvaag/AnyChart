@@ -1332,8 +1332,10 @@ anychart.linearGaugeModule.Chart.prototype.setupByJSON = function(config, opt_de
       json = pointers[i];
       var pointerType = json['pointerType'] || this.getOption('defaultPointerType');
       var dataIndex = json['dataIndex'];
+      var data = json['data'] || null;
       var pointerInst = this.createPointerByType_(pointerType, dataIndex);
       if (pointerInst) {
+        pointerInst.data(data);
         pointerInst.setup(json);
         if (goog.isObject(json)) {
           if ('scale' in json && json['scale'] > 0) pointerInst.scale(scalesInstances[json['scale']]);

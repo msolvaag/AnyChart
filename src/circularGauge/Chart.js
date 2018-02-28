@@ -1501,36 +1501,57 @@ anychart.circularGaugeModule.Chart.prototype.setupByJSON = function(config, opt_
   }
 
   //TODO(AntonKagakin): up setup to config['pointers'] with fallback to bars/markers/etc...
-
-  var bars = config['bars'];
-  if (bars) {
-    for (i = 0, len = bars.length; i < len; i++) {
-      if (bars[i])
-        this['bar'](i, bars[i]);
+  if ('pointers' in config) {
+    var pointers = config['pointers'];
+    var json;
+    if (goog.isArray(pointers)) {
+      for (i = 0; i < pointers.length; i++) {
+        json = pointers[i];
+        var pointerType = json['pointerType'] || this.getOption('defaultPointerType');
+        var typedArray = this.getTypedArray(pointerType);
+        var length = typedArray.length;
+        var dataIndex = json['dataIndex'];
+        var data = json['data'] || null;
+        var pointerInst = this.createPointerByType_(pointerType, length + i);
+        if (pointerInst) {
+          pointerInst.dataIndex(dataIndex);
+          pointerInst.data(data);
+          pointerInst.setup(json);
+        }
+      }
     }
-  }
-
-  var markers = config['markers'];
-  if (markers) {
-    for (i = 0, len = markers.length; i < len; i++) {
-      if (markers[i])
-        this['marker'](i, markers[i]);
+  } else {
+    // legacy
+    var bars = config['bars'];
+    if (bars) {
+      for (i = 0, len = bars.length; i < len; i++) {
+        if (bars[i])
+          this['bar'](i, bars[i]);
+      }
     }
-  }
 
-  var needles = config['needles'];
-  if (needles) {
-    for (i = 0, len = needles.length; i < len; i++) {
-      if (needles[i])
-        this['needle'](i, needles[i]);
+    var markers = config['markers'];
+    if (markers) {
+      for (i = 0, len = markers.length; i < len; i++) {
+        if (markers[i])
+          this['marker'](i, markers[i]);
+      }
     }
-  }
 
-  var knobs = config['knobs'];
-  if (knobs) {
-    for (i = 0, len = knobs.length; i < len; i++) {
-      if (knobs[i])
-        this['knob'](i, knobs[i]);
+    var needles = config['needles'];
+    if (needles) {
+      for (i = 0, len = needles.length; i < len; i++) {
+        if (needles[i])
+          this['needle'](i, needles[i]);
+      }
+    }
+
+    var knobs = config['knobs'];
+    if (knobs) {
+      for (i = 0, len = knobs.length; i < len; i++) {
+        if (knobs[i])
+          this['knob'](i, knobs[i]);
+      }
     }
   }
 
@@ -1564,33 +1585,14 @@ anychart.circularGaugeModule.Chart.prototype.serialize = function() {
   }
   if (axes.length) json['axes'] = axes;
 
-  var bars = [];
-  for (i = 0, len = this.bars_.length; i < len; i++) {
-    var bar = this.bars_[i];
-    if (bar) bars.push(bar.serialize());
+  var pointers = [];
+  for (i = 0; i < this.pointers_.length; i++) {
+    var pointer = this.pointers_[i];
+    if (pointer)
+      pointers.push(pointer.serialize());
   }
-  if (bars.length) json['bars'] = bars;
-
-  var markers = [];
-  for (i = 0, len = this.markers_.length; i < len; i++) {
-    var marker = this.markers_[i];
-    if (marker) markers.push(marker.serialize());
-  }
-  if (markers.length) json['markers'] = markers;
-
-  var needles = [];
-  for (i = 0, len = this.needles_.length; i < len; i++) {
-    var needle = this.needles_[i];
-    if (needle) needles.push(needle.serialize());
-  }
-  if (needles.length) json['needles'] = needles;
-
-  var knobs = [];
-  for (i = 0, len = this.knobs_.length; i < len; i++) {
-    var knob = this.knobs_[i];
-    if (knob) knobs.push(knob.serialize());
-  }
-  if (knobs.length) json['knobs'] = knobs;
+  if (pointers.length)
+    json['pointers'] = pointers;
 
   var ranges = [];
   for (i = 0, len = this.ranges_.length; i < len; i++) {

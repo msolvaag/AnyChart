@@ -273,6 +273,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="fill" type="Fill"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="stroke" type="Stroke"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="cap" type="core.gauge.Cap"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="pointers" type="core.gauge.pointers.Pointer_list"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="bar_pointers" type="core.gauge.pointers.Bar_list"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="marker_pointers" type="core.gauge.pointers.Marker_list"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="needle_pointers" type="core.gauge.pointers.Needle_list"/>
@@ -2296,6 +2297,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="hatch_fill" type="HatchFill"/>
         </xsd:all>
         <!-- Pointers base attr -->
+        <xsd:attribute name="pointer_type" type="enums.CircularGaugePointerType"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="hatch_fill" type="simple.HatchFill"/>
@@ -2322,6 +2324,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="hatch_fill" type="HatchFill"/>
         </xsd:all>
         <!-- Pointers base attr -->
+        <xsd:attribute name="pointer_type" type="enums.CircularGaugePointerType"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="hatch_fill" type="simple.HatchFill"/>
@@ -2335,6 +2338,17 @@
         <xsd:attribute name="top_radius" type="simple.NumberOrPercentOrNull"/>
         <xsd:attribute name="bottom_radius" type="simple.NumberOrPercentOrNull"/>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="core.gauge.pointers.Pointer_list">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:choice>
+                <xsd:element name="pointer" type="core.gauge.pointers.Bar" />
+                <xsd:element name="pointer" type="core.gauge.pointers.Marker" />
+                <xsd:element name="pointer" type="core.gauge.pointers.Needle" />
+                <xsd:element name="pointer" type="core.gauge.pointers.Knob" />
+            </xsd:choice>
+        </xsd:sequence>
     </xsd:complexType>
 
     <xsd:complexType name="core.gauge.pointers.Knob_list">
@@ -2351,6 +2365,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="hatch_fill" type="HatchFill"/>
         </xsd:all>
         <!-- Pointers base attr -->
+        <xsd:attribute name="pointer_type" type="enums.CircularGaugePointerType"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="hatch_fill" type="simple.HatchFill"/>
@@ -2378,6 +2393,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="hatch_fill" type="HatchFill"/>
         </xsd:all>
         <!-- Pointers base attr -->
+        <xsd:attribute name="pointer_type" type="enums.CircularGaugePointerType"/>
         <xsd:attribute name="fill" type="xsd:string"/>
         <xsd:attribute name="stroke" type="xsd:string"/>
         <xsd:attribute name="hatch_fill" type="simple.HatchFill"/>
@@ -3518,6 +3534,15 @@
             <xsd:enumeration value="by-spot"/>
             <xsd:enumeration value="by-x"/>
             <xsd:enumeration value="single"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="enums.CircularGaugePointerType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="bar"/>
+            <xsd:enumeration value="marker"/>
+            <xsd:enumeration value="needle"/>
+            <xsd:enumeration value="knob"/>
         </xsd:restriction>
     </xsd:simpleType>
 
