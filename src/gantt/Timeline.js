@@ -5251,6 +5251,7 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
   json['editFinishConnectorMarkerVerticalOffset'] = this.editFinishConnectorMarkerVerticalOffset_;
   json['editIntervalWidth'] = this.editIntervalWidth_;
 
+  json['elements'] = this.elements().serialize();
   if (this.controller.isResources()) {
     json['periods'] = this.periods().serialize();
   } else {
@@ -5261,7 +5262,7 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
     json['progress'] = this.progress().serialize();
   }
 
-  var i = 0;
+  var i;
   var lineMarkers = [];
   for (i = 0; i < this.lineMarkers_.length; i++) {
     var lineMarker = this.lineMarkers_[i];
@@ -5393,7 +5394,7 @@ anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_defau
 anychart.ganttModule.TimeLine.prototype.disposeInternal = function() {
   goog.dispose(this.horizontalScrollBar_);
   this.horizontalScrollBar_ = null;
-  goog.disposeAll(this.periods_, this.tasks_, this.groupingTasks_, this.milestones_, this.baselines_, this.progress_);
+  goog.disposeAll(this.elements_, this.periods_, this.tasks_, this.groupingTasks_, this.milestones_, this.baselines_, this.progress_);
   anychart.ganttModule.TimeLine.base(this, 'disposeInternal');
 };
 
