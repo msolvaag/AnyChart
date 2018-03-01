@@ -2060,13 +2060,14 @@ anychart.enums.normalizeGanttRangeAnchor = function(value, opt_default) {
  * @enum {string}
  */
 anychart.enums.TLElementTypes = {
-  PARENT: 'parent',
-  BASE: 'base',
+  ALL: 'all',
+  GROUPING_TASKS: 'grouping-tasks',
+  TASKS: 'tasks',
   PROGRESS: 'progress',
-  BASELINE: 'baseline',
-  MILESTONE: 'milestone',
-  PERIOD: 'period',
-  CONNECTOR: 'connector'
+  BASELINES: 'baselines',
+  MILESTONES: 'milestones',
+  PERIODS: 'periods',
+  CONNECTORS: 'connectors'
 };
 
 

@@ -57,7 +57,8 @@ anychart.ganttModule.rendering.Settings = function(timeline, element) {
   this.resolutionChainCache_ = null;
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-    ['drawer', anychart.ConsistencyState.ONLY_DISPATCHING, anychart.Signal.NEEDS_REDRAW]
+    ['drawer', anychart.ConsistencyState.ONLY_DISPATCHING, anychart.Signal.NEEDS_REDRAW],
+    ['shapes', anychart.ConsistencyState.ONLY_DISPATCHING, anychart.Signal.NEEDS_REDRAW]
   ]);
 
 };
@@ -95,6 +96,12 @@ anychart.ganttModule.rendering.Settings.DESCRIPTORS = (function() {
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'drawer',
       anychart.core.settings.functionNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'shapes',
+      anychart.core.settings.asIsNormalizer);
 
   return map;
 })();
@@ -184,53 +191,53 @@ anychart.ganttModule.rendering.Settings.prototype.parentInvalidated_ = function(
 
 //endregion
 //region -- Shapes API.
-/**
- * Shapes settings getter/setter.
- * @param {?Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>=} opt_value
- * @return {anychart.ganttModule.rendering.Settings|Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>}
- */
-anychart.ganttModule.rendering.Settings.prototype.shapes = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.shapes_ = goog.isArray(opt_value) ? /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */(
-        goog.array.map(opt_value, function(item) {
-          return {
-            name: String(item['name']),
-            shapeType: anychart.enums.normalizeShapeType(item['shapeType']),
-            fillName: item['fillName'],
-            strokeName: item['strokeName'],
-            zIndex: +item['zIndex'] || 0,
-            disablePointerEvents: !!item.disablePointerEvents
-          };
-        })) :
-        null;
-    this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
-    return this;
-  }
-  return /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */(
-      goog.array.map(this.getShapesConfig(), function(item) {
-        return {
-          'name': item.name,
-          'shapeType': item.shapeType,
-          'fillName': item.fillName,
-          'strokeName': item.strokeName,
-          'zIndex': item.zIndex,
-          'disablePointerEvents': item.disablePointerEvents
-        };
-      })
-  );
-};
+// /**
+//  * Shapes settings getter/setter.
+//  * @param {?Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>=} opt_value
+//  * @return {anychart.ganttModule.rendering.Settings|Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>}
+//  */
+// anychart.ganttModule.rendering.Settings.prototype.shapes = function(opt_value) {
+//   if (goog.isDef(opt_value)) {
+//     this.shapes_ = goog.isArray(opt_value) ? /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */(
+//         goog.array.map(opt_value, function(item) {
+//           return {
+//             name: String(item['name']),
+//             shapeType: anychart.enums.normalizeShapeType(item['shapeType']),
+//             fillName: item['fillName'],
+//             strokeName: item['strokeName'],
+//             zIndex: +item['zIndex'] || 0,
+//             disablePointerEvents: !!item.disablePointerEvents
+//           };
+//         })) :
+//         null;
+//     this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
+//     return this;
+//   }
+//   return /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */(
+//       goog.array.map(this.getShapesConfig(), function(item) {
+//         return {
+//           'name': item.name,
+//           'shapeType': item.shapeType,
+//           'fillName': item.fillName,
+//           'strokeName': item.strokeName,
+//           'zIndex': item.zIndex,
+//           'disablePointerEvents': item.disablePointerEvents
+//         };
+//       })
+//   );
+// };
 
 
-/**
- * Returns shapes config. Internal method.
- * @return {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>}
- */
-anychart.ganttModule.rendering.Settings.prototype.getShapesConfig = function() {
-  // NOTE:
-  // Nice moment here: despite this.shapes_ can be null, we suppose
-  // that during the settings inheritance this.shapes_ will become not null anyway.
-  return /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */ (this.shapes_ ? this.shapes_ : (this.parent_ ? this.parent_.getShapesConfig() : null));
-};
+// /**
+//  * Returns shapes config. Internal method.
+//  * @return {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>}
+//  */
+// anychart.ganttModule.rendering.Settings.prototype.getShapesConfig = function() {
+//   // NOTE:
+//   // Nice moment here: despite this.shapes_ can be null, we suppose
+//   // that during the settings inheritance this.shapes_ will become not null anyway.
+//   return /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */ (this.shapes_ ? this.shapes_ : (this.parent_ ? this.parent_.getShapesConfig() : null));
+// };
 
 
 //endregion
@@ -256,10 +263,6 @@ anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(item, pr
 anychart.ganttModule.rendering.Settings.prototype.serialize = function() {
   var json = anychart.ganttModule.TimeLine.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.ganttModule.rendering.Settings.DESCRIPTORS, json);
-
-  if (this.shapes_)
-    json['shapes'] = this.shapes();
-
   return json;
 };
 
@@ -271,11 +274,6 @@ anychart.ganttModule.rendering.Settings.prototype.setupByJSON = function(config,
     anychart.core.settings.copy(this.themeSettings, anychart.ganttModule.rendering.Settings.DESCRIPTORS, config);
   else
     anychart.core.settings.deserialize(this, anychart.ganttModule.rendering.Settings.DESCRIPTORS, config);
-
-  var shapes = config['shapes'];
-  if (goog.isDef(shapes))
-    this.shapes(shapes);
-
 };
 
 
@@ -297,10 +295,10 @@ anychart.ganttModule.rendering.Settings.prototype.disposeInternal = function() {
 //endregion
 //region -- Exports.
 //exports
-(function() {
-  var proto = anychart.ganttModule.rendering.Settings.prototype;
-  proto['shapes'] = proto.shapes;
-})();
+// (function() {
+//   var proto = anychart.ganttModule.rendering.Settings.prototype;
+//   proto['shapes'] = proto.shapes;
+// })();
 
 
 //endregion

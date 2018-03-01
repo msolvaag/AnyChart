@@ -35,7 +35,7 @@ anychart.ganttModule.elements.Base = function(timeline, opt_type) {
    * @type {anychart.enums.TLElementTypes}
    * @private
    */
-  this.type_ = goog.isDef(opt_type) ? opt_type : anychart.enums.TLElementTypes.BASE;
+  this.type_ = goog.isDef(opt_type) ? opt_type : anychart.enums.TLElementTypes.ALL;
 
   /**
    * Parent element.
@@ -53,7 +53,6 @@ anychart.ganttModule.elements.Base = function(timeline, opt_type) {
 
   this.renderingSettings = new anychart.ganttModule.rendering.Settings(this.timeline_, this);
   this.renderingSettings.listenSignals(this.renderingSettingsInvalidated_, this);
-  this.recreateShapeManager();
 };
 goog.inherits(anychart.ganttModule.elements.Base, anychart.core.Base);
 
@@ -190,13 +189,13 @@ anychart.ganttModule.elements.Base.prototype.getTimeline = function() {
 anychart.ganttModule.elements.Base.prototype.getFillOptionName = function() {
   var optionName;
   switch (this.type()) {
-    case anychart.enums.TLElementTypes.MILESTONE:
+    case anychart.enums.TLElementTypes.MILESTONES:
       optionName = 'milestoneFill';
       break;
-    case anychart.enums.TLElementTypes.BASELINE:
+    case anychart.enums.TLElementTypes.BASELINES:
       optionName = 'baselineFill';
       break;
-    case anychart.enums.TLElementTypes.PARENT:
+    case anychart.enums.TLElementTypes.GROUPING_TASKS:
       optionName = 'parentFill';
       break;
     case anychart.enums.TLElementTypes.PROGRESS:
@@ -216,13 +215,13 @@ anychart.ganttModule.elements.Base.prototype.getFillOptionName = function() {
 anychart.ganttModule.elements.Base.prototype.getStrokeOptionName = function() {
   var optionName;
   switch (this.type()) {
-    case anychart.enums.TLElementTypes.MILESTONE:
+    case anychart.enums.TLElementTypes.MILESTONES:
       optionName = 'milestoneStroke';
       break;
-    case anychart.enums.TLElementTypes.BASELINE:
+    case anychart.enums.TLElementTypes.BASELINES:
       optionName = 'baselineStroke';
       break;
-    case anychart.enums.TLElementTypes.PARENT:
+    case anychart.enums.TLElementTypes.GROUPING_TASKS:
       optionName = 'parentStroke';
       break;
     case anychart.enums.TLElementTypes.PROGRESS:
@@ -270,7 +269,8 @@ anychart.ganttModule.elements.Base.prototype.getStroke = function(item, opt_peri
  */
 anychart.ganttModule.elements.Base.prototype.recreateShapeManager = function() {
   goog.dispose(this.shapeManager);
-  this.shapeManager = new anychart.ganttModule.rendering.ShapeManager(this.getTimeline(), this, this.renderingSettings.getShapesConfig());
+  var shapes = /** @type {!Array.<anychart.ganttModule.rendering.shapes.ShapeConfig>} */ (this.renderingSettings.getOption('shapes'));
+  this.shapeManager = new anychart.ganttModule.rendering.ShapeManager(this.getTimeline(), this, shapes);
   this.shapeManager.setContainer(this.getTimeline().getDrawLayer());
 };
 

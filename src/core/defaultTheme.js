@@ -2231,7 +2231,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'progressBarAnchor': 'left-center',
     //all another settings should be set to 'null' for serialization demerging purposes
 
-    'bar': {
+    'elements': {
       'rendering': {
         /**
          * @this {*}
@@ -2239,14 +2239,56 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
          */
         'drawer': function() {
           var shapes = this['shapes'];
-          var path = shapes['bar'];
+          var path = shapes['path'];
           var bounds = this['predictedBounds'];
           anychart.graphics['vector']['primitives']['roundedRect'](path, bounds, 0);
+        },
+        'shapes': [
+          {
+            'name': 'path',
+            'shapeType': 'path',
+            'fillName': 'fill',
+            'strokeName': 'stroke',
+            'zIndex': 0,
+            'disablePointerEvents': false
+          }
+        ]
+      }
+    },
+
+    'tasks': {
+      'progress': {
+        'rendering': {
+          'shapes': [
+            {
+              'name': 'path',
+              'shapeType': 'path',
+              'fillName': 'fill',
+              'strokeName': 'stroke',
+              'zIndex': 1,
+              'disablePointerEvents': true
+            }
+          ]
         }
       }
     },
 
-    'parent': {
+    // 'bar': {
+    //   'rendering': {
+    //     /**
+    //      * @this {*}
+    //      * @return {*}
+    //      */
+    //     'drawer': function() {
+    //       var shapes = this['shapes'];
+    //       var path = shapes['bar'];
+    //       var bounds = this['predictedBounds'];
+    //       anychart.graphics['vector']['primitives']['roundedRect'](path, bounds, 0);
+    //     }
+    //   }
+    // },
+
+    'groupingTasks': {
       'rendering': {
         /**
          * @this {*}
@@ -2254,7 +2296,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
          */
         'drawer': function() {
           var shapes = this['shapes'];
-          var path = shapes['bar'];
+          var path = shapes['path'];
           var bounds = this['predictedBounds'];
 
           var right = bounds.left + bounds.width;
@@ -2274,7 +2316,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       }
     },
 
-    'milestone': {
+    'milestones': {
       'rendering': {
         /**
          * @this {*}
@@ -2282,7 +2324,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
          */
         'drawer': function() {
           var shapes = this['shapes'];
-          var path = shapes['bar'];
+          var path = shapes['path'];
           var bounds = this['predictedBounds'];
           var radius = bounds.width / 2;
           anychart.graphics['vector']['primitives']['diamond'](path, bounds.left + radius, bounds.top + radius, radius);

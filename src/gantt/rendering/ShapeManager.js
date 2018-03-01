@@ -64,48 +64,50 @@ anychart.ganttModule.rendering.ShapeManager = function(timeline, visualElement, 
    */
   this.defs = {};
 
-  var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-  var config = opt_config || [anychart.ganttModule.rendering.shapes.barConfig];
-  for (var i = 0; i < config.length; i++) {
-    var shapeConfig = config[i];
-    var fill = resolver(shapeConfig.fillName, anychart.enums.ColorType.FILL, false);
-    var stroke = resolver(shapeConfig.strokeName, anychart.enums.ColorType.FILL, false);
+  if (goog.isArray(opt_config)) {
+    var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
+    // var config = opt_config || [anychart.ganttModule.rendering.shapes.barConfig];
+    for (var i = 0; i < opt_config.length; i++) {
+      var shapeConfig = opt_config[i];
+      var fill = resolver(shapeConfig['fillName'], anychart.enums.ColorType.FILL, false);
+      var stroke = resolver(shapeConfig['strokeName'], anychart.enums.ColorType.FILL, false);
 
-    var type = shapeConfig.shapeType;
-    var val = String(type).toLowerCase();
-    var cls;
-    switch (val) {
-      case anychart.enums.ShapeType.NONE:
-        cls = null;
-        break;
-      case anychart.enums.ShapeType.RECT:
-        cls = acgraph.rect;
-        break;
-      case anychart.enums.ShapeType.CIRCLE:
-        cls = acgraph.circle;
-        break;
-      case anychart.enums.ShapeType.ELLIPSE:
-        cls = acgraph.ellipse;
-        break;
-        // case 'path':
-      default:
-        cls = acgraph.path;
-        break;
-    }
-    if (!this.usedShapes[type]) {
-      this.usedShapes[type] = [];
-      this.shapePools[type] = [];
-      this.shapePoolPointers[type] = 0;
-    }
+      var type = shapeConfig['shapeType'];
+      var val = String(type).toLowerCase();
+      var cls;
+      switch (val) {
+        case anychart.enums.ShapeType.NONE:
+          cls = null;
+          break;
+        case anychart.enums.ShapeType.RECT:
+          cls = acgraph.rect;
+          break;
+        case anychart.enums.ShapeType.CIRCLE:
+          cls = acgraph.circle;
+          break;
+        case anychart.enums.ShapeType.ELLIPSE:
+          cls = acgraph.ellipse;
+          break;
+          // case 'path':
+        default:
+          cls = acgraph.path;
+          break;
+      }
+      if (!this.usedShapes[type]) {
+        this.usedShapes[type] = [];
+        this.shapePools[type] = [];
+        this.shapePoolPointers[type] = 0;
+      }
 
-    this.defs[shapeConfig.name] = {
-      fill: fill,
-      stroke: stroke,
-      zIndex: +shapeConfig.zIndex,
-      cls: cls,
-      shapeType: type,
-      disablePointerEvents: !!shapeConfig.disablePointerEvents
-    };
+      this.defs[shapeConfig['name']] = {
+        fill: fill,
+        stroke: stroke,
+        zIndex: +shapeConfig['zIndex'],
+        cls: cls,
+        shapeType: type,
+        disablePointerEvents: !!shapeConfig['disablePointerEvents']
+      };
+    }
   }
 
   /**
