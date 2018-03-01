@@ -147,7 +147,7 @@ anychart.circularGaugeModule.AxisTicks.prototype.stroke = function(opt_strokeOrF
         acgraph.vector.normalizeStroke.apply(null, arguments);
     if (stroke != this.stroke_) {
       this.stroke_ = stroke;
-      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -173,7 +173,7 @@ anychart.circularGaugeModule.AxisTicks.prototype.fill = function(opt_fillOrColor
         acgraph.vector.normalizeFill.apply(null, arguments);
     if (fill != this.fill_) {
       this.fill_ = fill;
-      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
