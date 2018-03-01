@@ -12,6 +12,18 @@ anychart.stockModule.scales.ScatterTicksIterator = function() {
 };
 
 
+anychart.stockModule.scales.ScatterTicksIterator.prototype.setupAsArray = function(majorTicks, minorTicks) {
+  this.minorTicks = minorTicks;
+  this.majorTicks = majorTicks;
+
+  this.customTicks = goog.array.concat(this.minorTicks, this.majorTicks);
+  goog.array.sort(this.customTicks);
+  goog.array.removeDuplicates(this.customTicks);
+
+  this.isCustomTicks = true;
+};
+
+
 /**
  * @param {number} start
  * @param {number} end
@@ -21,6 +33,8 @@ anychart.stockModule.scales.ScatterTicksIterator = function() {
  */
 anychart.stockModule.scales.ScatterTicksIterator.prototype.setup = function(start, end, majorInterval, minorInterval,
     globalStart) {
+  this.isCustomTicks = false;
+
   /**
    * @type {number}
    * @protected
@@ -74,6 +88,8 @@ anychart.stockModule.scales.ScatterTicksIterator.prototype.setup = function(star
  * Resets the iterator to the pre-first position.
  */
 anychart.stockModule.scales.ScatterTicksIterator.prototype.reset = function() {
+  this.currentIndex = -1;
+
   /**
    * @type {goog.date.UtcDateTime}
    * @protected
@@ -109,33 +125,46 @@ anychart.stockModule.scales.ScatterTicksIterator.prototype.reset = function() {
  * @return {boolean}
  */
 anychart.stockModule.scales.ScatterTicksIterator.prototype.advance = function() {
-  var major = this.currentMajor.getTime();
-  var minor = this.currentMinor.getTime();
+  if (this.isCustomTicks) {
+    this.currentIndex++;
+    this.current = this.customTicks[this.currentIndex];
 
-  /**
-   * @type {number}
-   * @protected
-   */
-  this.current = Math.min(major, minor);
 
-  /**
-   * @type {boolean}
-   * @protected
-   */
-  this.currentIsMajor = major == this.current;
+    this.currentIsMajor = goog.array.indexOf(this.majorTicks, this.current);
 
-  /**
-   * @type {boolean}
-   * @protected
-   */
-  this.currentIsMinor = minor == this.current;
+    this.currentIsMinor = goog.array.indexOf(this.minorTicks, this.current);
 
-  var result = this.current <= this.end;
-  if (result) {
-    if (this.currentIsMajor)
-      this.currentMajor.add(this.majorInterval);
-    if (this.currentIsMinor)
-      this.currentMinor.add(this.minorInterval);
+
+    return !!this.current;
+  } else {
+    var major = this.currentMajor.getTime();
+    var minor = this.currentMinor.getTime();
+
+    /**
+     * @type {number}
+     * @protected
+     */
+    this.current = Math.min(major, minor);
+
+    /**
+     * @type {boolean}
+     * @protected
+     */
+    this.currentIsMajor = major == this.current;
+
+    /**
+     * @type {boolean}
+     * @protected
+     */
+    this.currentIsMinor = minor == this.current;
+
+    var result = this.current <= this.end;
+    if (result) {
+      if (this.currentIsMajor)
+        this.currentMajor.add(this.majorInterval);
+      if (this.currentIsMinor)
+        this.currentMinor.add(this.minorInterval);
+    }
   }
   return result;
 };

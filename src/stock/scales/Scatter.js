@@ -384,12 +384,17 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     // };
   }
 
-  this.ticksIterator.setup(
-      dataMinKey,
-      dataMaxKey,
-      anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
-      anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
-      this.dataFullMinKey);
+  if (this.ticksCallback_) {
+    var customTicks = this.ticksCallback_();
+    this.ticksIterator.setupAsArray(customTicks[0], customTicks[1]);
+  } else {
+    this.ticksIterator.setup(
+        dataMinKey,
+        dataMaxKey,
+        anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
+        anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
+        this.dataFullMinKey);
+  }
 
   this.majorUnit_ = row.majorUnit;
   this.majorUnitCount_ = row.majorCount;
@@ -486,6 +491,17 @@ anychart.stockModule.scales.Scatter.prototype.ticksInvalidated_ = function(event
     this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
   }
 };
+
+
+anychart.stockModule.scales.Scatter.prototype.ticksCalback = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.ticksCallback_ = opt_value;
+    this.consistent = false;
+    this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
+    return this;
+  }
+  return this.ticksCallback_;
+}
 
 
 /**

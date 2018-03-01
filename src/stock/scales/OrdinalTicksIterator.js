@@ -27,34 +27,52 @@ goog.inherits(anychart.stockModule.scales.OrdinalTicksIterator, anychart.stockMo
 
 /** @inheritDoc */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.reset = function() {
-  this.currentMajor = new goog.date.UtcDateTime(new Date(this.alignedStart));
+  if (this.isCustomTicks) {
+    this.currentIndex = -1;
+  } else {
 
-  this.preFirstMajor = NaN;
-  if (this.alignedStart < this.start) {
-    this.preFirstMajor = this.advanceDate_(this.currentMajor, this.majorInterval);
-    if (this.preFirstMajor > this.end)
-      this.preFirstMajor = NaN;
+    this.currentMajor = new goog.date.UtcDateTime(new Date(this.alignedStart));
+
+    this.preFirstMajor = NaN;
+    if (this.alignedStart < this.start) {
+      this.preFirstMajor = this.advanceDate_(this.currentMajor, this.majorInterval);
+      if (this.preFirstMajor > this.end)
+        this.preFirstMajor = NaN;
+    }
+
+    this.currentMinor = new goog.date.UtcDateTime(new Date(this.alignedStart));
+
+    while (this.currentMinor.getTime() < this.start)
+      this.currentMinor.add(this.minorInterval);
   }
-
-  this.currentMinor = new goog.date.UtcDateTime(new Date(this.alignedStart));
-
-  while (this.currentMinor.getTime() < this.start)
-    this.currentMinor.add(this.minorInterval);
 };
 
 
 /** @inheritDoc */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.advance = function() {
-  var major = this.currentMajor.getTime();
-  var minor = this.advanceDate_(this.currentMinor, this.minorInterval);
+  if (this.isCustomTicks) {
+    this.currentIndex++;
+    this.current = this.customTicks[this.currentIndex];
 
-  this.current = minor;
-  this.currentIsMajor = major <= minor;
 
-  var result = this.current <= this.end;
-  if (result && this.currentIsMajor)
-    this.advanceDate_(this.currentMajor, this.majorInterval);
-  return result;
+    this.currentIsMajor = goog.array.indexOf(this.majorTicks, this.current);
+
+    this.currentIsMinor = goog.array.indexOf(this.minorTicks, this.current);
+
+
+    return !!this.current;
+  } else {
+    var major = this.currentMajor.getTime();
+    var minor = this.advanceDate_(this.currentMinor, this.minorInterval);
+
+    this.current = minor;
+    this.currentIsMajor = major <= minor;
+
+    var result = this.current <= this.end;
+    if (result && this.currentIsMajor)
+      this.advanceDate_(this.currentMajor, this.majorInterval);
+    return result;
+  }
 };
 
 

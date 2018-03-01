@@ -645,6 +645,8 @@ anychart.stockModule.Axis.prototype.drawLabels_ = function(bounds, iterator) {
           goog.array.splice(minorIndexes, 0, i);
         }
       }
+
+
       this.drawLabel_(curr, true, bounds,
           majorUnit, majorUnitCount, minorUnit, minorUnitCount, 0);
     }
@@ -683,11 +685,9 @@ anychart.stockModule.Axis.prototype.drawLabel_ = function(value, isMajor, bounds
     labels = this.minorLabels();
   }
 
-
-  index = Math.ceil(this.scale_.getIndexByKey(value));
-  value = this.scale_.getKeyByIndex(index);
-
-  var ratio = this.scale_.transformInternal(value, index);
+  var dataIndex = Math.ceil(this.scale_.getIndexByKey(value));
+  var value_ = this.scale_.getKeyByIndex(dataIndex);
+  var ratio = this.scale_.transformInternal(value_, dataIndex);
   var x = Math.round(bounds.left + ratio * bounds.width);
   var y = bounds.top;
 
