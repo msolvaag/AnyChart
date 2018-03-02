@@ -44,6 +44,10 @@ anychart.linearGaugeModule.pointers.Led = function() {
    * @private
    */
   this.gscState_ = '';
+
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['dimmer', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
+  ]);
 };
 goog.inherits(anychart.linearGaugeModule.pointers.Led, anychart.linearGaugeModule.pointers.Base);
 
@@ -171,8 +175,10 @@ anychart.linearGaugeModule.pointers.Led.prototype.drawVertical = function() {
     value = this.scale_.inverseTransform(ratio);
     color = this.colorScale_.valueToColor(value);
     criteria = this.scale_.inverted() ? ratio <= ledRatio : botRatio >= ledRatio;
-    if (criteria && goog.isFunction(this.dimmer_))
-      color = this.dimmer_.call({'color' : color}, color);
+    if (criteria) {
+      var dimmer = this.getOption('dimmer');
+      color = goog.isFunction(dimmer) ? dimmer.call({'color' : color}, color) : dimmer;
+    }
     if (goog.isNull(color))
       color = 'none';
     if (goog.isNull(currentColor)) {
@@ -263,23 +269,6 @@ anychart.linearGaugeModule.pointers.Led.prototype.getRatioByBound = function(bou
 
 
 /**
- * Getter/setter for dimmer.
- * @param {Function=} opt_value dimmer.
- * @return {Function|anychart.linearGaugeModule.pointers.Led} dimmer or self for chaining.
- */
-anychart.linearGaugeModule.pointers.Led.prototype.dimmer = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.dimmer_ != opt_value) {
-      this.dimmer_ = opt_value;
-      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return this.dimmer_;
-};
-
-
-/**
  * Finite automation for gap, size and count settings. Allows to exist only two of these three settings.
  * @param {string} propLetter Property letter.
  */
@@ -307,6 +296,23 @@ anychart.linearGaugeModule.pointers.Led.prototype.updateGscState = function(prop
     }
   }
 };
+
+
+/**
+ * Properties that should be defined in anychart.linearGaugeModule.pointers.Led prototype.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.linearGaugeModule.pointers.Led.OWN_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptors(map, [
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'dimmer', anychart.core.settings.fillOrFunctionSimpleNormalizer]
+  ]);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.linearGaugeModule.pointers.Led, anychart.linearGaugeModule.pointers.Led.OWN_DESCRIPTORS);
 
 
 /**
@@ -432,15 +438,7 @@ anychart.linearGaugeModule.pointers.Led.prototype.serialize = function() {
 
   json['colorScale'] = this.colorScale().serialize();
 
-  if (goog.isFunction(this.dimmer())) {
-    anychart.core.reporting.warning(
-        anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
-        null,
-        ['Pointer dimmer']
-    );
-  } else {
-    json['dimmer'] = this.dimmer();
-  }
+  anychart.core.settings.serialize(this, anychart.linearGaugeModule.pointers.Led.OWN_DESCRIPTORS, json, 'Led pointer');
 
   return json;
 };
@@ -453,7 +451,8 @@ anychart.linearGaugeModule.pointers.Led.prototype.setupByJSON = function(config,
   this.gap(config['gap']);
   this.size(config['size']);
   this.count(config['count']);
-  this.dimmer(config['dimmer']);
+
+  anychart.core.settings.deserialize(this, anychart.linearGaugeModule.pointers.Led.OWN_DESCRIPTORS, config, opt_default);
 
   if ('colorScale' in config) {
     var json = config['colorScale'];
