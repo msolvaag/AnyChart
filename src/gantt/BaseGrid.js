@@ -2648,7 +2648,6 @@ anychart.ganttModule.BaseGrid.prototype.serialize = function() {
 
   json['rowStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */ (this.rowStroke_));
   json['headerHeight'] = this.headerHeight_;
-  json['headerHeight'] = this.defaultRowHeight();
   json['editStructurePreviewFill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill} */ (this.editStructurePreviewFill_));
   json['editStructurePreviewStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewStroke_));
   json['editStructurePreviewDashStroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */ (this.editStructurePreviewDashStroke_));

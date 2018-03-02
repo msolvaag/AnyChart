@@ -2273,21 +2273,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       }
     },
 
-    // 'bar': {
-    //   'rendering': {
-    //     /**
-    //      * @this {*}
-    //      * @return {*}
-    //      */
-    //     'drawer': function() {
-    //       var shapes = this['shapes'];
-    //       var path = shapes['bar'];
-    //       var bounds = this['predictedBounds'];
-    //       anychart.graphics['vector']['primitives']['roundedRect'](path, bounds, 0);
-    //     }
-    //   }
-    // },
-
     'groupingTasks': {
       'rendering': {
         /**

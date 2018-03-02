@@ -3913,6 +3913,29 @@ anychart.ganttModule.TimeLine.prototype.getBarBounds_ = function(type, itemBound
 
 
 /**
+ * Fixes bounds with current stroke thickness.
+ * @param {anychart.ganttModule.elements.Base} element - Element.
+ * @param {anychart.math.Rect} bounds - Bounds to fix.
+ * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - .
+ * @param {number=} opt_periodIndex - .
+ * @param {boolean=} opt_selected - Whether is selected. TODO (A.Kudryavtsev): Replace this with State in future implementation.
+ * @private
+ * @return {anychart.math.Rect} - Fixed bounds.
+ */
+anychart.ganttModule.TimeLine.prototype.fixBounds_ = function(element, bounds, item, opt_periodIndex, opt_selected) {
+  var stroke = element.getStroke(item, opt_periodIndex, opt_selected);
+  var thickness = anychart.utils.extractThickness(stroke);
+  var pixelShift = (thickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
+
+  var roundLeft = Math.round(bounds.left) + pixelShift;
+  var roundTop = Math.round(bounds.top) + pixelShift;
+  var roundRight = Math.round(bounds.left + bounds.width) + pixelShift;
+  var roundHeight = Math.round(bounds.top + bounds.height) + pixelShift;
+  return new anychart.math.Rect(roundLeft, roundTop, roundRight - roundLeft, roundHeight - roundTop);
+};
+
+
+/**
  * Sets calculated bounds to item meta.
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - Item.
  * @param {anychart.math.Rect} bounds - Bounds to set.
@@ -3972,11 +3995,14 @@ anychart.ganttModule.TimeLine.prototype.drawAsPeriods_ = function(dataItem, tota
 
           var coord = anychart.utils.getCoordinateByAnchor(itemBounds, position);
           var top = this.fixBarTop_(coord.y, height, anchor) + offsetNorm;
-          var bounds = new anychart.math.Rect(coord.x, top, width, height);
+          var isSelected = this.selectedPeriodId_ == id;
+
+          var bounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (this.periods()),
+              new anychart.math.Rect(coord.x, top, width, height), dataItem, j, isSelected);
 
           var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.PERIODS, bounds, j);
           this.setRelatedBounds_(dataItem, bounds, j);
-          this.tasks().rendering().callDrawer(dataItem, bounds, tag, j, this.selectedPeriodId_ == id);
+          this.periods().rendering().callDrawer(dataItem, bounds, tag, j, isSelected);
         }
       }
     }
@@ -4027,10 +4053,16 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     var element = isParent ? this.groupingTasks() : this.tasks();
     var type = isParent ? anychart.enums.TLElementTypes.GROUPING_TASKS : anychart.enums.TLElementTypes.TASKS;
 
+    var isSelected = this.selectedItem == dataItem;
+    actualBounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (element),
+        actualBounds, dataItem, void 0, isSelected);
+
+    baselineBounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (this.baselines()),
+        baselineBounds, dataItem, void 0, isSelected);
+
     var tag = this.createTag(dataItem, type, actualBounds);
     var baselineTag = this.createTag(dataItem, anychart.enums.TLElementTypes.BASELINES, baselineBounds);
 
-    var isSelected = this.selectedItem == dataItem;
     this.baselines().rendering().callDrawer(dataItem, baselineBounds, baselineTag, void 0, isSelected);
 
     this.setRelatedBounds_(dataItem, actualBounds);
@@ -4125,9 +4157,12 @@ anychart.ganttModule.TimeLine.prototype.drawAsParent_ = function(dataItem, total
     var actualItemBounds = new anychart.math.Rect(actualLeft, totalTop, actualWidth, itemHeight);
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.GROUPING_TASKS, actualItemBounds);
 
+    var isSelected = this.selectedItem == dataItem;
+    actualBounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (this.groupingTasks()),
+        actualBounds, dataItem, void 0, isSelected);
+
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.GROUPING_TASKS, actualBounds);
     this.setRelatedBounds_(dataItem, actualBounds);
-    var isSelected = this.selectedItem == dataItem;
     this.groupingTasks().rendering().callDrawer(dataItem, actualBounds, tag, void 0, isSelected);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
@@ -4171,9 +4206,12 @@ anychart.ganttModule.TimeLine.prototype.drawAsProgress_ = function(dataItem, tot
     var actualItemBounds = new anychart.math.Rect(actualLeft, totalTop, actualWidth, itemHeight);
     var actualBounds = this.getBarBounds_(anychart.enums.TLElementTypes.TASKS, actualItemBounds);
 
+    var isSelected = this.selectedItem == dataItem;
+    actualBounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (this.tasks()),
+        actualBounds, dataItem, void 0, isSelected);
+
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.TASKS, actualBounds);
     this.setRelatedBounds_(dataItem, actualBounds);
-    var isSelected = this.selectedItem == dataItem;
     this.tasks().rendering().callDrawer(dataItem, actualBounds, tag, void 0, isSelected);
 
     var progressValue = goog.isDef(dataItem.meta(anychart.enums.GanttDataFields.PROGRESS_VALUE)) ?
@@ -4223,9 +4261,12 @@ anychart.ganttModule.TimeLine.prototype.drawAsMilestone_ = function(dataItem, to
     var itemBounds = new anychart.math.Rect(centerLeft - halfHeight, totalTop, height, itemHeight);
     var bounds = this.getBarBounds_(anychart.enums.TLElementTypes.MILESTONES, itemBounds);
 
+    var isSelected = this.selectedItem == dataItem;
+    bounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.Base} */ (this.milestones()),
+        bounds, dataItem, void 0, isSelected);
+
     var tag = this.createTag(dataItem, anychart.enums.TLElementTypes.MILESTONES, bounds);
     this.setRelatedBounds_(dataItem, bounds);
-    var isSelected = this.selectedItem == dataItem;
     this.milestones().rendering().callDrawer(dataItem, bounds, tag, void 0, isSelected);
   }
 };

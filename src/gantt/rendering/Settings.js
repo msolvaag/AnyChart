@@ -261,7 +261,7 @@ anychart.ganttModule.rendering.Settings.prototype.callDrawer = function(item, pr
 //region -- Serialization/Deserialization
 /** @inheritDoc */
 anychart.ganttModule.rendering.Settings.prototype.serialize = function() {
-  var json = anychart.ganttModule.TimeLine.base(this, 'serialize');
+  var json = anychart.ganttModule.rendering.Settings.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.ganttModule.rendering.Settings.DESCRIPTORS, json);
   return json;
 };
