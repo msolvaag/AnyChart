@@ -3,6 +3,7 @@ goog.provide('anychart.stockModule.scales.Scatter');
 goog.require('anychart.core.Base');
 goog.require('anychart.enums');
 goog.require('anychart.scales.IXScale');
+goog.require('anychart.stockModule.scales.ExplicitTicksIterator');
 goog.require('anychart.stockModule.scales.ScatterTicksIterator');
 goog.require('anychart.utils');
 goog.require('goog.array');
@@ -108,6 +109,13 @@ anychart.stockModule.scales.Scatter = function(chartOrScroller) {
    * @protected
    */
   this.ticksIterator = null;
+
+  /**
+   * Major ticks for the scale.
+   * @type {anychart.stockModule.scales.ExplicitTicksIterator}
+   * @protected
+   */
+  this.explicitTicksIterator = null;
 
   /**
    * Ticks settings.
@@ -317,11 +325,11 @@ anychart.stockModule.scales.Scatter.prototype.checkWeights = function() {
 
 /**
  * Returns ticks iterator.
- * @return {anychart.stockModule.scales.ScatterTicksIterator}
+ * @return {anychart.stockModule.scales.ScatterTicksIterator|anychart.stockModule.scales.ExplicitTicksIterator}
  */
 anychart.stockModule.scales.Scatter.prototype.getTicks = function() {
   this.calculate();
-  return this.ticksIterator;
+  return this.explicitTicksIterator || this.ticksIterator;
 };
 
 
@@ -384,16 +392,25 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     // };
   }
 
+  var majorInterval = anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount);
+  var minorInterval = anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount);
+
+  this.ticksIterator.setup(
+      dataMinKey,
+      dataMaxKey,
+      majorInterval,
+      minorInterval,
+      this.dataFullMinKey);
+
   if (this.ticksCallback_) {
-    var customTicks = this.ticksCallback_();
-    this.ticksIterator.setupAsArray(customTicks[0], customTicks[1]);
-  } else {
-    this.ticksIterator.setup(
-        dataMinKey,
-        dataMaxKey,
-        anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
-        anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
-        this.dataFullMinKey);
+    var customTicks = this.ticksCallback_.call({
+      'dataMinKey': dataMinKey,
+      'dataMaxKey': dataMaxKey,
+      'majorInterval': majorInterval,
+      'minorInterval': minorInterval,
+      'scale': this
+    });
+    this.explicitTicksIterator.setup(customTicks[0], customTicks[1]);
   }
 
   this.majorUnit_ = row.majorUnit;
@@ -411,6 +428,8 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
 anychart.stockModule.scales.Scatter.prototype.ensureTicksIteratorCreated = function() {
   if (!this.ticksIterator)
     this.ticksIterator = new anychart.stockModule.scales.ScatterTicksIterator();
+  if (!this.explicitTicksIterator && this.ticksCallback_)
+    this.explicitTicksIterator = new anychart.stockModule.scales.ExplicitTicksIterator();
 };
 
 
@@ -493,7 +512,7 @@ anychart.stockModule.scales.Scatter.prototype.ticksInvalidated_ = function(event
 };
 
 
-anychart.stockModule.scales.Scatter.prototype.ticksCalback = function(opt_value) {
+anychart.stockModule.scales.Scatter.prototype.ticksCallback = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.ticksCallback_ = opt_value;
     this.consistent = false;

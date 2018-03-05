@@ -27,10 +27,6 @@ goog.inherits(anychart.stockModule.scales.OrdinalTicksIterator, anychart.stockMo
 
 /** @inheritDoc */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.reset = function() {
-  if (this.isCustomTicks) {
-    this.currentIndex = -1;
-  } else {
-
     this.currentMajor = new goog.date.UtcDateTime(new Date(this.alignedStart));
 
     this.preFirstMajor = NaN;
@@ -44,35 +40,21 @@ anychart.stockModule.scales.OrdinalTicksIterator.prototype.reset = function() {
 
     while (this.currentMinor.getTime() < this.start)
       this.currentMinor.add(this.minorInterval);
-  }
 };
 
 
 /** @inheritDoc */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.advance = function() {
-  if (this.isCustomTicks) {
-    this.currentIndex++;
-    this.current = this.customTicks[this.currentIndex];
+  var major = this.currentMajor.getTime();
+  var minor = this.advanceDate_(this.currentMinor, this.minorInterval);
 
+  this.current = minor;
+  this.currentIsMajor = major <= minor;
 
-    this.currentIsMajor = goog.array.indexOf(this.majorTicks, this.current);
-
-    this.currentIsMinor = goog.array.indexOf(this.minorTicks, this.current);
-
-
-    return !!this.current;
-  } else {
-    var major = this.currentMajor.getTime();
-    var minor = this.advanceDate_(this.currentMinor, this.minorInterval);
-
-    this.current = minor;
-    this.currentIsMajor = major <= minor;
-
-    var result = this.current <= this.end;
-    if (result && this.currentIsMajor)
-      this.advanceDate_(this.currentMajor, this.majorInterval);
-    return result;
-  }
+  var result = this.current <= this.end;
+  if (result && this.currentIsMajor)
+    this.advanceDate_(this.currentMajor, this.majorInterval);
+  return result;
 };
 
 
