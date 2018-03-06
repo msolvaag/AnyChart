@@ -99,8 +99,10 @@ anychart.linearGaugeModule.ScaleBar.prototype.scale = function(opt_value) {
     }
     return this;
   }
-  if (!this.scale_)
+  if (!this.scale_) {
     this.scale_ = /** @type {anychart.scales.ScatterBase} */ (this.gauge.scale());
+    this.scale_.listenSignals(this.scaleInvalidated_, this);
+  }
   return this.scale_;
 };
 
@@ -414,7 +416,6 @@ anychart.linearGaugeModule.ScaleBar.prototype.draw = function() {
   }
 
   var colorScale = /** @type {(anychart.colorScalesModule.Linear|anychart.colorScalesModule.Ordinal)} */ (this.colorScale());
-  var x, y;
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
     if (!this.clipPath_)
       this.clipPath_ = acgraph.path();
@@ -507,33 +508,37 @@ anychart.linearGaugeModule.ScaleBar.prototype.draw = function() {
       if (colorScale.needsAutoCalc())
         colorScale.startAutoCalc().extendDataRange(0, 1).finishAutoCalc();
       var ranges = colorScale.getProcessedRanges();
-      var parentBound = isVertical ? height : width;
-      var partLength = parentBound / ranges.length;
+      var scale = this.scale();
+
       var len;
-      var pos;
       for (i = 0, len = ranges.length; i < len; i++) {
         var range = ranges[i];
         var color = range['color'] || colors[range.sourceIndex] || colors[colors.length - 1];
         path = this.paths[i] ? this.paths[i] : this.paths[i] = this.rootLayer.path();
+        path.clear();
+
         var shift = 0.5;
 
+        var start = range['start'] || scale.minimum();
+        var end = range['end'] || scale.maximum();
+        var pixelStart = this.applyRatioToBounds(scale.transform(start));
+        var pixelEnd = this.applyRatioToBounds(scale.transform(end));
+        if (isNaN(pixelStart) || isNaN(pixelEnd))
+          continue;
+
         if (isVertical) {
-          pos = inverted ? i : (ranges.length - 1 - i);
-          y = top + partLength * pos;
           path
-              .moveTo(left, y)
-              .lineTo(left, y + partLength + shift)
-              .lineTo(right, y + partLength + shift)
-              .lineTo(right, y)
+              .moveTo(left, pixelStart)
+              .lineTo(left, pixelEnd + shift)
+              .lineTo(right, pixelEnd + shift)
+              .lineTo(right, pixelStart)
               .close();
         } else {
-          pos = inverted ? (ranges.length - 1 - i) : i;
-          x = left + partLength * pos;
           path
-              .moveTo(x, top)
-              .lineTo(x + partLength + shift, top)
-              .lineTo(x + partLength + shift, bottom)
-              .lineTo(x, bottom)
+              .moveTo(pixelStart, top)
+              .lineTo(pixelEnd + shift, top)
+              .lineTo(pixelEnd + shift, bottom)
+              .lineTo(pixelStart, bottom)
               .close();
         }
         path.fill(color).stroke('none');
