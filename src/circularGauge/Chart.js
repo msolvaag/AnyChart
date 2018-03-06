@@ -484,12 +484,12 @@ anychart.circularGaugeModule.Chart.prototype.onCircularRangeSignal_ = function(e
  * Creates pointer.
  * @param {string|anychart.enums.CircularGaugePointerType} type Pointer type.
  * @param {number} arrIndex Typed array index.
- * @param {(anychart.data.View|anychart.data.Set|Array|string)=} opt_data Pointer data.
+ * @param {(number|anychart.data.View|anychart.data.Set|Array|string)=} opt_dataIndexOrData Pointer data.
  * @param {(anychart.enums.TextParsingMode|anychart.data.TextParsingSettings)=} opt_csvSettings If CSV string is passed, you can pass CSV parser settings here as a hash map.
  * @private
  * @return {anychart.circularGaugeModule.pointers.Base} Pointer instance.
  */
-anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(type, arrIndex, opt_data, opt_csvSettings) {
+anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(type, arrIndex, opt_dataIndexOrData, opt_csvSettings) {
   type = anychart.enums.normalizeCircularGaugePointerType(type);
   var isKnob = (type == anychart.enums.CircularGaugePointerType.KNOB);
   var ctl = anychart.circularGaugeModule.Chart.PointersTypesMap[type];
@@ -513,8 +513,12 @@ anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(typ
 
     instance.autoIndex(index);
     instance.zIndex(pointerZIndex);
-    instance.dataIndex(isKnob ? this.knobCounter_++ : this.pointerCounter_++);
-    instance.data(opt_data, opt_csvSettings);
+    if (goog.isNumber(opt_dataIndexOrData)) {
+      instance.dataIndex(/** @type {number} */(opt_dataIndexOrData));
+      isKnob ? this.knobCounter_++ : this.pointerCounter_++;
+    } else {
+      instance.data(/** @type {anychart.data.View|anychart.data.Set|Array|string} */(opt_dataIndexOrData), opt_csvSettings);
+    }
     instance.axisIndex(0);
     instance.gauge(this);
     instance.setupInternal(true, config);
@@ -533,7 +537,7 @@ anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(typ
 
 /**
  * Adds pointers to gauge.
- * @param {...(anychart.data.View|anychart.data.Set|Array)} var_args Data indexes or data for pointers.
+ * @param {...(number|anychart.data.View|anychart.data.Set|Array)} var_args Data indexes or data for pointers.
  * @return {Array.<anychart.circularGaugeModule.pointers.Base>} Array of created pointers.
  */
 anychart.circularGaugeModule.Chart.prototype.addPointer = function(var_args) {

@@ -177,7 +177,7 @@ anychart.linearGaugeModule.pointers.Led.prototype.drawVertical = function() {
     criteria = this.scale_.inverted() ? ratio <= ledRatio : botRatio >= ledRatio;
     if (criteria) {
       var dimmer = this.getOption('dimmer');
-      color = goog.isFunction(dimmer) ? dimmer.call({'color' : color}, color) : dimmer;
+      color = /** @type {string} */(goog.isFunction(dimmer) ? dimmer.call({'color' : color}, color) : dimmer);
     }
     if (goog.isNull(color))
       color = 'none';
@@ -487,7 +487,6 @@ anychart.linearGaugeModule.pointers.Led.prototype.disposeInternal = function() {
 //exports
 (function() {
   var proto = anychart.linearGaugeModule.pointers.Led.prototype;
-  proto['dimmer'] = proto.dimmer;
   proto['gap'] = proto.gap;
   proto['size'] = proto.size;
   proto['count'] = proto.count;
