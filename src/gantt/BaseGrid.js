@@ -555,7 +555,7 @@ anychart.ganttModule.BaseGrid.prototype.createFormatProvider = function(item, op
     values['maxPeriodDate'] = {value: item.meta('maxPeriodDate'), type: anychart.enums.TokenType.DATE_TIME};
     values['period'] = {value: opt_period, type: anychart.enums.TokenType.UNKNOWN};
     values['periodIndex'] = {
-      value: (goog.isDefAndNotNull(opt_periodIndex) && opt_periodIndex > 0) ? opt_periodIndex : void 0,
+      value: (goog.isDefAndNotNull(opt_periodIndex) && opt_periodIndex >= 0) ? opt_periodIndex : void 0,
       type: anychart.enums.TokenType.NUMBER
     };
     values['periodStart'] = {
