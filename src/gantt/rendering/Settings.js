@@ -13,7 +13,7 @@ goog.require('goog.array');
 /**
  *
  * @param {anychart.ganttModule.TimeLine} timeline - Timeline that rendering settings belong to.
- * @param {anychart.ganttModule.elements.Base} element - Related element.
+ * @param {anychart.ganttModule.elements.TimelineElement} element - Related element.
  * @constructor
  * @implements {anychart.core.settings.IResolvable}
  * @extends {anychart.core.Base}
@@ -30,7 +30,7 @@ anychart.ganttModule.rendering.Settings = function(timeline, element) {
 
   /**
    * Related element.
-   * @type {anychart.ganttModule.elements.Base}
+   * @type {anychart.ganttModule.elements.TimelineElement}
    * @private
    */
   this.element_ = element;

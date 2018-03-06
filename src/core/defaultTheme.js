@@ -2232,6 +2232,14 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     //all another settings should be set to 'null' for serialization demerging purposes
 
     'elements': {
+      'normal': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
+      'selected': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
       'rendering': {
         /**
          * @this {*}
