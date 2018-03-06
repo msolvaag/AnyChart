@@ -312,8 +312,8 @@ anychart.mapModule.elements.Crosshair.prototype.drawLine = function(axis, line, 
  */
 anychart.mapModule.elements.Crosshair.prototype.drawLabel = function(axis, label, value) {
   var labelFormatProvider = this.getLabelsFormatProvider(axis, value);
-  var labelFormat = label.format() || anychart.utils.DEFAULT_FORMATTER;
-  label.text(labelFormat.call(labelFormatProvider, labelFormatProvider));
+  var labelFormat = label['format']() || anychart.utils.DEFAULT_FORMATTER;
+  label['text'](labelFormat.call(labelFormatProvider, labelFormatProvider));
 
   var positionCoords = axis.ticks().calcTick(value);
 

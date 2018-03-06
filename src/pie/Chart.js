@@ -4146,28 +4146,7 @@ anychart.pieModule.Chart.prototype.getSeriesStatus = function(event) {
 
 /** @inheritDoc */
 anychart.pieModule.Chart.prototype.makeBrowserEvent = function(e) {
-  var res = {
-    'type': e['type'],
-    'target': this,
-    'relatedTarget': this.getOwnerElement(e['relatedTarget']) || e['relatedTarget'],
-    'domTarget': e['target'],
-    'relatedDomTarget': e['relatedTarget'],
-    'offsetX': e['offsetX'],
-    'offsetY': e['offsetY'],
-    'clientX': e['clientX'],
-    'clientY': e['clientY'],
-    'screenX': e['screenX'],
-    'screenY': e['screenY'],
-    'button': e['button'],
-    'keyCode': e['keyCode'],
-    'charCode': e['charCode'],
-    'ctrlKey': e['ctrlKey'],
-    'altKey': e['altKey'],
-    'shiftKey': e['shiftKey'],
-    'metaKey': e['metaKey'],
-    'platformModifierKey': e['platformModifierKey'],
-    'state': e['state']
-  };
+  var res = anychart.core.VisualBase.prototype.makeBrowserEvent.call(this, e);
 
   var tag = anychart.utils.extractTag(res['domTarget']);
   var pointIndex = tag.index;

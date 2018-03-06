@@ -1052,7 +1052,7 @@ anychart.vennModule.math.greedyLayout = function(areas) {
 
   for (i = 0; i < areas.length; ++i) {
     var current = areas[i];
-    var weight = current.hasOwnProperty('weight') ? current.weight : 1.0;
+    var weight = goog.isDef(current.weight) ? current.weight : 1.0;
     var left = current.sets[0], right = current.sets[1];
 
     if (current.size + anychart.vennModule.math.DELTA >= Math.min(circles[left].size, circles[right].size)) {
@@ -1177,7 +1177,7 @@ anychart.vennModule.math.lossFunction = function(sets, overlaps) {
       overlap = anychart.vennModule.math.intersectionArea(getCircles(area.sets));
     }
 
-    var weight = area.hasOwnProperty('weight') ? area.weight : 1.0;
+    var weight = goog.isDef(area.weight) ? area.weight : 1.0;
     output += weight * (overlap - area.size) * (overlap - area.size);
   }
 
