@@ -684,8 +684,7 @@ anychart.stockModule.Axis.prototype.drawLabel_ = function(value, isMajor, bounds
   }
 
   var dataIndex = Math.ceil(this.scale_.getIndexByKey(value));
-  var value_ = this.scale_.getKeyByIndex(dataIndex);
-  var ratio = this.scale_.transformInternal(value_, dataIndex);
+  var ratio = this.scale_.transformInternal(this.scale_.getKeyByIndex(dataIndex), dataIndex);
   var x = Math.round(bounds.left + ratio * bounds.width);
   var y = bounds.top;
 

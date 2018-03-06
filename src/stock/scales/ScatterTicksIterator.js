@@ -32,7 +32,7 @@ anychart.stockModule.scales.ScatterTicksIterator.prototype.setup = function(star
    * @protected
    */
   //todo (blackart) change majorInterval to minorInterval for true.
-  this.alignedStart = anychart.utils.alignDateLeft(start, majorInterval, globalStart);
+  this.alignedStart = anychart.utils.alignDateLeft(start, minorInterval, globalStart);
 
   /**
    * @type {number}

@@ -366,62 +366,64 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     dataMinKey = goog.math.clamp(this.minKey, this.dataFullMinKey, this.dataFullMaxKey);
     dataMaxKey = goog.math.clamp(this.maxKey, this.dataFullMinKey, this.dataFullMaxKey);
   }
-  var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
-  var minorTickRange = minorIntervalRange * (this.maxIndex - this.minIndex) / this.ticksCount_;
-  if (isNaN(minorTickRange)) {
-    this.ticksIterator.setup(
-        NaN,
-        NaN,
-        anychart.utils.getIntervalFromInfo(anychart.enums.Interval.YEAR, 1),
-        anychart.utils.getIntervalFromInfo(anychart.enums.Interval.YEAR, 1),
-        NaN);
-  }
-
-  var last = this.ranges_.length - 1;
-  var row;
-  for (var i = 0; i < last; i++) {
-    if (minorTickRange <= this.ranges_[i].range) {
-      row = this.ranges_[i];
-      break;
-    }
-  }
-  // Math.ceil(range / (365 * 24 * 60 * 60 * 1000)) is always >= 0.5, because the last
-  // this.RANGES is 2 years, so there shouldn't be a situation when interval is 0.
-  if (!row) {
-    row = this.ranges_[last];
-    // var count = Math.ceil(minorTickRange / (365 * 24 * 60 * 60 * 1000));
-    // row = {
-    //   range: anychart.utils.getIntervalRange(anychart.enums.Interval.YEAR, count / 2),
-    //   minorUnit: anychart.enums.Interval.YEAR,
-    //   minorCount: count / 2,
-    //   majorUnit: anychart.enums.Interval.YEAR,
-    //   majorCount: count
-    // };
-  }
-
-  this.ticksIterator.setup(
-      dataMinKey,
-      dataMaxKey,
-      anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
-      anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
-      this.dataFullMinKey);
-
   if (this.ticksCallback_) {
-    var customTicks = this.ticksCallback_.call({
+    var context = {
       'fullMin': this.dataFullMinKey,
       'fullMax': this.dataFullMaxKey,
       'min': dataMinKey,
       'max': dataMaxKey,
       'ticksCount': this.ticksCount_,
       'scale': this
-    });
+    };
+    var customTicks = this.ticksCallback_.call(context, context);
     this.explicitTicksIterator.setup(customTicks);
-  }
+  } else {
+    var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
+    var minorTickRange = minorIntervalRange * (this.maxIndex - this.minIndex) / this.ticksCount_;
+    if (isNaN(minorTickRange)) {
+      this.ticksIterator.setup(
+          NaN,
+          NaN,
+          anychart.utils.getIntervalFromInfo(anychart.enums.Interval.YEAR, 1),
+          anychart.utils.getIntervalFromInfo(anychart.enums.Interval.YEAR, 1),
+          NaN);
+    }
 
-  this.majorUnit_ = row.majorUnit;
-  this.majorUnitCount_ = row.majorCount;
-  this.minorUnit_ = row.minorUnit;
-  this.minorUnitCount_ = row.minorCount;
+    var last = this.ranges_.length - 1;
+    var row;
+    for (var i = 0; i < last; i++) {
+      if (minorTickRange <= this.ranges_[i].range) {
+        row = this.ranges_[i];
+        break;
+      }
+    }
+    // Math.ceil(range / (365 * 24 * 60 * 60 * 1000)) is always >= 0.5, because the last
+    // this.RANGES is 2 years, so there shouldn't be a situation when interval is 0.
+    if (!row) {
+      row = this.ranges_[last];
+      // var count = Math.ceil(minorTickRange / (365 * 24 * 60 * 60 * 1000));
+      // row = {
+      //   range: anychart.utils.getIntervalRange(anychart.enums.Interval.YEAR, count / 2),
+      //   minorUnit: anychart.enums.Interval.YEAR,
+      //   minorCount: count / 2,
+      //   majorUnit: anychart.enums.Interval.YEAR,
+      //   majorCount: count
+      // };
+    }
+
+    this.ticksIterator.setup(
+        dataMinKey,
+        dataMaxKey,
+        anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
+        anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
+        this.dataFullMinKey);
+
+
+    this.majorUnit_ = row.majorUnit;
+    this.majorUnitCount_ = row.majorCount;
+    this.minorUnit_ = row.minorUnit;
+    this.minorUnitCount_ = row.minorCount;
+  }
 
   this.consistent = true;
 };
