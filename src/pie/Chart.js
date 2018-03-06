@@ -2755,7 +2755,7 @@ anychart.pieModule.Chart.prototype.drawSlice_ = function(pointState, opt_update)
  */
 anychart.pieModule.Chart.prototype.drawFrontSide_ = function(cx, cy, outerR, startAngle, endAngle, sweep, pointState, opt_update) {
   // there may be two front sides
-  var uniqueValue = '' + startAngle;
+  var uniqueValue = String(startAngle);
   var pathName = 'frontPath' + uniqueValue;
   var path = this.createPath_(pathName, opt_update);
   if (!path) return null;
@@ -2808,7 +2808,7 @@ anychart.pieModule.Chart.prototype.drawFrontSide_ = function(cx, cy, outerR, sta
  */
 anychart.pieModule.Chart.prototype.drawBackSide_ = function(cx, cy, innerR, startAngle, endAngle, sweep, pointState, opt_update) {
   // there may be two back sides
-  var uniqueValue = '' + startAngle;
+  var uniqueValue = String(startAngle);
   var pathName = 'backPath' + uniqueValue;
   var path = this.createPath_(pathName, opt_update);
   if (!path) return null;
