@@ -12,13 +12,25 @@ anychart.stockModule.scales.ExplicitTicksIterator = function() {
 };
 
 
-anychart.stockModule.scales.ExplicitTicksIterator.prototype.setup = function(majorTicks, minorTicks) {
-  this.minorTicks = minorTicks;
-  this.majorTicks = majorTicks;
+/**
+ * @param {Array.<(number|{value: number, isMinor: boolean})>} ticks .
+ */
+anychart.stockModule.scales.ExplicitTicksIterator.prototype.setup = function(ticks) {
+  this.minorTicks = [];
+  this.majorTicks = [];
+  
+  goog.array.forEach(ticks, function(tick) {
+    if (goog.isNumber(tick)) {
+      this.majorTicks.push(tick);
+    } else if (goog.isObject(tick)) {
+      var value = anychart.utils.toNumber(tick.value);
+      (tick.isMinor ? this.minorTicks : this.majorTicks).push(value);
+    }
+  }, this);
 
-  this.customTicks = goog.array.concat(this.minorTicks, this.majorTicks);
-  goog.array.sort(this.customTicks);
-  goog.array.removeDuplicates(this.customTicks);
+  this.expliciTicks = goog.array.concat(this.minorTicks, this.majorTicks);
+  goog.array.removeDuplicates(this.expliciTicks);
+  goog.array.sort(this.expliciTicks);
 };
 
 
@@ -32,7 +44,7 @@ anychart.stockModule.scales.ExplicitTicksIterator.prototype.reset = function() {
    * @type {number}
    * @protected
    */
-  this.preFirstMajor = NaN
+  this.preFirstMajor = this.expliciTicks[0];
 };
 
 
@@ -42,7 +54,7 @@ anychart.stockModule.scales.ExplicitTicksIterator.prototype.reset = function() {
  */
 anychart.stockModule.scales.ExplicitTicksIterator.prototype.advance = function() {
   this.currentIndex++;
-  this.current = this.customTicks[this.currentIndex];
+  this.current = this.expliciTicks[this.currentIndex];
 
   this.currentIsMajor = goog.array.contains(this.majorTicks, this.current);
   this.currentIsMinor = goog.array.contains(this.minorTicks, this.current);
@@ -93,5 +105,5 @@ anychart.stockModule.scales.ExplicitTicksIterator.prototype.getPreFirstMajor = f
  * @return {!Array.<number>}
  */
 anychart.stockModule.scales.ExplicitTicksIterator.prototype.toArray = function(major) {
-  return this.customTicks.slice();
+  return this.expliciTicks.slice();
 };

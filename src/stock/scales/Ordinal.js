@@ -1,4 +1,5 @@
 goog.provide('anychart.stockModule.scales.Ordinal');
+goog.require('anychart.stockModule.scales.ExplicitTicksIterator');
 goog.require('anychart.stockModule.scales.OrdinalTicksIterator');
 goog.require('anychart.stockModule.scales.Scatter');
 goog.require('anychart.utils');
