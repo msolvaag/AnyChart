@@ -129,9 +129,21 @@ goog.inherits(anychart.stockModule.scales.Scatter, anychart.core.Base);
 
 
 /**
- * @typedef {function(this: {min: number, max: number, fullMin: number, fullMax: number, ticksCount: number,
- * scale: anychart.stockModule.scales.Scatter}, {min: number, max: number, fullMin: number, fullMax: number, ticksCount: number,
- * scale: anychart.stockModule.scales.Scatter}): Array.<(number|{value: number, isMinor: boolean})>}
+ * @typedef {{
+ *    min: number,
+ *    max: number,
+ *    fullMin: number,
+ *    fullMax: number,
+ *    ticksCount: number,
+ *    scale: anychart.stockModule.scales.Scatter
+ * }}
+ */
+anychart.stockModule.scales.Scatter.TicksCallbackContext;
+
+
+/**
+ * @typedef {function(this: anychart.stockModule.scales.Scatter.TicksCallbackContext,
+ * anychart.stockModule.scales.Scatter.TicksCallbackContext): Array.<(number|{value: number, isMinor: boolean})>}
  */
 anychart.stockModule.scales.Scatter.TicksCallback;
 
