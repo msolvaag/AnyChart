@@ -399,14 +399,11 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     // };
   }
 
-  var majorInterval = anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount);
-  var minorInterval = anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount);
-
   this.ticksIterator.setup(
       dataMinKey,
       dataMaxKey,
-      majorInterval,
-      minorInterval,
+      anychart.utils.getIntervalFromInfo(row.majorUnit, row.majorCount),
+      anychart.utils.getIntervalFromInfo(row.minorUnit, row.minorCount),
       this.dataFullMinKey);
 
   if (this.ticksCallback_) {

@@ -645,8 +645,6 @@ anychart.stockModule.Axis.prototype.drawLabels_ = function(bounds, iterator) {
           goog.array.splice(minorIndexes, 0, i);
         }
       }
-
-
       this.drawLabel_(curr, true, bounds,
           majorUnit, majorUnitCount, minorUnit, minorUnitCount, 0);
     }
