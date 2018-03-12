@@ -1,12 +1,12 @@
 //region --- Provide & Require
-goog.provide('anychart.resourceModule.TimeLine');
+goog.provide('anychart.ganttBaseModule.TimeLineHeader');
 goog.require('anychart.core.VisualBaseWithBounds');
 goog.require('anychart.core.settings');
 goog.require('anychart.core.ui.Background');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.utils.Padding');
-goog.require('anychart.resourceModule.Overlay');
-goog.require('anychart.resourceModule.TimeLineLevelHolidaysSettings');
+goog.require('anychart.ganttBaseModule.Overlay');
+goog.require('anychart.ganttBaseModule.TimeLineHeaderLevelHolidaysSettings');
 //endregion
 
 
@@ -17,8 +17,8 @@ goog.require('anychart.resourceModule.TimeLineLevelHolidaysSettings');
  * @extends {anychart.core.VisualBaseWithBounds}
  * @implements {anychart.core.settings.IResolvable}
  */
-anychart.resourceModule.TimeLine = function() {
-  anychart.resourceModule.TimeLine.base(this, 'constructor');
+anychart.ganttBaseModule.TimeLineHeader = function() {
+  anychart.ganttBaseModule.TimeLineHeader.base(this, 'constructor');
 
   /**
    * Root element of the timeline.
@@ -34,7 +34,7 @@ anychart.resourceModule.TimeLine = function() {
    */
   this.pixelBoundsCache_ = null;
 
-  this.overlay_ = new anychart.resourceModule.Overlay();
+  this.overlay_ = new anychart.ganttBaseModule.Overlay();
   this.overlay_.listenSignals(this.overlaySignal_, this);
 
   /**
@@ -55,23 +55,23 @@ anychart.resourceModule.TimeLine = function() {
 
   /**
    * Holidays settings.
-   * @type {anychart.resourceModule.TimeLineLevelHolidaysSettings}
+   * @type {anychart.ganttBaseModule.TimeLineHeaderLevelHolidaysSettings}
    * @private
    */
-  this.holidays_ = new anychart.resourceModule.TimeLineLevelHolidaysSettings();
+  this.holidays_ = new anychart.ganttBaseModule.TimeLineHeaderLevelHolidaysSettings();
   this.holidays_.parent(this);
   this.holidays_.listenSignals(this.holidaysInvalidated_, this);
 
   /**
    * X scale holder.
-   * @type {anychart.resourceModule.Scale}
+   * @type {anychart.resourceModule.Scale|anychart.ganttModule.Scale}
    * @private
    */
   this.xScale_ = null;
 
   /**
    * Parent title.
-   * @type {anychart.resourceModule.TimeLine}
+   * @type {anychart.ganttBaseModule.TimeLineHeader}
    * @private                                                                                        `
    */
   this.parent_ = null;
@@ -82,6 +82,11 @@ anychart.resourceModule.TimeLine = function() {
    * @private
    */
   this.resolutionChainCache_ = null;
+
+  this.labels_ = [];
+  this.fillOverrides_ = [];
+  this.strokeOverrides_ = [];
+  this.wrappers_ = [];
 
   anychart.core.settings.createTextPropertiesDescriptorsMeta(this.descriptorsMeta,
       anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
@@ -99,7 +104,7 @@ anychart.resourceModule.TimeLine = function() {
     ['drawLeftLine', anychart.ConsistencyState.RESOURCE_LIST_ITEMS, anychart.Signal.NEEDS_REDRAW]
   ]);
 };
-goog.inherits(anychart.resourceModule.TimeLine, anychart.core.VisualBaseWithBounds);
+goog.inherits(anychart.ganttBaseModule.TimeLineHeader, anychart.core.VisualBaseWithBounds);
 
 
 //region --- Typedefs
@@ -117,6 +122,7 @@ goog.inherits(anychart.resourceModule.TimeLine, anychart.core.VisualBaseWithBoun
  *   height: (number|string|undefined),
  *   holiday: Object.<{
  *      fill: (acgraph.vector.Fill|undefined),
+ *      stroke: (acgraph.vector.Stroke|undefined),
  *      padding: (Object|Array|number|string|null|undefined),
  *      minFontSize: (number|undefined),
  *      maxFontSize: (number|undefined),
@@ -144,6 +150,7 @@ goog.inherits(anychart.resourceModule.TimeLine, anychart.core.VisualBaseWithBoun
  *      format: (Function|undefined)
  *   }>,
  *   fill: (acgraph.vector.Fill|undefined),
+ *   stroke: (acgraph.vector.Stroke|undefined),
  *   padding: (Object|Array|number|string|null|undefined),
  *   minFontSize: (number|undefined),
  *   maxFontSize: (number|undefined),
@@ -171,7 +178,7 @@ goog.inherits(anychart.resourceModule.TimeLine, anychart.core.VisualBaseWithBoun
  *   format: (Function|undefined)
  * }}
  */
-anychart.resourceModule.TimeLine.Level;
+anychart.ganttBaseModule.TimeLineHeader.Level;
 
 
 //endregion
@@ -185,7 +192,7 @@ anychart.resourceModule.TimeLine.Level;
  * Supported consistency states.
  * @type {number}
  */
-anychart.resourceModule.TimeLine.prototype.SUPPORTED_CONSISTENCY_STATES =
+anychart.ganttBaseModule.TimeLineHeader.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.VisualBaseWithBounds.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.APPEARANCE |
     anychart.ConsistencyState.RESOURCE_TIMELINE_BACKGROUND |
@@ -199,7 +206,7 @@ anychart.resourceModule.TimeLine.prototype.SUPPORTED_CONSISTENCY_STATES =
  * Supported signals.
  * @type {number}
  */
-anychart.resourceModule.TimeLine.prototype.SUPPORTED_SIGNALS =
+anychart.ganttBaseModule.TimeLineHeader.prototype.SUPPORTED_SIGNALS =
     anychart.core.VisualBaseWithBounds.prototype.SUPPORTED_SIGNALS;
 
 
@@ -214,7 +221,7 @@ anychart.resourceModule.TimeLine.prototype.SUPPORTED_SIGNALS =
  * Text descriptors.
  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
-anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS = (function() {
+anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS = (function() {
   var map = anychart.core.settings.createTextPropertiesDescriptors();
   anychart.core.settings.createDescriptor(
       map,
@@ -223,14 +230,14 @@ anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS = (function() {
       anychart.core.settings.stringOrFunctionNormalizer);
   return map;
 })();
-anychart.core.settings.populate(anychart.resourceModule.TimeLine, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS);
+anychart.core.settings.populate(anychart.ganttBaseModule.TimeLineHeader, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS);
 
 
 /**
- * Properties that should be defined in anychart.resourceModule.TimeLine prototype.
+ * Properties that should be defined in anychart.ganttBaseModule.TimeLineHeader prototype.
  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
-anychart.resourceModule.TimeLine.DESCRIPTORS = (function() {
+anychart.ganttBaseModule.TimeLineHeader.DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
 
@@ -278,15 +285,15 @@ anychart.resourceModule.TimeLine.DESCRIPTORS = (function() {
 
   return map;
 })();
-anychart.core.settings.populate(anychart.resourceModule.TimeLine, anychart.resourceModule.TimeLine.DESCRIPTORS);
+anychart.core.settings.populate(anychart.ganttBaseModule.TimeLineHeader, anychart.ganttBaseModule.TimeLineHeader.DESCRIPTORS);
 
 
 /**
  * Getter/setter for xScale.
- * @param {anychart.resourceModule.Scale=} opt_value
- * @return {anychart.resourceModule.Scale|anychart.resourceModule.TimeLine}
+ * @param {(anychart.resourceModule.Scale|anychart.ganttModule.Scale)=} opt_value
+ * @return {anychart.resourceModule.Scale|anychart.ganttModule.Scale|anychart.ganttBaseModule.TimeLineHeader}
  */
-anychart.resourceModule.TimeLine.prototype.xScale = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.xScale = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.xScale_ != opt_value) {
       if (this.xScale_)
@@ -304,25 +311,65 @@ anychart.resourceModule.TimeLine.prototype.xScale = function(opt_value) {
 
 /**
  * Getter/setter for heights array.
- * @param {Array.<anychart.resourceModule.TimeLine.Level>=} opt_value
- * @return {Array.<anychart.resourceModule.TimeLine.Level>|anychart.resourceModule.TimeLine}
+ * @param {Array.<anychart.ganttBaseModule.TimeLineHeader.Level>} value
+ * @return {anychart.ganttBaseModule.TimeLineHeader}
  */
-anychart.resourceModule.TimeLine.prototype.levels = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.levels_ = opt_value;
-    this.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_LEVELS, anychart.Signal.NEEDS_REDRAW);
-    return this;
+anychart.ganttBaseModule.TimeLineHeader.prototype.setLevels = function(value) {
+  this.levels_ = value;
+  this.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_LEVELS, anychart.Signal.NEEDS_REDRAW);
+  return this;
+};
+
+
+/**
+ * Returns wrapped level by index.
+ * @param {number} index
+ * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper}
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.getWrappedLevel = function(index) {
+  var res = this.wrappers_[index];
+  if (!res) {
+    this.wrappers_[index] = res = new anychart.ganttBaseModule.TimeLineHeader.LevelWrapper(this, index);
   }
-  return this.levels_;
+  return res;
+};
+
+
+/**
+ *
+ * @param {number} index
+ * @param {boolean} createIfAbsent
+ * @return {anychart.core.ui.LabelsFactory}
+ * @private
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.getLabelsFactory_ = function(index, createIfAbsent) {
+  var labels = this.labels_[index] || null;
+
+  if (!labels && createIfAbsent) {
+    this.ensureVisualReady_();
+
+    var defaultFormat = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.format'));
+    var defaultPositionFormatter = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.positionFormatter'));
+
+    labels = new anychart.core.ui.LabelsFactory();
+    labels['format'](defaultFormat);
+    labels['positionFormatter'](defaultPositionFormatter);
+
+    labels.enabled(true);
+    labels.container(this.labelsLayer_);
+    this.labels_[index] = labels;
+  }
+
+  return labels;
 };
 
 
 /**
  * Background getter/setter
  * @param {(string|Object|null|boolean)=} opt_value
- * @return {anychart.core.ui.Background|anychart.resourceModule.TimeLine}
+ * @return {anychart.core.ui.Background|anychart.ganttBaseModule.TimeLineHeader}
  */
-anychart.resourceModule.TimeLine.prototype.background = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.background = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.background_.setup(opt_value);
     return this;
@@ -337,9 +384,9 @@ anychart.resourceModule.TimeLine.prototype.background = function(opt_value) {
  * @param {(string|number)=} opt_rightOrRightAndLeft .
  * @param {(string|number)=} opt_bottom .
  * @param {(string|number)=} opt_left .
- * @return {!(anychart.resourceModule.TimeLine|anychart.core.utils.Padding)} .
+ * @return {!(anychart.ganttBaseModule.TimeLineHeader|anychart.core.utils.Padding)} .
  */
-anychart.resourceModule.TimeLine.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
     this.padding_.setup.apply(this.padding_, arguments);
     return this;
@@ -351,9 +398,9 @@ anychart.resourceModule.TimeLine.prototype.padding = function(opt_spaceOrTopOrTo
 /**
  * Background getter/setter
  * @param {Object=} opt_value
- * @return {anychart.resourceModule.TimeLineLevelHolidaysSettings|anychart.resourceModule.TimeLine}
+ * @return {anychart.ganttBaseModule.TimeLineHeaderLevelHolidaysSettings|anychart.ganttBaseModule.TimeLineHeader}
  */
-anychart.resourceModule.TimeLine.prototype.holidays = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.holidays = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.holidays_.setup(opt_value);
     return this;
@@ -365,9 +412,9 @@ anychart.resourceModule.TimeLine.prototype.holidays = function(opt_value) {
 /**
  * Overlay element.
  * @param {(string|Object|null|boolean)=} opt_value .
- * @return {anychart.resourceModule.TimeLine|anychart.resourceModule.Overlay}
+ * @return {anychart.ganttBaseModule.TimeLineHeader|anychart.ganttBaseModule.Overlay}
  */
-anychart.resourceModule.TimeLine.prototype.overlay = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.overlay = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.overlay_.setup(opt_value);
     this.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_OVERLAY, anychart.Signal.NEEDS_REDRAW);
@@ -380,13 +427,13 @@ anychart.resourceModule.TimeLine.prototype.overlay = function(opt_value) {
 //endregion
 //region --- IObjectWithSettings overrides
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.hasOwnOption = function(name) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.hasOwnOption = function(name) {
   return goog.isDefAndNotNull(this.ownSettings[name]);
 };
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.isResolvable = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.isResolvable = function() {
   return true;
 };
 
@@ -394,7 +441,7 @@ anychart.resourceModule.TimeLine.prototype.isResolvable = function() {
 //endregion
 //region --- IResolvable implementation
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.resolutionChainCache = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.resolutionChainCache = function(opt_value) {
   if (goog.isDef(opt_value)) {
     this.resolutionChainCache_ = opt_value;
   }
@@ -403,11 +450,11 @@ anychart.resourceModule.TimeLine.prototype.resolutionChainCache = function(opt_v
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.getResolutionChain = anychart.core.settings.getResolutionChain;
+anychart.ganttBaseModule.TimeLineHeader.prototype.getResolutionChain = anychart.core.settings.getResolutionChain;
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.getLowPriorityResolutionChain = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.getLowPriorityResolutionChain = function() {
   var sett = [this.themeSettings];
   if (this.parent_) {
     sett = goog.array.concat(sett, this.parent_.getLowPriorityResolutionChain());
@@ -417,7 +464,7 @@ anychart.resourceModule.TimeLine.prototype.getLowPriorityResolutionChain = funct
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.getHighPriorityResolutionChain = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.getHighPriorityResolutionChain = function() {
   var sett = [this.ownSettings];
   if (this.parent_) {
     sett = goog.array.concat(sett, this.parent_.getHighPriorityResolutionChain());
@@ -430,10 +477,10 @@ anychart.resourceModule.TimeLine.prototype.getHighPriorityResolutionChain = func
 //region --- Parental relations
 /**
  * Gets/sets new parent.
- * @param {anychart.resourceModule.TimeLine=} opt_value - Value to set.
- * @return {anychart.resourceModule.TimeLine|anychart.resourceModule.TimeLine} - Current value or itself for method chaining.
+ * @param {anychart.ganttBaseModule.TimeLineHeader=} opt_value - Value to set.
+ * @return {anychart.ganttBaseModule.TimeLineHeader|anychart.ganttBaseModule.TimeLineHeader} - Current value or itself for method chaining.
  */
-anychart.resourceModule.TimeLine.prototype.parent = function(opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.parent = function(opt_value) {
   if (goog.isDef(opt_value)) {
     if (this.parent_ != opt_value) {
       if (this.parent_)
@@ -453,7 +500,7 @@ anychart.resourceModule.TimeLine.prototype.parent = function(opt_value) {
  * @param {anychart.SignalEvent} e - Signal event.
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.parentInvalidated_ = function(e) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.parentInvalidated_ = function(e) {
   var state = 0;
   var signal = 0;
 
@@ -488,7 +535,7 @@ anychart.resourceModule.TimeLine.prototype.parentInvalidated_ = function(e) {
  * @param {anychart.SignalEvent} e
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.handleXScaleSignal_ = function(e) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.handleXScaleSignal_ = function(e) {
   var signal = anychart.Signal.NEEDS_REDRAW;
   var state = 0;
 
@@ -509,7 +556,7 @@ anychart.resourceModule.TimeLine.prototype.handleXScaleSignal_ = function(e) {
  * @param {anychart.SignalEvent} e
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.handleBackgroundSignal_ = function(e) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.handleBackgroundSignal_ = function(e) {
   this.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_BACKGROUND, anychart.Signal.NEEDS_REDRAW);
 };
 
@@ -519,7 +566,7 @@ anychart.resourceModule.TimeLine.prototype.handleBackgroundSignal_ = function(e)
  * @param {anychart.SignalEvent} event Invalidation event.
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.paddingInvalidated_ = function(event) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.paddingInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_REAPPLICATION)) {
     this.invalidate(anychart.ConsistencyState.BOUNDS,
         anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -532,7 +579,7 @@ anychart.resourceModule.TimeLine.prototype.paddingInvalidated_ = function(event)
  * @param {anychart.SignalEvent} e
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.holidaysInvalidated_ = function(e) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.holidaysInvalidated_ = function(e) {
   this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
 };
 
@@ -542,7 +589,7 @@ anychart.resourceModule.TimeLine.prototype.holidaysInvalidated_ = function(e) {
  * @param {anychart.SignalEvent} e
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.overlaySignal_ = function(e) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.overlaySignal_ = function(e) {
   this.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_OVERLAY, anychart.Signal.NEEDS_REDRAW);
 };
 
@@ -559,7 +606,7 @@ anychart.resourceModule.TimeLine.prototype.overlaySignal_ = function(e) {
  * @return {number} Labels format index.
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.getLabelFormatIndex_ = function(value, labelFactory, labelSettings, bounds, formats) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.getLabelFormatIndex_ = function(value, labelFactory, labelSettings, bounds, formats) {
   for (var formatIndex = 0, formatsCount = formats.length; formatIndex < formatsCount; formatIndex++) {
     var format = formats[formatIndex];
     var labelText = anychart.format.dateTime(value, format);
@@ -585,7 +632,7 @@ anychart.resourceModule.TimeLine.prototype.getLabelFormatIndex_ = function(value
  * @return {Object} Labels format provider.
  * @private
  */
-anychart.resourceModule.TimeLine.prototype.getLabelsFormatProvider_ = function(value, format) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.getLabelsFormatProvider_ = function(value, format) {
   var labelText = anychart.format.dateTime(value, format);
   return {
     'value': labelText,
@@ -606,7 +653,7 @@ anychart.resourceModule.TimeLine.prototype.getLabelsFormatProvider_ = function(v
  * @param {number} from Pixel vertical start position.
  * @param {number} to Pixel vertical end position.
  */
-anychart.resourceModule.TimeLine.prototype.labelsConfiguration = function(row, col, tick, holiday, left, right, from, to) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.labelsConfiguration = function(row, col, tick, holiday, left, right, from, to) {
   var settings = holiday ? this.holidaysLabelSettings[row] : this.weekdaysLabelSettings[row];
 
   var padding = settings['padding'];
@@ -661,7 +708,7 @@ anychart.resourceModule.TimeLine.prototype.labelsConfiguration = function(row, c
  * Draw level labels.
  * @param {number} row Index of level.
  */
-anychart.resourceModule.TimeLine.prototype.drawLabels = function(row) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.drawLabels = function(row) {
   var x, y;
   var labels = this.labels_[row];
   var format = this.choosenFormats_[row] ? this.choosenFormats_[row] : this.choosenFormats_[row] = this.sourceFormats_[row][this.formatIndex_];
@@ -742,7 +789,7 @@ anychart.resourceModule.TimeLine.prototype.drawLabels = function(row) {
 /**
  * Draws the grid.
  */
-anychart.resourceModule.TimeLine.prototype.draw = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
   if (!this.checkDrawingNeeded())
     return;
 
@@ -750,31 +797,7 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
   var drawLabels = false;
   var rowCount, levelsPathsCount, level, weekdaysPath, holidaysPath, weekdaysStrokePath, holidaysStrokePath, labels, i;
 
-  if (!this.rootElement_) {
-    this.rootElement_ = acgraph.layer();
-
-    this.clip_ = acgraph.clip();
-    this.rootElement_.clip(this.clip_);
-
-    this.levelsLayer_ = this.rootElement_.layer();
-
-    this.levelsWeekdaysPaths_ = [];
-    this.levelsHolidaysPaths_ = [];
-
-    this.levelsWeekdaysStrokePaths_ = [];
-    this.levelsHolidaysStrokePaths_ = [];
-
-    this.labelsLayer_ = this.rootElement_.layer();
-    this.labels_ = [];
-
-    this.heights_ = [];
-
-    this.weekdaysLabelSettings = [];
-    this.holidaysLabelSettings = [];
-
-    this.sourceFormats_ = [];
-    this.choosenFormats_ = [];
-  }
+  this.ensureVisualReady_();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.CONTAINER)) {
     this.rootElement_.parent(/** @type {acgraph.vector.ILayer} */(this.container()));
@@ -816,7 +839,6 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
 
     for (i = 0; i < length; i++) {
       level = this.levels_[i];
-      labels = this.labels_[i];
       weekdaysPath = this.levelsWeekdaysPaths_[i];
       holidaysPath = this.levelsHolidaysPaths_[i];
       weekdaysStrokePath = this.levelsWeekdaysStrokePaths_[i];
@@ -869,20 +891,7 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
           this.levelsHolidaysStrokePaths_.push(holidaysStrokePath);
         }
 
-        if (labels) {
-          labels.clear();
-        } else {
-          var defaultFormat = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.format'));
-          var defaultPositionFormatter = /** @type {Function} */(anychart.getFullTheme('defaultLabelFactory.positionFormatter'));
-
-          labels = new anychart.core.ui.LabelsFactory();
-          labels['format'](defaultFormat);
-          labels['positionFormatter'](defaultPositionFormatter);
-
-          labels.enabled(true);
-          labels.container(this.labelsLayer_);
-          this.labels_.push(labels);
-        }
+        labels = this.getLabelsFactory_(i, true);
       } else {
         if (weekdaysPath) {
           weekdaysPath.clear().parent(null);
@@ -896,9 +905,10 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
         if (holidaysStrokePath) {
           holidaysStrokePath.clear().parent(null);
         }
-        if (labels) {
-          labels.clear();
-        }
+        labels = this.getLabelsFactory_(i, false);
+      }
+      if (labels) {
+        labels.clear();
       }
     }
     this.autoLevelHeight_ = (this.pixelBoundsCache_.height - accumulatedHeight) / rowAutoHeightCount;
@@ -914,12 +924,12 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
     var themeLabelsSettings = /** @type {Object} */(anychart.getFullTheme('defaultLabelFactory'));
     var timeLineWeekdaysLabelsSettings = {};
-    anychart.core.settings.serialize(this, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, timeLineWeekdaysLabelsSettings);
+    anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, timeLineWeekdaysLabelsSettings);
     timeLineWeekdaysLabelsSettings['padding'] = this.padding();
     var timeLineHolidaysLabelsSettings = {};
     anychart.core.settings.serialize(
         /** @type {!anychart.core.settings.IObjectWithSettings} */(this.holidays_),
-        anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS,
+        anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS,
         timeLineHolidaysLabelsSettings);
     timeLineHolidaysLabelsSettings['padding'] = this.holidays_.padding();
 
@@ -937,7 +947,7 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
       goog.object.extend(weekdaysLabelSettings, themeLabelsSettings);
       goog.object.extend(weekdaysLabelSettings, timeLineWeekdaysLabelsSettings);
       var levelWeekDaysLabelsSettings = {};
-      anychart.core.settings.copy(levelWeekDaysLabelsSettings, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, level);
+      anychart.core.settings.copy(levelWeekDaysLabelsSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, level);
       if ('padding' in level) levelWeekDaysLabelsSettings['padding'] = level['padding'];
       goog.object.extend(weekdaysLabelSettings, levelWeekDaysLabelsSettings);
       weekdaysLabelSettings['enabled'] = true;
@@ -951,18 +961,19 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
       var levelHoliday = level['holiday'];
       if (levelHoliday) {
         //levelHolidaysLabelsSettings;
-        anychart.core.settings.copy(holidaysLabelSettings, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, levelHoliday);
+        anychart.core.settings.copy(holidaysLabelSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, levelHoliday);
         if ('padding' in levelHoliday) holidaysLabelSettings['padding'] = levelHoliday['padding'];
       }
       holidaysLabelSettings['enabled'] = true;
       this.holidaysLabelSettings[i] = holidaysLabelSettings;
 
-      var weekdayStroke = 'stroke' in level ? level['stroke'] : this.getOption('stroke');
-      var weekdayFill = 'fill' in level ? level['fill'] : this.getOption('fill');
+
+      var weekdayStroke = anychart.utils.getFirstDefinedValue(this.strokeOverrides_[i], level['stroke'], this.getOption('stroke'));
+      var weekdayFill = anychart.utils.getFirstDefinedValue(this.fillOverrides_[i], level['fill'], this.getOption('fill'));
       weekdaysStrokePath.fill(null).stroke(weekdayStroke);
       weekdaysPath.fill(weekdayFill).stroke(null);
 
-      var holidayFill = levelHoliday && 'fill' in levelHoliday ? levelHoliday['fill'] : this.holidays_.getOwnOption('fill');
+      var holidayFill = anychart.utils.getFirstDefinedValue(this.fillOverrides_[i], levelHoliday && levelHoliday['fill'], this.holidays_.getOwnOption('fill'));
       if (!holidayFill) {
         holidayFill = weekdayFill;
       }
@@ -1046,8 +1057,8 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
 
         thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(strokePath.stroke()));
 
-        var left = anychart.utils.applyPixelShift(this.xScale_.dateToPix(tick['start']) + this.pixelBoundsCache_.left, thickness);
-        var right = anychart.utils.applyPixelShift(this.xScale_.dateToPix(tick['end']) + this.pixelBoundsCache_.left, thickness);
+        var left = anychart.utils.applyPixelShift(this.dateToPix(tick['start']), thickness);
+        var right = anychart.utils.applyPixelShift(this.dateToPix(tick['end']), thickness);
 
         var l = Math.floor(left);
         var r = Math.ceil(right);
@@ -1093,8 +1104,55 @@ anychart.resourceModule.TimeLine.prototype.draw = function() {
 };
 
 
+/**
+ * @private
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.ensureVisualReady_ = function() {
+  if (!this.rootElement_) {
+    this.rootElement_ = acgraph.layer();
+
+    this.clip_ = acgraph.clip();
+    this.rootElement_.clip(this.clip_);
+
+    this.levelsLayer_ = this.rootElement_.layer();
+
+    this.levelsWeekdaysPaths_ = [];
+    this.levelsHolidaysPaths_ = [];
+
+    this.levelsWeekdaysStrokePaths_ = [];
+    this.levelsHolidaysStrokePaths_ = [];
+
+    this.labelsLayer_ = this.rootElement_.layer();
+
+    this.heights_ = [];
+
+    this.weekdaysLabelSettings = [];
+    this.holidaysLabelSettings = [];
+
+    this.sourceFormats_ = [];
+    this.choosenFormats_ = [];
+  }
+};
+
+
+/**
+ *
+ * @param {number} date
+ * @return {number}
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.dateToPix = function(date) {
+  var result;
+  if (this.xScale_.dateToPix) {
+    result = this.xScale_.dateToPix(date);
+  } else {
+    result = this.xScale_.transform(date) * this.pixelBoundsCache_.width;
+  }
+  return result + this.pixelBoundsCache_.left;
+};
+
+
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.remove = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.remove = function() {
   if (this.rootElement_)
     this.rootElement_.parent(null);
 };
@@ -1111,17 +1169,17 @@ anychart.resourceModule.TimeLine.prototype.remove = function() {
  * Sets default settings.
  * @param {!Object} config
  */
-anychart.resourceModule.TimeLine.prototype.setThemeSettings = function(config) {
-  anychart.core.settings.copy(this.themeSettings, anychart.resourceModule.TimeLine.DESCRIPTORS, config);
-  anychart.core.settings.copy(this.themeSettings, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, config);
+anychart.ganttBaseModule.TimeLineHeader.prototype.setThemeSettings = function(config) {
+  anychart.core.settings.copy(this.themeSettings, anychart.ganttBaseModule.TimeLineHeader.DESCRIPTORS, config);
+  anychart.core.settings.copy(this.themeSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, config);
 };
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.serialize = function() {
-  var json = anychart.resourceModule.TimeLine.base(this, 'serialize');
-  anychart.core.settings.serialize(this, anychart.resourceModule.TimeLine.DESCRIPTORS, json, 'Resource Timeline');
-  anychart.core.settings.serialize(this, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, json, 'Resource Timeline text settings');
+anychart.ganttBaseModule.TimeLineHeader.prototype.serialize = function() {
+  var json = anychart.ganttBaseModule.TimeLineHeader.base(this, 'serialize');
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.DESCRIPTORS, json, 'Resource Timeline');
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, json, 'Resource Timeline text settings');
 
   json['background'] = this.background_.serialize();
   json['padding'] = this.padding_.serialize();
@@ -1132,13 +1190,13 @@ anychart.resourceModule.TimeLine.prototype.serialize = function() {
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.setupByJSON = function(config, opt_default) {
-  anychart.resourceModule.TimeLine.base(this, 'setupByJSON', config, opt_default);
+anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config, opt_default) {
+  anychart.ganttBaseModule.TimeLineHeader.base(this, 'setupByJSON', config, opt_default);
   if (opt_default) {
     this.setThemeSettings(config);
   } else {
-    anychart.core.settings.deserialize(this, anychart.resourceModule.TimeLine.DESCRIPTORS, config);
-    anychart.core.settings.deserialize(this, anychart.resourceModule.TimeLine.TEXT_DESCRIPTORS, config);
+    anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.DESCRIPTORS, config);
+    anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, config);
   }
 
   if ('background' in config) this.background_.setupInternal(!!opt_default, config['background']);
@@ -1150,7 +1208,7 @@ anychart.resourceModule.TimeLine.prototype.setupByJSON = function(config, opt_de
 
 
 /** @inheritDoc */
-anychart.resourceModule.TimeLine.prototype.disposeInternal = function() {
+anychart.ganttBaseModule.TimeLineHeader.prototype.disposeInternal = function() {
   goog.dispose(this.rootElement_);
   this.rootElement_ = null;
   goog.dispose(this.background_);
@@ -1173,7 +1231,96 @@ anychart.resourceModule.TimeLine.prototype.disposeInternal = function() {
   this.levelsLayer_ = null;
   this.labelsLayer_ = null;
 
-  anychart.resourceModule.TimeLine.base(this, 'disposeInternal');
+  anychart.ganttBaseModule.TimeLineHeader.base(this, 'disposeInternal');
+};
+
+
+
+//endregion
+//region --- LevelWrapper
+//------------------------------------------------------------------------------
+//
+//  LevelWrapper
+//
+//------------------------------------------------------------------------------
+/**
+ *
+ * @param {anychart.ganttBaseModule.TimeLineHeader} header
+ * @param {number} index
+ * @constructor
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper = function(header, index) {
+  /**
+   * @type {anychart.ganttBaseModule.TimeLineHeader}
+   * @private
+   */
+  this.header_ = header;
+
+  /**
+   * @type {number}
+   * @private
+   */
+  this.index_ = index;
+};
+
+
+/**
+ * @param {Object=} opt_value - Config object.
+ * @return {anychart.core.ui.LabelsFactory|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper}
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.labels = function(opt_value) {
+  var labels = this.header_.getLabelsFactory_(this.index_, true);
+  if (goog.isDef(opt_value)) {
+    labels.setup(opt_value);
+    return this;
+  }
+  return labels;
+};
+
+
+/**
+ * Gets/sets background fill.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for method chaining.
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  if (goog.isDef(opt_fillOrColorOrKeys)) {
+    var val = acgraph.vector.normalizeFill.apply(null, arguments);
+    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.tileFill_), val)) {
+      this.tileFill_ = val;
+      this.header_.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.tileFill_;
+};
+
+
+/**
+ * Gets/sets a connector preview stroke.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
+ * @param {number=} opt_thickness .
+ * @param {string=} opt_dashpattern .
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
+ * @return {acgraph.vector.Stroke|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for chaining.
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  if (goog.isDef(opt_strokeOrFill)) {
+    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
+    if (!anychart.color.equals(this.tilesSeparationStroke_, val)) {
+      this.tilesSeparationStroke_ = val;
+      this.header_.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
+    }
+    return this;
+  }
+  return this.tilesSeparationStroke_;
 };
 
 
@@ -1186,7 +1333,7 @@ anychart.resourceModule.TimeLine.prototype.disposeInternal = function() {
 //------------------------------------------------------------------------------
 //exports
 (function() {
-  var proto = anychart.resourceModule.TimeLine.prototype;
+  var proto = anychart.ganttBaseModule.TimeLineHeader.prototype;
   proto['background'] = proto.background;
   proto['padding'] = proto.padding;
   proto['holidays'] = proto.holidays;
@@ -1195,6 +1342,11 @@ anychart.resourceModule.TimeLine.prototype.disposeInternal = function() {
   // proto['fill'] = proto.fill;
   // proto['stroke'] = proto.stroke;
   // proto['levelHeight'] = proto.levelHeight;
+
+  proto = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype;
+  proto['labels'] = proto.labels;
+  proto['tileFill'] = proto.tileFill;
+  proto['tilesSeparationStroke'] = proto.tilesSeparationStroke;
 })();
 
 

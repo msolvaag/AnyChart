@@ -661,6 +661,16 @@ anychart.ganttModule.Scale.prototype.getTicks = function(anchorDate, interval) {
 
 
 /**
+ * Calculates ticks depending on current scale settings and value passed.
+ * @param {(number|Date|goog.date.UtcDateTime)} anchorDate - Value to be turned into a date (mills).
+ * @param {goog.date.Interval} interval - Interval that definitely must cross the anchorDate.
+ * @return {Array.<number>} - Array of ticks.
+ */
+anychart.ganttModule.Scale.prototype.getTicksObjects = function(anchorDate, interval) {
+};
+
+
+/**
  * Performs step-by-step search.
  * @param {(number|Date|goog.date.UtcDateTime)} startDate - Start date.
  * @param {goog.date.Interval} interval - Step interval.
@@ -861,8 +871,9 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
 /**
  * If total min is visually reached.
  * @return {boolean}
+ * @private
  */
-anychart.ganttModule.Scale.prototype.minReached = function() {
+anychart.ganttModule.Scale.prototype.minReached_ = function() {
   if (this.isEmpty())
     return true;
   else {
@@ -876,7 +887,7 @@ anychart.ganttModule.Scale.prototype.minReached = function() {
  * If total max is visually reached.
  * @return {boolean}
  */
-anychart.ganttModule.Scale.prototype.maxReached = function() {
+anychart.ganttModule.Scale.prototype.maxReached_ = function() {
   if (this.isEmpty())
     return true;
   else {
@@ -916,7 +927,7 @@ anychart.ganttModule.Scale.prototype.zoomIn = function(opt_zoomFactor) {
  * @return {anychart.ganttModule.Scale} - Itself for method chaining.
  */
 anychart.ganttModule.Scale.prototype.zoomOut = function(opt_zoomFactor) {
-  if (!this.minReached() || !this.maxReached()) {
+  if (!this.minReached_() || !this.maxReached_()) {
     opt_zoomFactor = opt_zoomFactor || anychart.ganttModule.Scale.DEFAULT_ZOOM_FACTOR;
     var msInterval = Math.round((this.max_ - this.min_) * (opt_zoomFactor - 1) / 2);
 
