@@ -1131,12 +1131,16 @@ anychart.core.ui.Crosshair.prototype.setupByJSON = function(config, opt_default)
   if (goog.isArray(labels)) {
     for (i = 0; i < labels.length; i++)
       this.xLabel(i, labels[i]);
+  } else if ('xLabel' in config) {
+    this.xLabel(0, config['xLabel']);
   }
 
   labels = config['yLabels'];
   if (goog.isArray(labels)) {
     for (i = 0; i < labels.length; i++)
       this.yLabel(i, labels[i]);
+  } else if ('yLabel' in config) {
+    this.yLabel(0, config['yLabel']);
   }
 };
 
