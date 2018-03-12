@@ -582,7 +582,7 @@ anychart.mapModule.Chart.prototype.getYAxisByIndex = function(index) {
 //endregion
 //region --- Interactivity
 /**
- * Conrols interactivity.
+ * Controls interactivity.
  * @private
  */
 anychart.mapModule.Chart.prototype.controlsInteractivity_ = function() {
