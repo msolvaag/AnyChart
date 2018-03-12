@@ -44,7 +44,7 @@ anychart.circularGaugeModule.pointers.Base = function() {
    * @type {number}
    * @private
    */
-  this.dataIndex_;
+  this.dataIndex_ = 0;
 
   /**
    * Defines index of axis which will be used to display its data value.
@@ -265,15 +265,13 @@ anychart.circularGaugeModule.pointers.Base.prototype.dataIndex = function(opt_in
   if (goog.isDef(opt_index)) {
     if (this.dataIndex_ != opt_index) {
       this.dataIndex_ = opt_index;
-      if (!this.ownData)
-        this.invalidate(anychart.ConsistencyState.BOUNDS,
-            anychart.Signal.NEEDS_REDRAW |
-            anychart.Signal.NEEDS_RECALCULATION
-        );
+      this.invalidate(anychart.ConsistencyState.BOUNDS,
+          anychart.Signal.NEEDS_REDRAW |
+          anychart.Signal.NEEDS_RECALCULATION);
     }
     return this;
   } else {
-    return (this.ownData ? 0 : /** @type {number} */(this.dataIndex_));
+    return /** @type {number} */(this.dataIndex_);
   }
 };
 
@@ -841,7 +839,7 @@ anychart.circularGaugeModule.pointers.Base.prototype.serialize = function() {
   if (this.ownData) {
     json['data'] = this.data().serialize();
   }
-  json['dataIndex'] = this.dataIndex_;
+  json['dataIndex'] = this.dataIndex();
 
   if (this.id_)
     json['id'] = this.id();

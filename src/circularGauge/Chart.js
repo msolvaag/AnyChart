@@ -508,14 +508,17 @@ anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(typ
     this.pointers_.push(instance);
     typedArray[arrIndex] = instance;
 
-    var pointerZIndex = anychart.circularGaugeModule.Chart.ZINDEX_POINTER + anychart.circularGaugeModule.Chart.ZINDEX_MULTIPLIER *
-        (isKnob ? this.knobCounter_ : this.pointerCounter_);
+    var count = isKnob ? this.knobCounter_++ : this.pointerCounter_++;
+
+    var pointerZIndex = anychart.circularGaugeModule.Chart.ZINDEX_POINTER + anychart.circularGaugeModule.Chart.ZINDEX_MULTIPLIER * count;
 
     instance.autoIndex(index);
     instance.zIndex(pointerZIndex);
-    if (goog.isNumber(opt_dataIndexOrData)) {
+
+    if (!goog.isDef(opt_dataIndexOrData)) {
+      instance.dataIndex(count);
+    } else if (goog.isNumber(opt_dataIndexOrData)) {
       instance.dataIndex(/** @type {number} */(opt_dataIndexOrData));
-      isKnob ? this.knobCounter_++ : this.pointerCounter_++;
     } else {
       instance.data(/** @type {anychart.data.View|anychart.data.Set|Array|string} */(opt_dataIndexOrData), opt_csvSettings);
     }
