@@ -2160,8 +2160,8 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
 
     'rowHoverFill': anychart.core.defaultTheme.returnSourceColor,
     'rowSelectedFill': anychart.core.defaultTheme.returnSourceColor,
-    'selectedElementFill': anychart.core.defaultTheme.returnSourceColor,
-    'selectedElementStroke': anychart.core.defaultTheme.returnSourceColor,
+    // 'selectedElementFill': anychart.core.defaultTheme.returnSourceColor,
+    // 'selectedElementStroke': anychart.core.defaultTheme.returnSourceColor,
 
     'rowStroke': anychart.core.defaultTheme.ganttDefaultStroke,
     'rowOddFill': '#fff',
@@ -2219,19 +2219,23 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'editFinishConnectorMarkerVerticalOffset': 0,
     'editIntervalWidth': 3,
 
-    'baseFill': anychart.core.defaultTheme.returnSourceColor,
-    'baseStroke': anychart.core.defaultTheme.returnSourceColor,
+    // 'baseFill': anychart.core.defaultTheme.returnSourceColor,
+    // 'baseStroke': anychart.core.defaultTheme.returnSourceColor,
 
-    'baseBarAnchor': 'auto',
-    'baseBarPosition': 'left-center',
-    'baseBarOffset': 0,
-    'baseBarHeight': '70%',
-    'progressBarHeight': '100%',
-    'progressBarPosition': 'left-center',
-    'progressBarAnchor': 'left-center',
+    // 'baseBarAnchor': 'auto',
+    // 'baseBarPosition': 'left-center',
+    // 'baseBarOffset': 0,
+    // 'baseBarHeight': '70%',
+    // 'progressBarHeight': '100%',
+    // 'progressBarPosition': 'left-center',
+    // 'progressBarAnchor': 'left-center',
     //all another settings should be set to 'null' for serialization demerging purposes
 
     'elements': {
+      'anchor': 'auto',
+      'position': 'left-center',
+      'offset': 0,
+      'height': '70%',
       'normal': {
         'fill': anychart.core.defaultTheme.returnSourceColor,
         'stroke': anychart.core.defaultTheme.returnSourceColor
@@ -2257,7 +2261,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
             'shapeType': 'path',
             'fillName': 'fill',
             'strokeName': 'stroke',
-            'zIndex': 0,
+            'zIndex': 10,
             'disablePointerEvents': false
           }
         ]
@@ -2266,6 +2270,8 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
 
     'tasks': {
       'progress': {
+        'height': '100%',
+        'anchor': 'left-center',
         'rendering': {
           'shapes': [
             {
@@ -2273,7 +2279,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
               'shapeType': 'path',
               'fillName': 'fill',
               'strokeName': 'stroke',
-              'zIndex': 1,
+              'zIndex': 11,
               'disablePointerEvents': true
             }
           ]
@@ -2325,9 +2331,13 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       }
     },
 
+    'baselines': {
+      'above': false
+    },
+
     'connectorFill': '#545f69',
     'connectorStroke': '#545f69',
-    'baselineAbove': false,
+    // 'baselineAbove': false,
     'tooltip': {
       'padding': 5,
       'title': {

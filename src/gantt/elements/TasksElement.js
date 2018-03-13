@@ -47,6 +47,26 @@ anychart.ganttModule.elements.TasksElement.prototype.getPaletteNormalStroke = fu
 };
 
 
+/**
+ * Visual element invalidation handler.
+ * @param {anychart.SignalEvent} e - Signal event.
+ * @private
+ */
+anychart.ganttModule.elements.TasksElement.prototype.progressInvalidated_ = function(e) {
+  var signal = 0;
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
+    signal |= anychart.Signal.NEEDS_REDRAW_LABELS;
+  }
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    signal |= anychart.Signal.NEEDS_REDRAW;
+  }
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
+    signal |= anychart.Signal.NEEDS_REDRAW_APPEARANCE;
+  }
+  this.dispatchSignal(signal);
+};
+
+
 //endregion
 //region -- External API.
 /**
@@ -69,26 +89,6 @@ anychart.ganttModule.elements.TasksElement.prototype.progress = function(opt_val
 };
 
 
-/**
- * Visual element invalidation handler.
- * @param {anychart.SignalEvent} e - Signal event.
- * @private
- */
-anychart.ganttModule.elements.TasksElement.prototype.progressInvalidated_ = function(e) {
-  var signal = 0;
-  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW_LABELS)) {
-    signal |= anychart.Signal.NEEDS_REDRAW_LABELS;
-  }
-  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
-    signal |= anychart.Signal.NEEDS_REDRAW;
-  }
-  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW_APPEARANCE)) {
-    signal |= anychart.Signal.NEEDS_REDRAW_APPEARANCE;
-  }
-  this.dispatchSignal(signal);
-};
-
-
 //endregion
 //region -- Serialize/Deserialize.
 /** @inheritDoc */
@@ -102,7 +102,7 @@ anychart.ganttModule.elements.TasksElement.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.ganttModule.elements.TasksElement.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttModule.elements.TasksElement.base(this, 'setupByJSON', config, opt_default);
-  this.progress().setupInternal(!!opt_default, config);
+  this.progress().setupInternal(!!opt_default, config['progress']);
 };
 
 

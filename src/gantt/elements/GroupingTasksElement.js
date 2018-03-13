@@ -57,8 +57,17 @@ anychart.ganttModule.elements.GroupingTasksElement.prototype.getPaletteNormalStr
 anychart.ganttModule.elements.GroupingTasksElement.prototype.progress = function(opt_value) {
   if (!this.progress_) {
     this.progress_ = new anychart.ganttModule.elements.ProgressElement(this.getTimeline());
-    this.progress_.parent(/** @type {anychart.ganttModule.elements.TimelineElement} */ (this.parent().progress()));
+    var parent = /** @type {anychart.ganttModule.elements.TasksElement} */ (this.parent());
+    var parentProgress = /** @type {anychart.ganttModule.elements.ProgressElement} */ (parent.progress());
+    this.progress_.parent(parentProgress);
     this.progress_.listenSignals(this.progressInvalidated_, this);
+
+    this.progress_.labelsResolution = [
+      this.progress().labels(),
+      parentProgress.labels(),
+      this.getTimeline().elements().labels(),
+      this.getTimeline().labels()
+    ];
   }
 
   if (goog.isDef(opt_value)) {
@@ -102,7 +111,7 @@ anychart.ganttModule.elements.GroupingTasksElement.prototype.serialize = functio
 /** @inheritDoc */
 anychart.ganttModule.elements.GroupingTasksElement.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttModule.elements.GroupingTasksElement.base(this, 'setupByJSON', config, opt_default);
-  this.progress().setupInternal(!!opt_default, config);
+  this.progress().setupInternal(!!opt_default, config['progress']);
 };
 
 

@@ -40,4 +40,17 @@ anychart.ganttModule.elements.ProgressElement.prototype.getPaletteNormalStroke =
 
 
 //endregion
+//region -- Parent States.
+/** @inheritDoc */
+anychart.ganttModule.elements.ProgressElement.prototype.getParentState = function(stateType) {
+  var parent = this.parent();
+  if (parent) {
+    var state = !!(stateType & anychart.PointState.SELECT) ? 'selected' : 'normal';
+    return parent[state]();
+  }
+  return null;
+};
+
+
+//endregion
 

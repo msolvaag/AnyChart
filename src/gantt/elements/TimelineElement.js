@@ -25,6 +25,12 @@ anychart.ganttModule.elements.TimelineElement = function(timeline) {
   anychart.ganttModule.elements.TimelineElement.base(this, 'constructor');
 
   /**
+   * State settings state holder.
+   * @type {anychart.core.settings.IObjectWithSettings}
+   */
+  this.stateHolder = this;
+
+  /**
    * Related timeline.
    * @type {anychart.ganttModule.TimeLine}
    * @private
@@ -51,14 +57,14 @@ anychart.ganttModule.elements.TimelineElement = function(timeline) {
     ['fill', 0, anychart.Signal.NEEDS_REDRAW_APPEARANCE],
     ['stroke', 0, anychart.Signal.NEEDS_REDRAW_APPEARANCE]
   ]);
-  this.normal_ = new anychart.core.StateSettings(this, normalDescriptorsMeta, anychart.PointState.NORMAL);
+  this.normal_ = new anychart.core.StateSettings(this.stateHolder, normalDescriptorsMeta, anychart.PointState.NORMAL);
 
   var selectedDescriptorsMeta = {};
   anychart.core.settings.createDescriptorsMeta(selectedDescriptorsMeta, [
     ['fill', 0, 0],
     ['stroke', 0, 0]
   ]);
-  this.selected_ = new anychart.core.StateSettings(this, selectedDescriptorsMeta, anychart.PointState.SELECT);
+  this.selected_ = new anychart.core.StateSettings(this.stateHolder, selectedDescriptorsMeta, anychart.PointState.SELECT);
 
   /**
    * Labels settings.
@@ -66,6 +72,12 @@ anychart.ganttModule.elements.TimelineElement = function(timeline) {
    * @private
    */
   this.labels_ = null;
+
+  /**
+   * Labels resolution chain.
+   * @type {?Array.<anychart.core.ui.LabelsFactory>}
+   */
+  this.labelsResolution = null;
 
   /**
    * Resolution chain cache.
@@ -104,7 +116,7 @@ anychart.ganttModule.elements.TimelineElement.prototype.SUPPORTED_CONSISTENCY_ST
 //endregion
 //region -- Optimized props descriptors
 /**
- * Simple Separator descriptors.
+ * Simple descriptors.
  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
 anychart.ganttModule.elements.TimelineElement.DESCRIPTORS = (function() {
@@ -259,6 +271,7 @@ anychart.ganttModule.elements.TimelineElement.prototype.parent = function(opt_va
  * @private
  */
 anychart.ganttModule.elements.TimelineElement.prototype.parentInvalidated_ = function(e) {
+  this.resolutionChainCache_ = null;
   this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
 };
 
@@ -417,10 +430,26 @@ anychart.ganttModule.elements.TimelineElement.prototype.getPalette = function() 
 
 
 //endregion
+//region -- Labels resolution.
+/**
+ * Getter for labels resolution order.
+ * @return {!Array.<anychart.core.ui.LabelsFactory>}
+ */
+anychart.ganttModule.elements.TimelineElement.prototype.getLabelsResolutionOrder = function() {
+  return this.labelsResolution ||
+      (this.labelsResolution = [
+        this.labels(),
+        this.getTimeline().elements().labels(), //Yes, this is duplication, but this method will never be used not overridden.
+        this.getTimeline().labels()
+      ]);
+};
+
+
+//endregion
 //region -- Internal API.
 /**
  * Gets type.
- * @return {anychart.enums.TLElementTypes|string}
+ * @return {anychart.enums.TLElementTypes}
  */
 anychart.ganttModule.elements.TimelineElement.prototype.getType = function() {
   return anychart.enums.TLElementTypes.ALL;
@@ -535,7 +564,7 @@ anychart.ganttModule.elements.TimelineElement.prototype.recreateShapeManager = f
 //region -- External API.
 /**
  * Labels factory getter/setter.
- * @param {Object=} opt_value - Value to be set.
+ * @param {(Object|boolean)=} opt_value - Value to be set.
  * @return {anychart.ganttModule.elements.TimelineElement|anychart.core.ui.LabelsFactory} - Current value or itself for method chaining.
  */
 anychart.ganttModule.elements.TimelineElement.prototype.labels = function(opt_value) {
@@ -547,7 +576,7 @@ anychart.ganttModule.elements.TimelineElement.prototype.labels = function(opt_va
   if (goog.isDef(opt_value)) {
     var redraw = true;
     if (anychart.utils.instanceOf(opt_value, anychart.core.ui.LabelsFactory)) {
-      this.labels_.setup(opt_value.serialize());
+      this.labels_.setup((/** @type {anychart.core.ui.LabelsFactory} */ (opt_value)).serialize());
     } else if (goog.isObject(opt_value)) {
       this.labels_.setup(opt_value);
     } else if (anychart.utils.isNone(opt_value)) {
