@@ -212,13 +212,6 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
   this.lastHoveredPeriodIndex_ = NaN;
 
   /**
-   * Whether baseline bar must be placed above the actual interval bar.
-   * @type {boolean}
-   * @private
-   */
-  this.baselineAbove_ = false;
-
-  /**
    *
    * @type {boolean}
    */
@@ -489,77 +482,77 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
    */
   this.baselines_ = null;
 
-  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-    //Base bar
-    ['baseBarHeight',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baseBarAnchor',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baseBarPosition',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baseBarOffset',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-
-    //Parent bar
-    ['parentBarHeight',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['parentBarAnchor',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['parentBarPosition',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['parentBarOffset',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-
-    //Baseine bar
-    ['baselineBarHeight',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baselineBarAnchor',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baselineBarPosition',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['baselineBarOffset',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-
-    //Progress bar
-    ['progressBarHeight',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['progressBarAnchor',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['progressBarPosition',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['progressBarOffset',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-
-    //Milestones
-    ['milestoneHeight',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['milestoneAnchor',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['milestonePosition',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW],
-    ['milestoneOffset',
-      anychart.ConsistencyState.GRIDS_POSITION,
-      anychart.Signal.NEEDS_REDRAW]
-  ]);
+  // anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+  //   //Base bar
+  //   ['baseBarHeight',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baseBarAnchor',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baseBarPosition',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baseBarOffset',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //
+  //   //Parent bar
+  //   ['parentBarHeight',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['parentBarAnchor',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['parentBarPosition',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['parentBarOffset',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //
+  //   //Baseine bar
+  //   ['baselineBarHeight',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baselineBarAnchor',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baselineBarPosition',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['baselineBarOffset',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //
+  //   //Progress bar
+  //   ['progressBarHeight',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['progressBarAnchor',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['progressBarPosition',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['progressBarOffset',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //
+  //   //Milestones
+  //   ['milestoneHeight',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['milestoneAnchor',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['milestonePosition',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW],
+  //   ['milestoneOffset',
+  //     anychart.ConsistencyState.GRIDS_POSITION,
+  //     anychart.Signal.NEEDS_REDRAW]
+  // ]);
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     // timeline coloring
@@ -625,42 +618,42 @@ anychart.ganttModule.TimeLine.Tag;
 
 
 //region -- Normalisers adaptation
-/**
- * Timeline specific anchor normalizer.
- * @param {*} value - Value to normalize.
- * @return {?anychart.enums.Anchor}
- */
-anychart.ganttModule.TimeLine.normalizeAnchor = function(value) {
-  if (goog.isNull(value))
-    return null;
+// /**
+//  * Timeline specific anchor normalizer.
+//  * @param {*} value - Value to normalize.
+//  * @return {?anychart.enums.Anchor}
+//  */
+// anychart.ganttModule.TimeLine.normalizeAnchor = function(value) {
+//   if (goog.isNull(value))
+//     return null;
+//
+//   value = anychart.enums.normalizeAnchor(value, anychart.enums.Anchor.LEFT_CENTER);
+//   if (value == anychart.enums.Anchor.AUTO)
+//     return anychart.enums.Anchor.AUTO;
+//   if (anychart.utils.isTopAnchor(value))
+//     return anychart.enums.Anchor.LEFT_TOP;
+//   if (anychart.utils.isBottomAnchor(value))
+//     return anychart.enums.Anchor.LEFT_BOTTOM;
+//   return anychart.enums.Anchor.LEFT_CENTER;
+// };
 
-  value = anychart.enums.normalizeAnchor(value, anychart.enums.Anchor.LEFT_CENTER);
-  if (value == anychart.enums.Anchor.AUTO)
-    return anychart.enums.Anchor.AUTO;
-  if (anychart.utils.isTopAnchor(value))
-    return anychart.enums.Anchor.LEFT_TOP;
-  if (anychart.utils.isBottomAnchor(value))
-    return anychart.enums.Anchor.LEFT_BOTTOM;
-  return anychart.enums.Anchor.LEFT_CENTER;
-};
 
-
-/**
- * Timeline specific position normalizer.
- * @param {*} value - Value to normalize.
- * @return {?anychart.enums.Position}
- */
-anychart.ganttModule.TimeLine.normalizePosition = function(value) {
-  if (goog.isNull(value))
-    return null;
-
-  value = /** @type {anychart.enums.Anchor} */ (anychart.enums.normalizePosition(value, anychart.enums.Position.LEFT_CENTER));
-  if (anychart.utils.isTopAnchor(value))
-    return anychart.enums.Position.LEFT_TOP;
-  if (anychart.utils.isBottomAnchor(value))
-    return anychart.enums.Position.LEFT_BOTTOM;
-  return anychart.enums.Position.LEFT_CENTER;
-};
+// /**
+//  * Timeline specific position normalizer.
+//  * @param {*} value - Value to normalize.
+//  * @return {?anychart.enums.Position}
+//  */
+// anychart.ganttModule.TimeLine.normalizePosition = function(value) {
+//   if (goog.isNull(value))
+//     return null;
+//
+//   value = /** @type {anychart.enums.Anchor} */ (anychart.enums.normalizePosition(value, anychart.enums.Position.LEFT_CENTER));
+//   if (anychart.utils.isTopAnchor(value))
+//     return anychart.enums.Position.LEFT_TOP;
+//   if (anychart.utils.isBottomAnchor(value))
+//     return anychart.enums.Position.LEFT_BOTTOM;
+//   return anychart.enums.Position.LEFT_CENTER;
+// };
 
 
 // /**
@@ -733,141 +726,141 @@ anychart.ganttModule.TimeLine.prototype.resolveAutoAnchorByType_ = function(posi
 
 //endregion
 //region -- Descriptors.
-/**
- * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
- */
-anychart.ganttModule.TimeLine.DESCRIPTORS = (function() {
-  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
-  var map = {};
-
-  //Base bar
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baseBarHeight',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baseBarAnchor',
-      anychart.ganttModule.TimeLine.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baseBarPosition',
-      anychart.ganttModule.TimeLine.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baseBarOffset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  //Parent bar
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'parentBarHeight',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'parentBarAnchor',
-      anychart.ganttModule.TimeLine.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'parentBarPosition',
-      anychart.ganttModule.TimeLine.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'parentBarOffset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  //Baseline bar
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baselineBarHeight',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baselineBarAnchor',
-      anychart.ganttModule.TimeLine.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baselineBarPosition',
-      anychart.ganttModule.TimeLine.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'baselineBarOffset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  //Progress bar
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'progressBarHeight',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'progressBarAnchor',
-      anychart.ganttModule.TimeLine.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'progressBarPosition',
-      anychart.ganttModule.TimeLine.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'progressBarOffset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  //Milestones
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'milestoneHeight',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'milestoneAnchor',
-      anychart.ganttModule.TimeLine.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'milestonePosition',
-      anychart.ganttModule.TimeLine.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'milestoneOffset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  return map;
-})();
-anychart.core.settings.populate(anychart.ganttModule.TimeLine, anychart.ganttModule.TimeLine.DESCRIPTORS);
+// /**
+//  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+//  */
+// anychart.ganttModule.TimeLine.DESCRIPTORS = (function() {
+//   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+//   var map = {};
+//
+//   //Base bar
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baseBarHeight',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baseBarAnchor',
+//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baseBarPosition',
+//   //     anychart.ganttModule.TimeLine.normalizePosition);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baseBarOffset',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   //Parent bar
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'parentBarHeight',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'parentBarAnchor',
+//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'parentBarPosition',
+//   //     anychart.ganttModule.TimeLine.normalizePosition);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'parentBarOffset',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   //Baseline bar
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baselineBarHeight',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baselineBarAnchor',
+//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baselineBarPosition',
+//   //     anychart.ganttModule.TimeLine.normalizePosition);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'baselineBarOffset',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   //Progress bar
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'progressBarHeight',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'progressBarAnchor',
+//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'progressBarPosition',
+//   //     anychart.ganttModule.TimeLine.normalizePosition);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'progressBarOffset',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   //Milestones
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'milestoneHeight',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'milestoneAnchor',
+//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'milestonePosition',
+//   //     anychart.ganttModule.TimeLine.normalizePosition);
+//
+//   // anychart.core.settings.createDescriptor(
+//   //     map,
+//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
+//   //     'milestoneOffset',
+//   //     anychart.core.settings.numberOrPercentNormalizer);
+//
+//   return map;
+// })();
+// anychart.core.settings.populate(anychart.ganttModule.TimeLine, anychart.ganttModule.TimeLine.DESCRIPTORS);
 
 
 //endregion
@@ -876,34 +869,6 @@ anychart.core.settings.populate(anychart.ganttModule.TimeLine, anychart.ganttMod
  * @type {number}
  */
 anychart.ganttModule.TimeLine.DEFAULT_HEADER_HEIGHT = 70;
-
-
-// /**
-//  * Baseline path z-index.
-//  * @type {number}
-//  */
-// anychart.ganttModule.TimeLine.BASELINE_Z_INDEX = 10;
-
-
-// /**
-//  * Base path z-index.
-//  * @type {number}
-//  */
-// anychart.ganttModule.TimeLine.BASE_Z_INDEX = 20;
-
-
-// /**
-//  * Progress path z-index.
-//  * @type {number}
-//  */
-// anychart.ganttModule.TimeLine.PROGRESS_Z_INDEX = 30;
-
-
-// /**
-//  * labels factory z-index.
-//  * @type {number}
-//  */
-// anychart.ganttModule.TimeLine.LABEL_Z_INDEX = 40;
 
 
 /**
@@ -1499,6 +1464,331 @@ anychart.ganttModule.TimeLine.prototype.progressLabels = function(opt_value) {
 };
 
 
+/**
+ * Gets/sets 'baseline above' flag.
+ * If the flag is set to 'true', baseline bar will be displayed abode an actual time bar.
+ * @param {boolean=} opt_value - Value to be set.
+ * @deprecated since 8.2.0 use timeline.baselines().above() instead. DVF-3625
+ * @return {boolean|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.BaselinesElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baselineAbove = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.baselineAbove()', 'timeline.baselines().above()'], true);
+    return this.baselines()['above'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().height() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baseBarHeight = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.baseBarHeight()', 'timeline.elements().height()'], true);
+  return this.elements()['height'](opt_value);
+};
+
+
+/**
+ * @param {anychart.enums.Anchor=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().anchor() instead. DVF-3625
+ * @return {anychart.enums.Anchor|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baseBarAnchor = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.baseBarAnchor()', 'timeline.elements().anchor()'], true);
+  return this.elements()['anchor'](opt_value);
+};
+
+
+/**
+ * @param {anychart.enums.Position=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().position() instead. DVF-3625
+ * @return {anychart.enums.Position|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baseBarPosition = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.baseBarPosition()', 'timeline.elements().position()'], true);
+  return this.elements()['position'](opt_value);
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().position() instead. DVF-3625
+ * @return {string|number|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baseBarOffset = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.baseBarOffset()', 'timeline.elements().offset()'], true);
+  return this.elements()['offset'](opt_value);
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().height() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.parentBarHeight = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.parentBarHeight()', 'timeline.groupingTasks().height()'], true);
+    return this.groupingTasks()['height'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Anchor=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.groupingTasks().anchor() instead. DVF-3625
+ * @return {anychart.enums.Anchor|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.parentBarAnchor = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.parentBarAnchor()', 'timeline.groupingTasks().anchor()'], true);
+    return this.groupingTasks()['anchor'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Position=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.groupingTasks().position() instead. DVF-3625
+ * @return {anychart.enums.Position|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.parentBarPosition = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.parentBarPosition()', 'timeline.groupingTasks().position()'], true);
+    return this.groupingTasks()['position'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.elements().offset() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.parentBarOffset = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.parentBarOffset()', 'timeline.groupingTasks().offset()'], true);
+    return this.groupingTasks()['offset'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.baselines().height() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baselineBarHeight = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.baselineBarHeight()', 'timeline.baselines().height()'], true);
+    return this.baselines()['height'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Anchor=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.baselines().anchor() instead. DVF-3625
+ * @return {anychart.enums.Anchor|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baselineBarAnchor = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.baselineBarAnchor()', 'timeline.baselines().anchor()'], true);
+    return this.baselines()['anchor'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Position=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.baselines().position() instead. DVF-3625
+ * @return {anychart.enums.Position|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baselineBarPosition = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.baselineBarPosition()', 'timeline.baselines().position()'], true);
+    return this.baselines()['position'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.baselines().offset() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.baselineBarOffset = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.baselineBarOffset()', 'timeline.baselines().offset()'], true);
+    return this.baselines()['offset'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.tasks().progress().height() or
+ *  timeline.groupingTasks().progress().height() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.progressBarHeight = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.progressBarHeight()', 'timeline.tasks().progress().height() or timeline.groupingTasks().progress().height()'], true);
+    return this.tasks().progress()['height'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Anchor=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.tasks().progress().anchor() or
+ *  timeline.groupingTasks().progress().anchor() instead. DVF-3625
+ * @return {anychart.enums.Anchor|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.progressBarAnchor = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.progressBarAnchor()', 'timeline.tasks().progress().anchor() or timeline.groupingTasks().progress().anchor()'], true);
+    return this.tasks().progress()['anchor'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Position=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.tasks().progress().position() or
+ *  timeline.groupingTasks().progress().position() instead. DVF-3625
+ * @return {anychart.enums.Position|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.progressBarPosition = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.progressBarPosition()', 'timeline.tasks().progress().anchor() or timeline.groupingTasks().progress().anchor()'], true);
+    return this.tasks().progress()['position'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.tasks().progress().offset() or
+ *  timeline.groupingTasks().progress().offset() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.progressBarOffset = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.progressBarOffset()', 'timeline.tasks().progress().offset() or timeline.groupingTasks().progress().offset()'], true);
+    return this.tasks().progress()['offset'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.milestones().height() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.milestoneHeight = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.milestoneHeight()', 'timeline.milestones().height()'], true);
+    return this.milestones()['height'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Anchor=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.milestones().anchor() instead. DVF-3625
+ * @return {anychart.enums.Anchor|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.milestoneAnchor = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.milestoneAnchor()', 'timeline.milestones().anchor()'], true);
+    return this.milestones()['anchor'](opt_value);
+  }
+};
+
+
+/**
+ * @param {anychart.enums.Position=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.milestones().position() instead. DVF-3625
+ * @return {anychart.enums.Position|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.milestonePosition = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.milestonePosition()', 'timeline.milestones().position()'], true);
+    return this.milestones()['position'](opt_value);
+  }
+};
+
+
+/**
+ * @param {(string|number)=} opt_value - Value to set.
+ * @deprecated since 8.2.0 use timeline.milestones().offset() instead. DVF-3625
+ * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.TimeLine.prototype.milestoneOffset = function(opt_value) {
+  if (this.controller.isResources()) {
+    return this;
+  } else {
+    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+        ['timeline.milestoneOffset()', 'timeline.milestones().offset()'], true);
+    return this.milestones()['offset'](opt_value);
+  }
+};
+
 //endregion
 
 
@@ -1993,24 +2283,6 @@ anychart.ganttModule.TimeLine.prototype.markers = function(opt_value) {
   }
 
   return this.markersFactory_;
-};
-
-
-/**
- * Gets/sets 'baseline above' flag.
- * If the flag is set to 'true', baseline bar will be displayed abode an actual time bar.
- * @param {boolean=} opt_value - Value to be set.
- * @return {boolean|anychart.ganttModule.TimeLine} - Current value or itself for method chaining.
- */
-anychart.ganttModule.TimeLine.prototype.baselineAbove = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.baselineAbove_ != opt_value) {
-      this.baselineAbove_ = opt_value;
-      this.invalidate(anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW);
-      return this;
-    }
-  }
-  return this.baselineAbove_;
 };
 
 
@@ -5521,7 +5793,7 @@ anychart.ganttModule.TimeLine.prototype.scale = function(opt_value) {
 anychart.ganttModule.TimeLine.prototype.serialize = function() {
   var json = anychart.ganttModule.TimeLine.base(this, 'serialize');
 
-  anychart.core.settings.serialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, json);
+  // anychart.core.settings.serialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, json);
 
   json['scale'] = this.scale_.serialize();
 
@@ -5552,7 +5824,7 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
 
   json['header'] = this.header().serialize();
 
-  json['baselineAbove'] = this.baselineAbove_;
+  // json['baselineAbove'] = this.baselineAbove_;
 
   anychart.core.settings.serialize(this, anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS, json);
 
@@ -5621,7 +5893,7 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
 anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttModule.TimeLine.base(this, 'setupByJSON', config, opt_default);
 
-  anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, config, opt_default);
+  // anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, config, opt_default);
 
   if ('scale' in config) this.scale_.setup(config['scale']);
 
@@ -5635,7 +5907,7 @@ anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_defau
   if ('markers' in config) this.markers(config['markers']);
   if ('header' in config) this.header(config['header']);
 
-  this.baselineAbove(config['baselineAbove']);
+  // this.baselineAbove(config['baselineAbove']);
 
   anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS, config, opt_default);
 
@@ -6092,6 +6364,28 @@ anychart.standalones.resourceTimeline = function() {
   proto['parentLabels'] = proto.parentLabels;
   proto['milestoneLabels'] = proto.milestoneLabels;
   proto['progressLabels'] = proto.progressLabels;
+  proto['baselineAbove'] = proto.baselineAbove;
+  proto['baseBarHeight'] = proto.baseBarHeight;
+  proto['baseBarAnchor'] = proto.baseBarAnchor;
+  proto['baseBarPosition'] = proto.baseBarPosition;
+  proto['baseBarOffset'] = proto.baseBarOffset;
+  proto['parentBarHeight'] = proto.parentBarHeight;
+  proto['parentBarAnchor'] = proto.parentBarAnchor;
+  proto['parentBarPosition'] = proto.parentBarPosition;
+  proto['parentBarOffset'] = proto.parentBarOffset;
+  proto['baselineBarHeight'] = proto.baselineBarHeight;
+  proto['baselineBarAnchor'] = proto.baselineBarAnchor;
+  proto['baselineBarPosition'] = proto.baselineBarPosition;
+  proto['baselineBarOffset'] = proto.baselineBarOffset;
+  proto['progressBarHeight'] = proto.progressBarHeight;
+  proto['progressBarAnchor'] = proto.progressBarAnchor;
+  proto['progressBarPosition'] = proto.progressBarPosition;
+  proto['progressBarOffset'] = proto.progressBarOffset;
+  proto['milestoneHeight'] = proto.milestoneHeight;
+  proto['milestoneAnchor'] = proto.milestoneAnchor;
+  proto['milestonePosition'] = proto.milestonePosition;
+  proto['milestoneOffset'] = proto.milestoneOffset;
+
 
   // connector coloring
   //proto['connectorFill'] = proto.connectorFill;
@@ -6104,8 +6398,6 @@ anychart.standalones.resourceTimeline = function() {
 
 
   proto['editing'] = proto.editing;
-
-  proto['baselineAbove'] = proto.baselineAbove;
 
   proto['horizontalScrollBar'] = proto.horizontalScrollBar;
   proto['verticalScrollBar'] = proto.verticalScrollBar;
