@@ -22,13 +22,6 @@ anychart.linearGaugeModule.pointers.Base = function() {
   anychart.linearGaugeModule.pointers.Base.base(this, 'constructor');
 
   /**
-   * Pointer data index.
-   * @type {number|undefined}
-   * @private
-   */
-  this.dataIndex_ = 0;
-
-  /**
    * Reference value names.
    * @type {Array.<string>}
    */
@@ -248,7 +241,7 @@ anychart.linearGaugeModule.pointers.Base.prototype.dataIndex = function(opt_inde
     }
     return this;
   } else {
-    return /** @type {number} */(this.dataIndex_);
+    return /** @type {number} */(goog.isDefAndNotNull(this.dataIndex_) ? this.dataIndex_ : (this.ownData ? 0 : this.autoIndex()));
   }
 };
 
@@ -1372,7 +1365,8 @@ anychart.linearGaugeModule.pointers.Base.prototype.serialize = function() {
   if (this.ownData) {
     json['data'] = this.data().serialize();
   }
-  json['dataIndex'] = this.dataIndex();
+  if (goog.isDef(this.dataIndex_))
+    json['dataIndex'] = this.dataIndex_;
   json['legendItem'] = this.legendItem().serialize();
 
   if (this.id_)

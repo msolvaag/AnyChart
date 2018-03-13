@@ -40,13 +40,6 @@ anychart.circularGaugeModule.pointers.Base = function() {
   this.hatchFill_;
 
   /**
-   * Defines data index in gauge data.
-   * @type {number}
-   * @private
-   */
-  this.dataIndex_ = 0;
-
-  /**
    * Defines index of axis which will be used to display its data value.
    * @type {number}
    * @private
@@ -271,7 +264,7 @@ anychart.circularGaugeModule.pointers.Base.prototype.dataIndex = function(opt_in
     }
     return this;
   } else {
-    return /** @type {number} */(this.dataIndex_);
+    return /** @type {number} */(goog.isDefAndNotNull(this.dataIndex_) ? this.dataIndex_ : (this.ownData ? 0 : this.autoDataIndex()));
   }
 };
 
@@ -306,8 +299,8 @@ anychart.circularGaugeModule.pointers.Base.prototype.getIndex = function() {
 
 /**
  * Getter/setter for pointer global index, used in palettes and autoId.
- * @param {number=} opt_value Id of the pointer.
- * @return {number|anychart.circularGaugeModule.pointers.Base} Id or self for chaining.
+ * @param {number=} opt_value Auto index of the pointer.
+ * @return {number|anychart.circularGaugeModule.pointers.Base} Auto index or self for chaining.
  */
 anychart.circularGaugeModule.pointers.Base.prototype.autoIndex = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -315,6 +308,20 @@ anychart.circularGaugeModule.pointers.Base.prototype.autoIndex = function(opt_va
     return this;
   }
   return this.autoIndex_;
+};
+
+
+/**
+ * Auto data index. (this method exists only because of knob pointer existence)
+ * @param {number=} opt_value auto data index of the pointer.
+ * @return {number|anychart.circularGaugeModule.pointers.Base} Auto data index or self for chaining.
+ */
+anychart.circularGaugeModule.pointers.Base.prototype.autoDataIndex = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    this.autoDataIndex_ = opt_value;
+    return this;
+  }
+  return this.autoDataIndex_;
 };
 
 
@@ -839,7 +846,8 @@ anychart.circularGaugeModule.pointers.Base.prototype.serialize = function() {
   if (this.ownData) {
     json['data'] = this.data().serialize();
   }
-  json['dataIndex'] = this.dataIndex();
+  if (goog.isDef(this.dataIndex_))
+    json['dataIndex'] = this.dataIndex_;
 
   if (this.id_)
     json['id'] = this.id();

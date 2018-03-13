@@ -513,11 +513,10 @@ anychart.circularGaugeModule.Chart.prototype.createPointerByType_ = function(typ
     var pointerZIndex = anychart.circularGaugeModule.Chart.ZINDEX_POINTER + anychart.circularGaugeModule.Chart.ZINDEX_MULTIPLIER * count;
 
     instance.autoIndex(index);
+    instance.autoDataIndex(count);
     instance.zIndex(pointerZIndex);
 
-    if (!goog.isDef(opt_dataIndexOrData)) {
-      instance.dataIndex(count);
-    } else if (goog.isNumber(opt_dataIndexOrData)) {
+    if (goog.isNumber(opt_dataIndexOrData)) {
       instance.dataIndex(/** @type {number} */(opt_dataIndexOrData));
     } else {
       instance.data(/** @type {anychart.data.View|anychart.data.Set|Array|string} */(opt_dataIndexOrData), opt_csvSettings);
