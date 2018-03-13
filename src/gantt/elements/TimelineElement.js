@@ -465,58 +465,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.getTimeline = function()
 };
 
 
-// /**
-//  * Gets fill option name depending on type.
-//  * @return {string}
-//  */
-// anychart.ganttModule.elements.TimelineElement.prototype.getFillOptionName = function() {
-//   var optionName;
-//   switch (this.getType()) {
-//     case anychart.enums.TLElementTypes.MILESTONES:
-//       optionName = 'milestoneFill';
-//       break;
-//     case anychart.enums.TLElementTypes.BASELINES:
-//       optionName = 'baselineFill';
-//       break;
-//     case anychart.enums.TLElementTypes.GROUPING_TASKS:
-//       optionName = 'parentFill';
-//       break;
-//     case anychart.enums.TLElementTypes.PROGRESS:
-//       optionName = 'progressFill';
-//       break;
-//     default:
-//       optionName = 'baseFill';
-//   }
-//   return /** @type {string} */ (optionName);
-// };
-
-
-// /**
-//  * Gets stroke option name depending on type.
-//  * @return {string}
-//  */
-// anychart.ganttModule.elements.TimelineElement.prototype.getStrokeOptionName = function() {
-//   var optionName;
-//   switch (this.getType()) {
-//     case anychart.enums.TLElementTypes.MILESTONES:
-//       optionName = 'milestoneStroke';
-//       break;
-//     case anychart.enums.TLElementTypes.BASELINES:
-//       optionName = 'baselineStroke';
-//       break;
-//     case anychart.enums.TLElementTypes.GROUPING_TASKS:
-//       optionName = 'parentStroke';
-//       break;
-//     case anychart.enums.TLElementTypes.PROGRESS:
-//       optionName = 'progressStroke';
-//       break;
-//     default:
-//       optionName = 'baseStroke';
-//   }
-//   return /** @type {string} */ (optionName);
-// };
-
-
 /**
  * Gets fill represented as suitable for acgraph coloring.
  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related data item.
@@ -525,10 +473,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.getTimeline = function()
  * @return {acgraph.vector.Fill}
  */
 anychart.ganttModule.elements.TimelineElement.prototype.getFill = function(item, state, opt_periodIndex) {
-  // var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-  // var optionName = opt_selected ? 'selectedElementFill' : this.getFillOptionName();
-  // var resolved = resolver(optionName, anychart.enums.ColorType.FILL, false);
-  // return /** @type {acgraph.vector.Fill} */ (resolved(this.getTimeline(), 0, item, void 0, void 0, opt_periodIndex));
   return /** @type {acgraph.vector.Fill} */ (this.getColor(item, state, 'fill', opt_periodIndex));
 };
 
@@ -541,10 +485,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.getFill = function(item,
  * @return {acgraph.vector.Stroke}
  */
 anychart.ganttModule.elements.TimelineElement.prototype.getStroke = function(item, state, opt_periodIndex) {
-  // var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-  // var optionName = opt_selected ? 'selectedElementStroke' : this.getStrokeOptionName();
-  // var resolved = resolver(optionName, anychart.enums.ColorType.STROKE, false);
-  // return /** @type {acgraph.vector.Stroke} */ (resolved(this.getTimeline(), 0, item, void 0, void 0, opt_periodIndex));
   return /** @type {acgraph.vector.Stroke} */ (this.getColor(item, state, 'stroke', opt_periodIndex));
 };
 
@@ -631,34 +571,17 @@ anychart.ganttModule.elements.TimelineElement.prototype.renderingSettingsInvalid
 };
 
 
-// /**
-//  * Fill.
-//  * @param {...*} var_args - Fill arguments.
-//  * @return {anychart.ganttModule.elements.TimelineElement|acgraph.vector.Fill|Function}
-//  */
-// anychart.ganttModule.elements.TimelineElement.prototype.fill = function(var_args) {
-//   var fillOptionName = this.getFillOptionName();
-//   if (arguments.length) {
-//     this.getTimeline()[fillOptionName].apply(this.getTimeline(), arguments);
-//     return this;
-//   }
-//   return /** @type {acgraph.vector.Fill|Function} */ (this.getTimeline().getOption(fillOptionName));
-// };
-//
-//
-// /**
-//  * Stroke.
-//  * @param {...*} var_args - Stroke arguments.
-//  * @return {anychart.ganttModule.elements.TimelineElement|acgraph.vector.Stroke|Function}
-//  */
-// anychart.ganttModule.elements.TimelineElement.prototype.stroke = function(var_args) {
-//   var strokeOptionName = this.getStrokeOptionName();
-//   if (arguments.length) {
-//     this.getTimeline()[strokeOptionName].apply(this.getTimeline(), arguments);
-//     return this;
-//   }
-//   return /** @type {acgraph.vector.Stroke|Function} */ (this.getTimeline().getOption(strokeOptionName));
-// };
+//endregion
+//region -- Parent States.
+/** @inheritDoc */
+anychart.ganttModule.elements.TimelineElement.prototype.getParentState = function(stateType) {
+  var parent = this.parent();
+  if (parent) {
+    var state = !!(stateType & anychart.PointState.SELECT) ? 'selected' : 'normal';
+    return parent[state]();
+  }
+  return null;
+};
 
 
 //endregion
@@ -687,7 +610,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.serialize = function() {
   json['rendering'] = this.rendering().serialize();
   json['normal'] = this.normal().serialize();
   json['selected'] = this.selected().serialize();
-  //TODO (A.Kudryavtsev): Here fill and stroke are not serialized because of current Timeline API.
   return json;
 };
 

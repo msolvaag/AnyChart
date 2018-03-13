@@ -268,7 +268,6 @@ anychart.core.StateSettings.prototype.getLowPriorityResolutionChain = function()
   var sett = [this.themeSettings];
   var parent = this.stateHolder.getParentState(this.stateType);
   if (parent) {
-    // sett.push(parent.themeSettings);
     sett.push.apply(sett, parent.getLowPriorityResolutionChain());
   }
   return sett;
@@ -280,7 +279,6 @@ anychart.core.StateSettings.prototype.getHighPriorityResolutionChain = function(
   var sett = [this.ownSettings];
   var parent = this.stateHolder.getParentState(this.stateType);
   if (parent) {
-    // sett.push(parent.ownSettings);
     sett.push.apply(sett, parent.getHighPriorityResolutionChain());
   }
   return sett;

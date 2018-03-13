@@ -94,12 +94,6 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
           }
         }
       },
-      // 'baseLabels': {
-      //   'format': '{%Progress}',
-      //   'position': 'right-center',
-      //   'anchor': 'left-center',
-      //   'enabled': null
-      // },
       'baselines': {
         'labels': {
           'position': 'right-center',
@@ -108,18 +102,6 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
           'enabled': false
         }
       },
-      // 'baselineLabels': {
-      //   'position': 'right-center',
-      //   'anchor': 'left-center',
-      //   'format': 'Baseline Label',
-      //   'enabled': false
-      // },
-      // 'parentLabels': {
-      //   'format': '{%Progress}',
-      //   'position': 'right-center',
-      //   'anchor': 'left-center',
-      //   'enabled': null
-      // },
       'milestones': {
         'labels': {
           'format': '{%Name}',
@@ -128,16 +110,6 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
           'enabled': null
         }
       }
-      // 'milestoneLabels': {
-      //   'format': '{%Name}',
-      //   'anchor': 'left-center',
-      //   'position': 'right-center',
-      //   'enabled': null
-      // },
-      // 'progressLabels': {
-      //   'format': '{%Progress}',
-      //   'enabled': false
-      // }
     }
   }
 });

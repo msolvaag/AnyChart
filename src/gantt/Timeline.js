@@ -403,41 +403,6 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
   this.scale_.listenSignals(this.scaleInvalidated_, this);
   this.registerDisposable(this.scale_);
 
-  // /**
-  //  * Base bar labels settings.
-  //  * @type {anychart.core.ui.LabelsFactory}
-  //  * @private
-  //  */
-  // this.baseLabels_ = null;
-  //
-  // /**
-  //  * Baseline bar labels settings.
-  //  * @type {anychart.core.ui.LabelsFactory}
-  //  * @private
-  //  */
-  // this.baselineLabels_ = null;
-  //
-  // /**
-  //  * Grouping task bar labels settings.
-  //  * @type {anychart.core.ui.LabelsFactory}
-  //  * @private
-  //  */
-  // this.parentLabels_ = null;
-  //
-  // /**
-  //  * Milestone labels settings.
-  //  * @type {anychart.core.ui.LabelsFactory}
-  //  * @private
-  //  */
-  // this.milestoneLabels_ = null;
-  //
-  // /**
-  //  * Progress labels settings.
-  //  * @type {anychart.core.ui.LabelsFactory}
-  //  * @private
-  //  */
-  // this.progressLabels_ = null;
-
   /**
    *
    * @type {anychart.ganttModule.elements.TimelineElement}
@@ -482,78 +447,6 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
    */
   this.baselines_ = null;
 
-  // anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-  //   //Base bar
-  //   ['baseBarHeight',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baseBarAnchor',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baseBarPosition',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baseBarOffset',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //
-  //   //Parent bar
-  //   ['parentBarHeight',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['parentBarAnchor',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['parentBarPosition',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['parentBarOffset',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //
-  //   //Baseine bar
-  //   ['baselineBarHeight',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baselineBarAnchor',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baselineBarPosition',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['baselineBarOffset',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //
-  //   //Progress bar
-  //   ['progressBarHeight',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['progressBarAnchor',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['progressBarPosition',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['progressBarOffset',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //
-  //   //Milestones
-  //   ['milestoneHeight',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['milestoneAnchor',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['milestonePosition',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW],
-  //   ['milestoneOffset',
-  //     anychart.ConsistencyState.GRIDS_POSITION,
-  //     anychart.Signal.NEEDS_REDRAW]
-  // ]);
-
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     // timeline coloring
     ['columnStroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
@@ -562,20 +455,6 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
     ['connectorFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
     ['connectorStroke', anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW],
     ['selectedConnectorStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW]
-
-    // element's fills and strokes
-    // ['baseFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['baseStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['baselineFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['baselineStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['milestoneFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['milestoneStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['parentFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['parentStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['progressFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['progressStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['selectedElementFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    // ['selectedElementStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW]
   ]);
 
   this.controller.timeline(this);
@@ -615,58 +494,6 @@ anychart.ganttModule.TimeLine.prototype.SUPPORTED_CONSISTENCY_STATES =
  * }}
  */
 anychart.ganttModule.TimeLine.Tag;
-
-
-//region -- Normalisers adaptation
-// /**
-//  * Timeline specific anchor normalizer.
-//  * @param {*} value - Value to normalize.
-//  * @return {?anychart.enums.Anchor}
-//  */
-// anychart.ganttModule.TimeLine.normalizeAnchor = function(value) {
-//   if (goog.isNull(value))
-//     return null;
-//
-//   value = anychart.enums.normalizeAnchor(value, anychart.enums.Anchor.LEFT_CENTER);
-//   if (value == anychart.enums.Anchor.AUTO)
-//     return anychart.enums.Anchor.AUTO;
-//   if (anychart.utils.isTopAnchor(value))
-//     return anychart.enums.Anchor.LEFT_TOP;
-//   if (anychart.utils.isBottomAnchor(value))
-//     return anychart.enums.Anchor.LEFT_BOTTOM;
-//   return anychart.enums.Anchor.LEFT_CENTER;
-// };
-
-
-// /**
-//  * Timeline specific position normalizer.
-//  * @param {*} value - Value to normalize.
-//  * @return {?anychart.enums.Position}
-//  */
-// anychart.ganttModule.TimeLine.normalizePosition = function(value) {
-//   if (goog.isNull(value))
-//     return null;
-//
-//   value = /** @type {anychart.enums.Anchor} */ (anychart.enums.normalizePosition(value, anychart.enums.Position.LEFT_CENTER));
-//   if (anychart.utils.isTopAnchor(value))
-//     return anychart.enums.Position.LEFT_TOP;
-//   if (anychart.utils.isBottomAnchor(value))
-//     return anychart.enums.Position.LEFT_BOTTOM;
-//   return anychart.enums.Position.LEFT_CENTER;
-// };
-
-
-// /**
-//  * Implements option inheritance from base bar settings.
-//  * @param {string} name - .
-//  * @param {string} defaultName - .
-//  * @return {*}
-//  * @private
-//  */
-// anychart.ganttModule.TimeLine.prototype.getInheritedOption_ = function(name, defaultName) {
-//   var val = this.getOption(name);
-//   return /** @type {anychart.enums.Anchor} */ (goog.isDefAndNotNull(val) ? val : this.getOption(defaultName));
-// };
 
 
 /**
@@ -722,145 +549,6 @@ anychart.ganttModule.TimeLine.prototype.resolveAutoAnchorByType_ = function(posi
 
   return /** @type {anychart.enums.Anchor} */ (anchor);
 };
-
-
-//endregion
-//region -- Descriptors.
-// /**
-//  * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
-//  */
-// anychart.ganttModule.TimeLine.DESCRIPTORS = (function() {
-//   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
-//   var map = {};
-//
-//   //Base bar
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baseBarHeight',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baseBarAnchor',
-//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baseBarPosition',
-//   //     anychart.ganttModule.TimeLine.normalizePosition);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baseBarOffset',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   //Parent bar
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'parentBarHeight',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'parentBarAnchor',
-//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'parentBarPosition',
-//   //     anychart.ganttModule.TimeLine.normalizePosition);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'parentBarOffset',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   //Baseline bar
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baselineBarHeight',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baselineBarAnchor',
-//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baselineBarPosition',
-//   //     anychart.ganttModule.TimeLine.normalizePosition);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'baselineBarOffset',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   //Progress bar
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'progressBarHeight',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'progressBarAnchor',
-//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'progressBarPosition',
-//   //     anychart.ganttModule.TimeLine.normalizePosition);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'progressBarOffset',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   //Milestones
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'milestoneHeight',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'milestoneAnchor',
-//   //     anychart.ganttModule.TimeLine.normalizeAnchor);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'milestonePosition',
-//   //     anychart.ganttModule.TimeLine.normalizePosition);
-//
-//   // anychart.core.settings.createDescriptor(
-//   //     map,
-//   //     anychart.enums.PropertyHandlerType.SINGLE_ARG,
-//   //     'milestoneOffset',
-//   //     anychart.core.settings.numberOrPercentNormalizer);
-//
-//   return map;
-// })();
-// anychart.core.settings.populate(anychart.ganttModule.TimeLine, anychart.ganttModule.TimeLine.DESCRIPTORS);
 
 
 //endregion
@@ -998,22 +686,6 @@ anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS = (function() {
     [anychart.enums.PropertyHandlerType.MULTI_ARG, 'connectorFill', anychart.core.settings.fillOrFunctionNormalizer],
     [anychart.enums.PropertyHandlerType.MULTI_ARG, 'connectorStroke', anychart.core.settings.strokeOrFunctionNormalizer],
     [anychart.enums.PropertyHandlerType.MULTI_ARG, 'selectedConnectorStroke', anychart.core.settings.strokeOrFunctionNormalizer]
-
-    // elements coloring
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'baseFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'baseStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'baselineFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'baselineStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'milestoneFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'milestoneStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'parentFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'parentStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'progressFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'progressStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'progressFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'progressStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'selectedElementFill', anychart.core.settings.fillOrFunctionNormalizer],
-    // [anychart.enums.PropertyHandlerType.MULTI_ARG, 'selectedElementStroke', anychart.core.settings.strokeOrFunctionNormalizer]
   ]);
   return map;
 })();
@@ -1358,8 +1030,7 @@ anychart.ganttModule.TimeLine.prototype.progressStroke = function(var_args) {
 
 /**
  * @param {...*} var_args - Args.
- * @deprecated since 8.2.0 use timeline.tasks().selected().fill() or
- *  timeline.groupingTasks().selected().fill() or timeline.periods().selected().fill() instead. DVF-3625
+ * @deprecated since 8.2.0 use timeline.elements().selected().fill() instead. DVF-3625
  * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.selectedElementFill = function(var_args) {
@@ -3937,32 +3608,6 @@ anychart.ganttModule.TimeLine.prototype.genElement_ = function() {
 };
 
 
-// /**
-//  * Gets related labels factory.
-//  * @param {anychart.enums.TLElementTypes} type
-//  * @return {anychart.core.ui.LabelsFactory}
-//  * @private
-//  */
-// anychart.ganttModule.TimeLine.prototype.getLabelsFactoryByType_ = function(type) {
-//   switch (type) {
-//     case anychart.enums.TLElementTypes.TASKS:
-//
-//     case anychart.enums.TLElementTypes.PERIODS:
-//       return /** @type {anychart.core.ui.LabelsFactory} */ (this.baseLabels());
-//     case anychart.enums.TLElementTypes.GROUPING_TASKS:
-//       return /** @type {anychart.core.ui.LabelsFactory} */ (this.parentLabels());
-//     case anychart.enums.TLElementTypes.MILESTONES:
-//       return /** @type {anychart.core.ui.LabelsFactory} */ (this.milestoneLabels());
-//     case anychart.enums.TLElementTypes.BASELINES:
-//       return /** @type {anychart.core.ui.LabelsFactory} */ (this.baselineLabels());
-//     case anychart.enums.TLElementTypes.PROGRESS:
-//       return /** @type {anychart.core.ui.LabelsFactory} */ (this.progressLabels());
-//     default:
-//       return null; //connector has no labels for a while.
-//   }
-// };
-
-
 /**
  * Draws timeline bars.
  * @private
@@ -4016,173 +3661,6 @@ anychart.ganttModule.TimeLine.prototype.drawTimelineElements_ = function() {
     el.reset();
   }
 };
-
-
-// /**
-//  * Draws a single bar with its markers and labels.
-//  * @param {anychart.math.Rect} bounds - Bounds of bar.
-//  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Related tree data item.
-//  * @param {anychart.enums.TLElementTypes} type - Type of bar.
-//  * @param {anychart.enums.GanttDataFields=} opt_field - Field that contains a setting for fill, stroke, labels and markers.
-//  * @param {number=} opt_periodIndex - Period index for resources timeline.
-//  * @return {!acgraph.vector.Element} - Bar itself.
-//  * @private
-//  */
-// anychart.ganttModule.TimeLine.prototype.drawBar_ = function(bounds, item, type, opt_field, opt_periodIndex) {
-//   var isTreeDataItem = !goog.isDef(opt_periodIndex);
-//   var period = {};
-//   if (!isTreeDataItem)
-//     period = item.get(anychart.enums.GanttDataFields.PERIODS)[opt_periodIndex];
-//
-//   var settings; //It is always a raw object.
-//   if (opt_field) {
-//     settings = isTreeDataItem ? item.get(opt_field) : period[opt_field];
-//   } else {
-//     /*
-//       Here field is not specified.
-//       It means that if it is an instance of tree data item, we color a bar with default color.
-//       If it is not tree data item (it is period - actually a raw object), it contains all visual settings in itself.
-//       TODO (A.Kudryavtsev): Bad english.
-//      */
-//     settings = isTreeDataItem ? null : period;
-//   }
-//
-//   var isParent = false;
-//   var isProgress = false;
-//   var selectedBar = isTreeDataItem ?
-//       (this.selectedItem == item) :
-//       (this.selectedPeriodId_ == period[anychart.enums.GanttDataFields.ID]);
-//
-//   var zIndex, defaultFill, defaultStroke;
-//   var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-//
-//   switch (opt_field) {
-//     case anychart.enums.GanttDataFields.BASELINE:
-//       zIndex = anychart.ganttModule.TimeLine.BASELINE_Z_INDEX;
-//       defaultFill = resolver('baselineFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-//       defaultStroke = resolver('baselineStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-//       break;
-//     case anychart.enums.GanttDataFields.PROGRESS:
-//       zIndex = anychart.ganttModule.TimeLine.PROGRESS_Z_INDEX;
-//       defaultFill = resolver('progressFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-//       defaultStroke = resolver('progressStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-//       isProgress = true;
-//       break;
-//     default:
-//       zIndex = anychart.ganttModule.TimeLine.BASE_Z_INDEX;
-//       isParent = (isTreeDataItem && item.numChildren());
-//       if (isParent) {
-//         defaultFill = resolver('parentFill', anychart.enums.ColorType.FILL, false)(this, 0, item);
-//         defaultStroke = resolver('parentStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item);
-//       } else {
-//         defaultFill = resolver('baseFill', anychart.enums.ColorType.FILL, false)(this, 0, item, void 0, void 0, opt_periodIndex);
-//         defaultStroke = resolver('baseStroke', anychart.enums.ColorType.STROKE, false)(this, 0, item, void 0, void 0, opt_periodIndex);
-//       }
-//
-//       this.controller.data().suspendSignalsDispatching();//this.controller.data() can be Tree or TreeView.
-//       if (isTreeDataItem) {
-//         item.meta('relBounds', bounds);
-//       } else {
-//         if (!goog.isArray(item.meta('periodBounds'))) {
-//           item.setMeta('periodBounds', []);
-//         }
-//         item.setMeta('periodBounds', opt_periodIndex, bounds);
-//       }
-//       this.controller.data().resumeSignalsDispatching(false);
-//
-//   }
-//
-//   var stroke = /** @type {acgraph.vector.Stroke} */ (settings && goog.isDef(settings[anychart.enums.GanttDataFields.STROKE]) ?
-//       acgraph.vector.normalizeStroke(settings[anychart.enums.GanttDataFields.STROKE]) :
-//       defaultStroke);
-//
-//
-//   var bar = this.genElement_();
-//   bar.disablePointerEvents(isProgress);
-//   bar.item = item;
-//   bar.typeLabels = this.getLabelsFactoryByType_(type);
-//   bar.labelPointSettings = settings ? settings['label'] : null;
-//
-//   bar.tag = isTreeDataItem ? item.get(anychart.enums.GanttDataFields.ID) : period[anychart.enums.GanttDataFields.ID];
-//   bar.type = type;
-//
-//   if (!isTreeDataItem) {
-//     bar.period = period;
-//     bar.periodIndex = opt_periodIndex;
-//   }
-//
-//   var lineThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */ (stroke));
-//
-//   var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
-//
-//   var roundLeft = Math.round(bounds.left) + pixelShift;
-//   var roundTop = Math.round(bounds.top) + pixelShift;
-//   var roundRight = Math.round(bounds.left + bounds.width) + pixelShift;
-//   var roundHeight = Math.round(bounds.top + bounds.height) + pixelShift;
-//   bar.currBounds = new anychart.math.Rect(roundLeft, roundTop, roundRight - roundLeft, roundHeight - roundTop);
-//
-//   bar
-//       .zIndex(zIndex)
-//       .moveTo(roundLeft, roundTop)
-//       .lineTo(roundRight, roundTop);
-//
-//   if (isParent) {
-//     var roundHeight2 = (bounds.top + bounds.height * 1.4) + pixelShift;
-//     bar
-//         .lineTo(roundRight, roundHeight2)
-//         .lineTo(roundRight - 1, roundHeight2)
-//         .lineTo(roundRight - 1, roundHeight)
-//         .lineTo(roundLeft + 1, roundHeight)
-//         .lineTo(roundLeft + 1, roundHeight2)
-//         .lineTo(roundLeft, roundHeight2);
-//   } else {
-//     bar
-//         .lineTo(roundRight, roundHeight)
-//         .lineTo(roundLeft, roundHeight);
-//   }
-//   bar.close();
-//
-//   if (selectedBar) {
-//     var selectedElementFill = resolver('selectedElementFill', anychart.enums.ColorType.FILL, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
-//     var selectedElementStroke = resolver('selectedElementStroke', anychart.enums.ColorType.STROKE, false)(this, 0, this.selectedItem, void 0, void 0, opt_periodIndex);
-//   }
-//
-//   if (settings) {
-//     var rawStartMarker = settings[anychart.enums.GanttDataFields.START_MARKER];
-//     if (rawStartMarker) {
-//       var startMarker = this.markers().add({value: {x: bounds.left, y: bounds.top}});
-//       startMarker
-//           .size(bounds.height / 2)
-//           .setup(rawStartMarker);
-//     }
-//
-//     var rawEndMarker = settings[anychart.enums.GanttDataFields.END_MARKER];
-//     if (rawEndMarker) {
-//       var endMarker = this.markers().add({value: {x: bounds.left + bounds.width, y: bounds.top}});
-//       endMarker
-//           .size(bounds.height / 2)
-//           .setup(rawEndMarker);
-//     }
-//
-//     var fill;
-//     if (selectedBar) {
-//       fill = selectedElementFill;
-//       stroke = selectedElementStroke;
-//     } else {
-//       fill = goog.isDef(settings[anychart.enums.GanttDataFields.FILL]) ?
-//           acgraph.vector.normalizeFill(settings[anychart.enums.GanttDataFields.FILL]) :
-//           defaultFill;
-//     }
-//
-//     bar.fill(/** @type {acgraph.vector.Fill} */(fill)).stroke(/** @type {acgraph.vector.Stroke} */(stroke));
-//   } else { //Default coloring.
-//     bar
-//         .fill(/** @type {acgraph.vector.Fill} */(selectedBar ? selectedElementFill : defaultFill))
-//         .stroke(/** @type {acgraph.vector.Stroke} */(selectedBar ? selectedElementStroke : defaultStroke));
-//   }
-//
-//   return bar;
-// };
 
 
 /**
@@ -4274,72 +3752,6 @@ anychart.ganttModule.TimeLine.prototype.drawProjectTimeline_ = function() {
     totalTop = (newTop + this.rowStrokeThickness);
   }
 };
-
-
-// /**
-//  * Gets bar bounds.
-//  * @param {anychart.enums.TLElementTypes} type - Bar type.
-//  * @param {anychart.math.Rect} itemBounds - Full item bounds. Left and width must be taken
-//  *  from scale transformed values, top and height are values from item's position in grid.
-//  * @param {boolean=} opt_considerBaseline - Whether to consider baseline appearance in itemBounds.
-//  * @return {anychart.math.Rect} - Bar bounds considering anchor/position settings.
-//  * @private
-//  */
-// anychart.ganttModule.TimeLine.prototype.getBarBounds_ = function(type, itemBounds, opt_considerBaseline) {
-//   var optionHeight, barHeight, anchor, position, offset, offsetNorm;
-//   var heightOptionName, anchorOptionName, positionOptionName, offsetOptionName;
-//   var fixParentHeight = false;
-//   switch (type) {
-//     case anychart.enums.TLElementTypes.PERIODS:
-//     case anychart.enums.TLElementTypes.TASKS:
-//       heightOptionName = 'baseBarHeight';
-//       anchorOptionName = 'baseBarAnchor';
-//       positionOptionName = 'baseBarPosition';
-//       offsetOptionName = 'baseBarOffset';
-//       break;
-//     case anychart.enums.TLElementTypes.GROUPING_TASKS:
-//       heightOptionName = 'parentBarHeight';
-//       anchorOptionName = 'parentBarAnchor';
-//       positionOptionName = 'parentBarPosition';
-//       offsetOptionName = 'parentBarOffset';
-//       fixParentHeight = true;
-//       break;
-//     case anychart.enums.TLElementTypes.BASELINES:
-//       heightOptionName = 'baselineBarHeight';
-//       anchorOptionName = 'baselineBarAnchor';
-//       positionOptionName = 'baselineBarPosition';
-//       offsetOptionName = 'baselineBarOffset';
-//       break;
-//     case anychart.enums.TLElementTypes.MILESTONES:
-//       heightOptionName = 'milestoneHeight';
-//       anchorOptionName = 'milestoneAnchor';
-//       positionOptionName = 'milestonePosition';
-//       offsetOptionName = 'milestoneOffset';
-//       break;
-//     case anychart.enums.TLElementTypes.PROGRESS:
-//       heightOptionName = 'progressBarHeight';
-//       anchorOptionName = 'progressBarAnchor';
-//       positionOptionName = 'progressBarPosition';
-//       offsetOptionName = 'progressBarOffset';
-//       break;
-//   }
-//
-//   optionHeight = /** @type {string|number} */ (this.getInheritedOption_(/** @type {string} */ (heightOptionName), 'baseBarHeight'));
-//   var height = opt_considerBaseline || fixParentHeight ? itemBounds.height / 2 : itemBounds.height;
-//   barHeight = anychart.utils.normalizeSize(optionHeight, height);
-//   anchor = /** @type {anychart.enums.Anchor} */ (this.getInheritedOption_(/** @type {string} */ (anchorOptionName), 'baseBarAnchor'));
-//   position = /** @type {anychart.enums.Position} */ (this.getInheritedOption_(/** @type {string} */ (positionOptionName), 'baseBarPosition'));
-//   offset = /** @type {number|string} */ (this.getInheritedOption_(/** @type {string} */ (offsetOptionName), 'baseBarOffset'));
-//   offsetNorm = anychart.utils.normalizeSize(offset, itemBounds.height);
-//
-//   if (anchor == anychart.enums.Anchor.AUTO) {
-//     anchor = this.resolveAutoAnchorByType_(position, type, opt_considerBaseline);
-//   }
-//
-//   var coord = anychart.utils.getCoordinateByAnchor(itemBounds, position);
-//   var top = this.fixBarTop_(coord.y, barHeight, anchor) + offsetNorm;
-//   return new anychart.math.Rect(coord.x, top, itemBounds.width, barHeight);
-// };
 
 
 /**
@@ -4502,8 +3914,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     var baselines = /** @type {anychart.ganttModule.elements.BaselinesElement} */ (this.baselines());
 
     var actualItemBounds = new anychart.math.Rect(actualLeft, totalTop, actualWidth, itemHeight);
-    // var actualType = isParent ? anychart.enums.TLElementTypes.GROUPING_TASKS : anychart.enums.TLElementTypes.TASKS;
-    var actualBounds = this.getBarBounds_(/** @type {anychart.ganttModule.elements.TimelineElement} */ (element), actualItemBounds, true);
+    var actualBounds = this.getBarBounds_(element, actualItemBounds, true);
 
     var baselineLeft = b.left + b.width * baselineStartRatio;
     var baselineRight = b.left + b.width * baselineEndRatio;
@@ -4514,8 +3925,7 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     this.fixBaselineBarsPositioning_(actualBounds, baselineBounds, element, dataItem);
 
     var isSelected = this.selectedItem == dataItem;
-    actualBounds = this.fixBounds_(/** @type {anychart.ganttModule.elements.TimelineElement} */ (element),
-        actualBounds, dataItem, void 0, isSelected);
+    actualBounds = this.fixBounds_(element, actualBounds, dataItem, void 0, isSelected);
 
     baselineBounds = this.fixBounds_(baselines, baselineBounds, dataItem, void 0, isSelected);
 
@@ -4539,55 +3949,6 @@ anychart.ganttModule.TimeLine.prototype.drawAsBaseline_ = function(dataItem, tot
     }
   }
 };
-
-
-// /**
-//  * Fixes bars positioning considering baseline.
-//  * Allows to avoid bar and baseline intersection for auto anchor case.
-//  * @param {anychart.math.Rect} barBounds - .
-//  * @param {anychart.math.Rect} baselineBounds - .
-//  * @param {boolean=} opt_isParent - .
-//  * @private
-//  */
-// anychart.ganttModule.TimeLine.prototype.fixBaselineBarsPositioning_ = function(barBounds, baselineBounds, opt_isParent) {
-//   var barAnchorName = opt_isParent ? 'parentBarAnchor' : 'baseBarAnchor';
-//   var barPositionName = opt_isParent ? 'parentBarPosition' : 'baseBarPosition';
-//   var barAnchor = /** @type {anychart.enums.Anchor} */ (this.getInheritedOption_(barAnchorName, 'baseBarAnchor'));
-//   var barPosition = /** @type {anychart.enums.Position} */ (this.getInheritedOption_(barPositionName, 'baseBarPosition'));
-//   var baselineAnchor = /** @type {anychart.enums.Anchor} */ (this.getInheritedOption_('baselineBarAnchor', 'baseBarAnchor'));
-//   var baselinePosition = /** @type {anychart.enums.Position} */ (this.getInheritedOption_('baselineBarPosition', 'baseBarPosition'));
-//
-//   if ((barAnchor == baselineAnchor) && (barPosition == baselinePosition)) {
-//     var barType = opt_isParent ? anychart.enums.TLElementTypes.GROUPING_TASKS : anychart.enums.TLElementTypes.TASKS;
-//     if (barAnchor == anychart.enums.Anchor.AUTO)
-//       barAnchor = this.resolveAutoAnchorByType_(barPosition, barType, true);
-//     if (baselineAnchor == anychart.enums.Anchor.AUTO)
-//       baselineAnchor = this.resolveAutoAnchorByType_(baselinePosition, anychart.enums.TLElementTypes.BASELINES, true);
-//
-//     var baselineStroke = anychart.ganttModule.BaseGrid.getColorResolver('baselineStroke', anychart.enums.ColorType.STROKE, false);
-//     var barStroke = anychart.ganttModule.BaseGrid.getColorResolver((opt_isParent ? 'parentStroke' : 'baseStroke'), anychart.enums.ColorType.STROKE, false);
-//
-//     var barStrokeThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke|string} */ (barStroke)) / 2;
-//     var baselineStrokeThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke|string} */ (baselineStroke)) / 2;
-//     var strokes = barStrokeThickness + baselineStrokeThickness;
-//
-//     if (barAnchor == baselineAnchor) {
-//       if (this.baselineAbove()) {
-//         if (anychart.utils.isTopAnchor(barAnchor)) {
-//           barBounds.top += (baselineBounds.height + strokes);
-//         } else {
-//           baselineBounds.top -= (barBounds.height + strokes);
-//         }
-//       } else {
-//         if (anychart.utils.isTopAnchor(barAnchor)) {
-//           baselineBounds.top += (barBounds.height + strokes);
-//         } else {
-//           barBounds.top -= (baselineBounds.height + strokes);
-//         }
-//       }
-//     }
-//   }
-// };
 
 
 /**
@@ -5566,17 +4927,12 @@ anychart.ganttModule.TimeLine.prototype.drawLabels_ = function() {
               tag.label.state('st' + count, stateLabels, count);
             }
 
+            //Second passage provides correct theme settings order
             for (k = 0; k < len; k++) {
               stateLabels = resolutionLabels[k];
               count = 2 + k + len;
               tag.label.state('st' + count, stateLabels.themeSettings, count);
             }
-
-
-            // tag.label.state('typeLabels', typeLabels, 2);
-            // tag.label.state('normalLabels', normalLabels, 3);
-            // tag.label.state('typeThemeLabels', typeLabels.themeSettings, 4);
-            // tag.label.state('normalThemeLabels', normalLabels.themeSettings, 5);
 
             var position = anychart.enums.normalizeAnchor(tag.label.getFinalSettings('position'));
             var positionProvider = {'value': anychart.utils.getCoordinateByAnchor(tag.bounds, position)};
@@ -5792,39 +5148,10 @@ anychart.ganttModule.TimeLine.prototype.scale = function(opt_value) {
 /** @inheritDoc */
 anychart.ganttModule.TimeLine.prototype.serialize = function() {
   var json = anychart.ganttModule.TimeLine.base(this, 'serialize');
-
-  // anychart.core.settings.serialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, json);
-
   json['scale'] = this.scale_.serialize();
-
   json['labels'] = this.labels().serialize();
-
-  // var baseLabelsConf = this.baseLabels().serialize();
-  // if (!goog.object.isEmpty(baseLabelsConf))
-  //   json['baseLabels'] = baseLabelsConf;
-  //
-  // var parentLabelsConf = this.parentLabels().serialize();
-  // if (!goog.object.isEmpty(parentLabelsConf))
-  //   json['parentLabels'] = parentLabelsConf;
-  //
-  // var baselineLabelsConf = this.baselineLabels().serialize();
-  // if (!goog.object.isEmpty(baselineLabelsConf))
-  //   json['baselineLabels'] = baselineLabelsConf;
-  //
-  // var milestonesLabelsConf = this.milestoneLabels().serialize();
-  // if (!goog.object.isEmpty(milestonesLabelsConf))
-  //   json['milestoneLabels'] = milestonesLabelsConf;
-  //
-  //
-  // var progressLabelsConf = this.progressLabels().serialize();
-  // if (!goog.object.isEmpty(progressLabelsConf))
-  //   json['progressLabels'] = progressLabelsConf;
-
   json['markers'] = this.markers().serialize();
-
   json['header'] = this.header().serialize();
-
-  // json['baselineAbove'] = this.baselineAbove_;
 
   anychart.core.settings.serialize(this, anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS, json);
 
@@ -5893,21 +5220,12 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
 anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttModule.TimeLine.base(this, 'setupByJSON', config, opt_default);
 
-  // anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.DESCRIPTORS, config, opt_default);
-
   if ('scale' in config) this.scale_.setup(config['scale']);
 
   this.labels().setupInternal(!!opt_default, config['labels']);
-  // this.baseLabels().setupInternal(!!opt_default, config['baseLabels']);
-  // this.baselineLabels().setupInternal(!!opt_default, config['baselineLabels']);
-  // this.parentLabels().setupInternal(!!opt_default, config['parentLabels']);
-  // this.milestoneLabels().setupInternal(!!opt_default, config['milestoneLabels']);
-  // this.progressLabels().setupInternal(!!opt_default, config['progressLabels']);
 
   if ('markers' in config) this.markers(config['markers']);
   if ('header' in config) this.header(config['header']);
-
-  // this.baselineAbove(config['baselineAbove']);
 
   anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS, config, opt_default);
 
@@ -6385,6 +5703,8 @@ anychart.standalones.resourceTimeline = function() {
   proto['milestoneAnchor'] = proto.milestoneAnchor;
   proto['milestonePosition'] = proto.milestonePosition;
   proto['milestoneOffset'] = proto.milestoneOffset;
+  proto['selectedElementFill'] = proto.selectedElementFill;
+  proto['selectedElementStroke'] = proto.selectedElementStroke;
 
 
   // connector coloring
