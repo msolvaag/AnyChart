@@ -65,12 +65,8 @@ anychart.ganttModule.rendering.ShapeManager = function(timeline, visualElement, 
   this.defs = {};
 
   if (goog.isArray(opt_config)) {
-    var resolver = anychart.ganttModule.BaseGrid.getColorResolver;
-    // var config = opt_config || [anychart.ganttModule.rendering.shapes.barConfig];
     for (var i = 0; i < opt_config.length; i++) {
       var shapeConfig = opt_config[i];
-      var fill = resolver(shapeConfig['fillName'], anychart.enums.ColorType.FILL, false);
-      var stroke = resolver(shapeConfig['strokeName'], anychart.enums.ColorType.FILL, false);
 
       var type = shapeConfig['shapeType'];
       var val = String(type).toLowerCase();
@@ -100,8 +96,6 @@ anychart.ganttModule.rendering.ShapeManager = function(timeline, visualElement, 
       }
 
       this.defs[shapeConfig['name']] = {
-        fill: fill,
-        stroke: stroke,
         zIndex: +shapeConfig['zIndex'],
         cls: cls,
         shapeType: type,
@@ -124,11 +118,10 @@ goog.inherits(anychart.ganttModule.rendering.ShapeManager, goog.Disposable);
 //region -- Type definitions.
 /**
  * @typedef {{
- *   fill: function(anychart.ganttModule.BaseGrid, number, (anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)=, (anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)=, anychart.enums.ConnectorType=, number=, number=):acgraph.vector.AnyColor,
- *   stroke: function(anychart.ganttModule.BaseGrid, number, (anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)=, (anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)=, anychart.enums.ConnectorType=, number=, number=):acgraph.vector.AnyColor,
  *   zIndex: number,
  *   cls: function():acgraph.vector.Shape,
- *   shapeType: string
+ *   shapeType: string,
+ *   disablePointerEvents: boolean
  * }}
  */
 anychart.ganttModule.rendering.ShapeManager.ShapeDescriptor;

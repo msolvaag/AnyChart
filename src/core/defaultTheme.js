@@ -2296,8 +2296,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
           {
             'name': 'path',
             'shapeType': 'path',
-            'fillName': 'fill',
-            'strokeName': 'stroke',
             'zIndex': 10,
             'disablePointerEvents': false
           }
@@ -2314,8 +2312,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
             {
               'name': 'path',
               'shapeType': 'path',
-              'fillName': 'fill',
-              'strokeName': 'stroke',
               'zIndex': 11,
               'disablePointerEvents': true
             }
