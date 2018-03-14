@@ -380,17 +380,20 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     dataMaxKey = goog.math.clamp(this.maxKey, this.dataFullMinKey, this.dataFullMaxKey);
   }
 
+  var error = (this.maxIndex - this.minIndex + 1) * 0.15;
+  var range = 0;
 
-  var range = this.intervals.day.range + this.intervals.minute.range + this.intervals.second.range;
+  goog.object.forEach(this.intervals, function(interval) {
+    if (interval.count > error) {
+      range += interval.range;
+    }
+  }, this);
+
   var minorTickRange = Math.abs(range) / this.ticksCount_;
-
 
   // var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
   // var pointsCount = this.maxIndex - this.minIndex;
   // var minorTickRange = minorIntervalRange * pointsCount / (this.ticksCount_ + 1);
-
-  // console.log(this.unit, this.count, minorIntervalRange, (this.maxIndex - this.minIndex) / (this.ticksCount_ + 1));
-  // console.log(minorTickRange, this.minIndex, this.maxIndex, new Date(this.minIndex), new Date(this.maxIndex));
 
   var last = this.ranges_.length - 1;
   var row;

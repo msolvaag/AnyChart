@@ -360,6 +360,7 @@ anychart.stockModule.Registry.prototype.addSource = function(table) {
 anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey) {
   var first, last, preFirst, postLast, startIndex, endIndex, selection, minDistance, i;
   var keysLength = this.keys_.length;
+  var intervals = {};
   if (keysLength) {
     // checking cache
     for (i = 0; i < this.selectionCache_.length; i++) {
@@ -411,24 +412,22 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
         minDistance = tmp.next.key - tmp.key;
       }
     }
-  } else {
-    first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
-  }
-
-  var intervals = {};
-  for (i = first; i <= last; i++) {
-    if (i) {
-      var interval = this.keys_[i].key - this.keys_[i - 1].key;
-
-      var range = anychart.utils.estimateInterval(interval);
-      if (intervals[range.unit]) {
-        var int = intervals[range.unit];
-        int.count++;
-        int.range += interval;
-      } else {
-        intervals[range.unit] = {count: 1, range: interval};
+    for (i = first; i <= last; i++) {
+      if (i) {
+        var currKey = this.keys_[i];
+        var interval = currKey.key - this.keys_[i - 1].key;
+        var range = anychart.utils.estimateInterval(interval);
+        if (intervals[range.unit]) {
+          var int = intervals[range.unit];
+          int.count++;
+          int.range += interval;
+        } else {
+          intervals[range.unit] = {count: 1, range: interval};
+        }
       }
     }
+  } else {
+    first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
   }
 
   selection = {
