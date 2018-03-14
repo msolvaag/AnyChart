@@ -717,6 +717,7 @@ anychart.ganttModule.elements.TimelineElement.prototype.disposeInternal = functi
   proto['rendering'] = proto.rendering;
   proto['normal'] = proto.normal;
   proto['selected'] = proto.selected;
+  proto['labels'] = proto.labels;
 })();
 
 

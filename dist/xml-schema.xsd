@@ -1560,13 +1560,13 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="header" type="TimelineHeader"/>
 
             <!-- New Gantt API -->
-            <xsd:element minOccurs="0" maxOccurs="1" name="elements" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="tasks" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="grouping_tasks" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="baselines" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="milestones" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="progress" type="GanttElementBase"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="periods" type="GanttElementBase"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="elements" type="GanttTimelineElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="tasks" type="GanttTimelineTasksElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="grouping_tasks" type="GanttTimelineTasksElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="baselines" type="GanttTimelineBaselinesElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="milestones" type="GanttTimelineElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="periods" type="GanttTimelineElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="connectors" type="GanttTimelineConnectorsElement"/>
         </xsd:all>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
         <xsd:attribute name="is_standalone" type="simple.Bool"/>
@@ -2294,18 +2294,64 @@
         <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
 
-    <xsd:complexType name="GanttElementBase">
+    <xsd:complexType name="GanttTimelineElement">
         <xsd:all>
             <xsd:element minOccurs="0" maxOccurs="1" name="rendering" type="GanttRenderingSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="normal" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="selected" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="labels" type="core.LabelsFactory"/>
         </xsd:all>
-        <xsd:attributeGroup ref="attrs.VisualBase"/>
+        <xsd:attribute name="fill" type="xsd:string"/>
+        <xsd:attribute name="stroke" type="xsd:string"/>
+        <xsd:attribute name="height" type="simple.NumberOrPercent"/>
+        <xsd:attribute name="anchor" type="xsd:string"/>
+        <xsd:attribute name="position" type="xsd:string"/>
+        <xsd:attribute name="offset" type="simple.NumberOrPercent"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="GanttTimelineTasksElement">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="progress" type="GanttTimelineElement"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="rendering" type="GanttRenderingSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="normal" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="selected" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="labels" type="core.LabelsFactory"/>
+        </xsd:all>
+        <xsd:attribute name="fill" type="xsd:string"/>
+        <xsd:attribute name="stroke" type="xsd:string"/>
+        <xsd:attribute name="height" type="simple.NumberOrPercent"/>
+        <xsd:attribute name="anchor" type="xsd:string"/>
+        <xsd:attribute name="position" type="xsd:string"/>
+        <xsd:attribute name="offset" type="simple.NumberOrPercent"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="GanttTimelineBaselinesElement">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="rendering" type="GanttRenderingSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="normal" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="selected" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="labels" type="core.LabelsFactory"/>
+        </xsd:all>
+        <xsd:attribute name="fill" type="xsd:string"/>
+        <xsd:attribute name="stroke" type="xsd:string"/>
+        <xsd:attribute name="height" type="simple.NumberOrPercent"/>
+        <xsd:attribute name="anchor" type="xsd:string"/>
+        <xsd:attribute name="position" type="xsd:string"/>
+        <xsd:attribute name="offset" type="simple.NumberOrPercent"/>
+        <xsd:attribute name="above" type="simple.Bool"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="GanttTimelineConnectorsElement">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="normal" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="selected" type="core.StateSettings"/>
+        </xsd:all>
     </xsd:complexType>
 
     <xsd:complexType name="GanttRenderingSettings">
         <xsd:all>
             <xsd:element minOccurs="0" maxOccurs="1" name="shapes" type="GanttShapes_list"/>
         </xsd:all>
-        <xsd:attributeGroup ref="attrs.VisualBase"/>
     </xsd:complexType>
 
     <xsd:complexType name="GanttShapes_list">
@@ -2317,8 +2363,6 @@
     <xsd:complexType name="GanttShape">
         <xsd:attribute name="name" type="xsd:string"/>
         <xsd:attribute name="shape_type" type="xsd:string"/>
-        <xsd:attribute name="fill_name" type="xsd:string"/>
-        <xsd:attribute name="stroke_name" type="xsd:string"/>
         <xsd:attribute name="z_index" type="xsd:double"/>
         <xsd:attribute name="disable_pointer_events" type="simple.Bool"/>
     </xsd:complexType>
