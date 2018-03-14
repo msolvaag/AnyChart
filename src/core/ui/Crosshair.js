@@ -832,9 +832,10 @@ anychart.core.ui.Crosshair.prototype.drawLabel_ = function(axis, xDirection, lab
  * @param {number} mouseY - .
  * @param {number=} opt_ratio - Ratio value set directly. Used for stock plot to provide plot's date alignment without
  *  considering mouse ratio.
+ * @param {boolean=} opt_showXLabel - Whether to show xLabel.
  * @private
  */
-anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, mouseX, mouseY, opt_ratio) {
+anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, mouseX, mouseY, opt_ratio, opt_showXLabel) {
   var i, label, axisIndex, axis, lineDrawed;
   var axisProvider = /** @type {(anychart.core.ChartWithAxes|anychart.mapModule.Chart|anychart.stockModule.Plot)} */(this.interactivityTarget());
   var isStock = goog.isDef(opt_ratio);
@@ -842,7 +843,7 @@ anychart.core.ui.Crosshair.prototype.drawLabels_ = function(labels, xDirection, 
     for (i = 0; i < labels.length; i++) {
       label = /** @type {anychart.core.ui.CrosshairLabel} */(labels[i]);
       if (label) {
-        if (label.hasOwnOption('enabled') && label.ownSettings['enabled'])
+        if (opt_showXLabel || label.hasOwnOption('enabled') && label.ownSettings['enabled'])
           this.drawLabel_(this.xAxis_, xDirection, i, mouseX, mouseY, opt_ratio);
         else
           this.hideXLabel(label);
@@ -892,12 +893,7 @@ anychart.core.ui.Crosshair.prototype.autoHighlightX = function(x, opt_showXLabel
     }
 
     this.drawLine_(this.xAxis_, true, x, opt_y || 0);
-    //(this.xLabel_.hasOwnOption('enabled') && this.xLabel_.ownSettings['enabled']);
-    if (opt_showXLabel) {
-      this.drawLabels_(this.xLabels_, true, x, opt_y || 0, opt_ratio);
-    } else {
-      this.hideXLabel();
-    }
+    this.drawLabels_(this.xLabels_, true, x, opt_y || 0, opt_ratio, opt_showXLabel);
   }
 };
 
