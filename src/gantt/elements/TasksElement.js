@@ -67,6 +67,12 @@ anychart.ganttModule.elements.TasksElement.prototype.progressInvalidated_ = func
 };
 
 
+/** @inheritDoc */
+anychart.ganttModule.elements.TasksElement.prototype.getPointSettingsResolutionOrder = function() {
+  return this.pointSettingsResolution || (this.pointSettingsResolution = [this.getType(), 'actual']);
+};
+
+
 //endregion
 //region -- External API.
 /**

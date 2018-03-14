@@ -39,6 +39,13 @@ anychart.ganttModule.elements.ProgressElement.prototype.getPaletteNormalStroke =
 };
 
 
+/** @inheritDoc */
+anychart.ganttModule.elements.ProgressElement.prototype.getPointSettingsResolutionOrder = function() {
+  return this.pointSettingsResolution || (this.pointSettingsResolution = [this.getType()]);
+};
+
+
 //endregion
+
 
 

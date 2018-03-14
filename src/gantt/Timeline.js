@@ -14,6 +14,7 @@ goog.require('anychart.ganttModule.axisMarkers.Line');
 goog.require('anychart.ganttModule.axisMarkers.Range');
 goog.require('anychart.ganttModule.axisMarkers.Text');
 goog.require('anychart.ganttModule.elements.BaselinesElement');
+goog.require('anychart.ganttModule.elements.ConnectorElement');
 goog.require('anychart.ganttModule.elements.GroupingTasksElement');
 goog.require('anychart.ganttModule.elements.MilestonesElement');
 goog.require('anychart.ganttModule.elements.PeriodsElement');
@@ -447,14 +448,15 @@ anychart.ganttModule.TimeLine = function(opt_controller, opt_isResources) {
    */
   this.baselines_ = null;
 
-  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-    // timeline coloring
-    ['columnStroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
+  /**
+   *
+   * @type {anychart.ganttModule.elements.ConnectorElement}
+   * @private
+   */
+  this.connectors_ = null;
 
-    // elements coloring
-    ['connectorFill', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW],
-    ['connectorStroke', anychart.ConsistencyState.GRIDS_POSITION, anychart.Signal.NEEDS_REDRAW],
-    ['selectedConnectorStroke', anychart.ConsistencyState.BASE_GRID_REDRAW, anychart.Signal.NEEDS_REDRAW]
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['columnStroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
   ]);
 
   this.controller.timeline(this);
@@ -490,7 +492,8 @@ anychart.ganttModule.TimeLine.prototype.SUPPORTED_CONSISTENCY_STATES =
  *   bounds: anychart.math.Rect,
  *   periodIndex: number,
  *   period: Object,
- *   label: anychart.core.ui.LabelsFactory.Label
+ *   label: anychart.core.ui.LabelsFactory.Label,
+ *   labelPointSettings: Object
  * }}
  */
 anychart.ganttModule.TimeLine.Tag;
@@ -679,13 +682,7 @@ anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
   anychart.core.settings.createDescriptors(map, [
-    // timeline coloring
-    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'columnStroke', anychart.core.settings.strokeNormalizer],
-
-    // connectors
-    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'connectorFill', anychart.core.settings.fillOrFunctionNormalizer],
-    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'connectorStroke', anychart.core.settings.strokeOrFunctionNormalizer],
-    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'selectedConnectorStroke', anychart.core.settings.strokeOrFunctionNormalizer]
+    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'columnStroke', anychart.core.settings.strokeNormalizer]
   ]);
   return map;
 })();
@@ -815,6 +812,25 @@ anychart.ganttModule.TimeLine.prototype.baselines = function(opt_value) {
 
 /**
  *
+ * @param {Object=} opt_value - Config object.
+ * @return {anychart.ganttModule.elements.ConnectorElement|anychart.ganttModule.TimeLine}
+ */
+anychart.ganttModule.TimeLine.prototype.connectors = function(opt_value) {
+  if (!this.connectors_) {
+    this.connectors_ = new anychart.ganttModule.elements.ConnectorElement(this);
+    this.connectors_.listenSignals(this.visualElementInvalidated_, this);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.connectors_.setup(opt_value);
+    return this;
+  }
+  return this.connectors_;
+};
+
+
+/**
+ *
  * @param {anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem} item - Item.
  * @param {anychart.ganttModule.elements.TimelineElement} element - Element type.
  * @param {anychart.math.Rect} bounds - Bounds.
@@ -829,15 +845,14 @@ anychart.ganttModule.TimeLine.prototype.createTag = function(item, element, boun
     type: element.getType(),
     item: item,
     labels: element.getLabelsResolutionOrder(),
-    bounds: bounds
+    bounds: bounds,
+    labelPointSettings: element.getLabelPointSettings(item, opt_periodIndex)
   };
 
   if (goog.isDef(opt_periodIndex)) {
     tag.periodIndex = opt_periodIndex;
     var periods = item.get(anychart.enums.GanttDataFields.PERIODS);
     tag.period = periods[opt_periodIndex];
-    if (goog.isDef(tag.period))
-      tag.pointLabelSettings = tag.period['label'];
   }
 
   return /** @type {anychart.ganttModule.TimeLine.Tag} */ (tag);
@@ -869,7 +884,7 @@ anychart.ganttModule.TimeLine.prototype.visualElementInvalidated_ = function(eve
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.elements().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.baseFill = function(var_args) {
   var target = this.elements();
@@ -881,7 +896,7 @@ anychart.ganttModule.TimeLine.prototype.baseFill = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.elements().stroke() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.baseStroke = function(var_args) {
   var target = this.elements();
@@ -893,7 +908,7 @@ anychart.ganttModule.TimeLine.prototype.baseStroke = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.baselines().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.baselineFill = function(var_args) {
   var target;
@@ -910,7 +925,7 @@ anychart.ganttModule.TimeLine.prototype.baselineFill = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.baselines().stroke() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.baselineStroke = function(var_args) {
   var target;
@@ -927,7 +942,7 @@ anychart.ganttModule.TimeLine.prototype.baselineStroke = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.milestones().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.milestoneFill = function(var_args) {
   var target;
@@ -944,7 +959,7 @@ anychart.ganttModule.TimeLine.prototype.milestoneFill = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.milestones().stroke() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.milestoneStroke = function(var_args) {
   var target;
@@ -961,7 +976,7 @@ anychart.ganttModule.TimeLine.prototype.milestoneStroke = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.groupingTasks().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.parentFill = function(var_args) {
   var target;
@@ -978,7 +993,7 @@ anychart.ganttModule.TimeLine.prototype.parentFill = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.groupingTasks().stroke() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.parentStroke = function(var_args) {
   var target;
@@ -995,7 +1010,7 @@ anychart.ganttModule.TimeLine.prototype.parentStroke = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.tasks().progress().fill() or timeline.groupingTasks().progress().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.progressFill = function(var_args) {
   var target;
@@ -1013,7 +1028,7 @@ anychart.ganttModule.TimeLine.prototype.progressFill = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.tasks().progress().stroke() or timeline.groupingTasks().progress().stroke() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.progressStroke = function(var_args) {
   var target;
@@ -1031,26 +1046,26 @@ anychart.ganttModule.TimeLine.prototype.progressStroke = function(var_args) {
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.elements().selected().fill() instead. DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.selectedElementFill = function(var_args) {
-  var target = this.elements();
+  var target = this.elements().selected();
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
       ['timeline.selectedElementFill()', 'timeline.elements().selected().fill()'], true);
-  return arguments.length ? target.selected()['fill'].apply(target, arguments) : target.selected()['fill']();
+  return arguments.length ? target['fill'].apply(target, arguments) : target['fill']();
 };
 
 
 /**
  * @param {...*} var_args - Args.
  * @deprecated since 8.2.0 use timeline.elements().selected().stroke(). DVF-3625
- * @return {anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement}
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.selectedElementStroke = function(var_args) {
-  var target = this.elements();
+  var target = this.elements().selected();
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
       ['timeline.selectedElementStroke()', 'timeline.elements().selected().stroke()'], true);
-  return arguments.length ? target.selected()['stroke'].apply(target, arguments) : target.selected()['stroke']();
+  return arguments.length ? target['stroke'].apply(target, arguments) : target['stroke']();
 };
 
 
@@ -1458,6 +1473,45 @@ anychart.ganttModule.TimeLine.prototype.milestoneOffset = function(opt_value) {
         ['timeline.milestoneOffset()', 'timeline.milestones().offset()'], true);
     return this.milestones()['offset'](opt_value);
   }
+};
+
+
+/**
+ * @param {...*} var_args - Args.
+ * @deprecated since 8.2.0 use timeline.connectors().fill() instead. DVF-3625
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Fill|anychart.ganttModule.elements.TimelineElement}
+ */
+anychart.ganttModule.TimeLine.prototype.connectorFill = function(var_args) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.connectorFill()', 'timeline.connectors().fill()'], true);
+  var target = this.connectors();
+  return arguments.length ? target['fill'].apply(target, arguments) : target['fill']();
+};
+
+
+/**
+ * @param {...*} var_args - Args.
+ * @deprecated since 8.2.0 use timeline.connectors().stroke() instead. DVF-3625
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
+ */
+anychart.ganttModule.TimeLine.prototype.connectorStroke = function(var_args) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.connectorStroke()', 'timeline.connectors().stroke()'], true);
+  var target = this.connectors();
+  return arguments.length ? target['stroke'].apply(target, arguments) : target['stroke']();
+};
+
+
+/**
+ * @param {...*} var_args - Args.
+ * @deprecated since 8.2.0 use timeline.connectors().selected().stroke() instead. DVF-3625
+ * @return {anychart.ganttModule.TimeLine|acgraph.vector.Stroke|anychart.ganttModule.elements.TimelineElement}
+ */
+anychart.ganttModule.TimeLine.prototype.selectedConnectorStroke = function(var_args) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
+      ['timeline.selectedConnectorStroke()', 'timeline.connectors().selected().stroke()'], true);
+  var target = this.connectors().selected();
+  return arguments.length ? target['stroke'].apply(target, arguments) : target['stroke']();
 };
 
 //endregion
@@ -3105,9 +3159,7 @@ anychart.ganttModule.TimeLine.prototype.addMouseMoveAndOver = function(evt) {
           var startItem = path.item;
           var startIndex = path.index;
 
-          if (tag.type != anychart.enums.TLElementTypes.BASELINES &&
-              tag.type != anychart.enums.TLElementTypes.CONNECTORS) {
-
+          if (tag.type != anychart.enums.TLElementTypes.BASELINES && tag.type != anychart.enums.TLElementTypes.CONNECTORS) {
             var from, to;
 
             if (period) {
@@ -4266,23 +4318,41 @@ anychart.ganttModule.TimeLine.prototype.connectItems_ = function(from, to, opt_c
   var toRowHeight = this.controller.getItemHeight(toItem);
 
   if (fromBounds && toBounds) {
-    var fill, stroke;
+    var selected = !goog.isNull(this.selectedConnectorData_) &&
+        this.selectedConnectorData_['fromItemIndex'] == fromIndex &&
+        this.selectedConnectorData_['toItemIndex'] == toIndex &&
+        this.selectedConnectorData_['connType'] == opt_connType;
 
-    if (!(opt_connSettings && opt_connSettings[anychart.enums.GanttDataFields.FILL])) {
-      var connectorFill = anychart.ganttModule.BaseGrid.getColorResolver('connectorFill', anychart.enums.ColorType.FILL, false)(this, 0, fromItem, toItem, opt_connType, fromPeriodIndex, toPeriodIndex);
+    if (this.controller.isResources()) {
+      if (this.selectedConnectorData_) {
+        selected &= (this.selectedConnectorData_['fromPeriodIndex'] == fromPeriodIndex && this.selectedConnectorData_['toPeriodIndex'] == toPeriodIndex);
+      }
     }
-    if (!(opt_connSettings && opt_connSettings[anychart.enums.GanttDataFields.STROKE])) {
-      var connectorStroke = anychart.ganttModule.BaseGrid.getColorResolver('connectorStroke', anychart.enums.ColorType.STROKE, false)(this, 0, fromItem, toItem, opt_connType, fromPeriodIndex, toPeriodIndex);
-    }
-    fill = (opt_connSettings && opt_connSettings[anychart.enums.GanttDataFields.FILL]) ?
-        acgraph.vector.normalizeFill(opt_connSettings[anychart.enums.GanttDataFields.FILL]) :
-        connectorFill;
-
-    stroke = (opt_connSettings && opt_connSettings[anychart.enums.GanttDataFields.STROKE]) ?
-        acgraph.vector.normalizeStroke(opt_connSettings[anychart.enums.GanttDataFields.STROKE]) :
-        connectorStroke;
 
     var drawPreview = goog.isDefAndNotNull(opt_path);
+    var pointFill, pointStroke;
+    if (opt_connSettings) {
+      if (selected) {
+        pointFill = goog.typeOf(opt_connSettings['selected']) == 'object' ?
+            opt_connSettings['selected']['fill'] :
+            void 0;
+        pointStroke = goog.typeOf(opt_connSettings['selected']) == 'object' ?
+            opt_connSettings['selected']['stroke'] :
+            void 0;
+      } else {
+        pointFill = goog.isDef(opt_connSettings['fill']) ? opt_connSettings['fill'] :
+            goog.typeOf(opt_connSettings['normal']) == 'object' ?
+                opt_connSettings['normal']['fill'] :
+                void 0;
+        pointStroke = goog.isDef(opt_connSettings['stroke']) ? opt_connSettings['stroke'] :
+            goog.typeOf(opt_connSettings['normal']) == 'object' ?
+                opt_connSettings['normal']['stroke'] :
+                void 0;
+      }
+    }
+
+    var state = selected ? anychart.PointState.SELECT : anychart.PointState.NORMAL;
+    var stroke = /** @type {acgraph.vector.Stroke} */(pointStroke || this.connectors().getStroke(fromItem, toItem, state, opt_connType, fromPeriodIndex, toPeriodIndex));
 
     var fromLeft, fromTop, toLeft, toTop, orientation;
     var am = anychart.ganttModule.TimeLine.ARROW_MARGIN;
@@ -4294,7 +4364,7 @@ anychart.ganttModule.TimeLine.prototype.connectItems_ = function(from, to, opt_c
     var segmentTop0; //Util variable, temporary segment Y-coordinate storage.
     var aboveSequence = true; //If 'from' bar is above the 'to' bar.
 
-    var lineThickness = anychart.utils.extractThickness(/** @type {acgraph.vector.Stroke} */(stroke));
+    var lineThickness = anychart.utils.extractThickness(stroke);
     var pixelShift = (lineThickness % 2 && acgraph.type() === acgraph.StageType.SVG) ? 0.5 : 0;
     var toActualTop;
 
@@ -4419,41 +4489,29 @@ anychart.ganttModule.TimeLine.prototype.connectItems_ = function(from, to, opt_c
       'toItem': toItem
     };
 
-    var connectorHighlight = !goog.isNull(this.selectedConnectorData_) &&
-        this.selectedConnectorData_['fromItemIndex'] == meta['fromItemIndex'] &&
-        this.selectedConnectorData_['toItemIndex'] == meta['toItemIndex'] &&
-        this.selectedConnectorData_['connType'] == meta['connType'];
-
     if (this.controller.isResources()) {
       meta['fromPeriodIndex'] = fromPeriodIndex;
       meta['toPeriodIndex'] = toPeriodIndex;
-      if (this.selectedConnectorData_) {
-        connectorHighlight &= (this.selectedConnectorData_['fromPeriodIndex'] == meta['fromPeriodIndex'] && this.selectedConnectorData_['toPeriodIndex'] == meta['toPeriodIndex']);
-      }
     }
 
-    var selectedConnectorStroke;
-    if (connectorHighlight)
-      selectedConnectorStroke = /** @type {acgraph.vector.Stroke} */(anychart.ganttModule.BaseGrid.getColorResolver('selectedConnectorStroke', anychart.enums.ColorType.STROKE, false)(this, 0, fromItem, toItem, opt_connType, fromPeriodIndex, toPeriodIndex));
     if (path && !drawPreview) {
-      path.stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
       path.tag = void 0; //Tooltip will not appear on connector mouse over.
       path.type = anychart.enums.TLElementTypes.CONNECTORS;
       path.currBounds = null;
       path.cursor(this.editable ? acgraph.vector.Cursor.POINTER : acgraph.vector.Cursor.DEFAULT);
       meta['path'] = path;
       path.meta = meta;
-      path.stroke(connectorHighlight ? selectedConnectorStroke : /** @type {acgraph.vector.Stroke} */ (stroke));
+      path.stroke(stroke);
     }
     if (arrow && !drawPreview) {
-      arrow.fill(/** @type {acgraph.vector.Fill} */ (fill)).stroke(/** @type {acgraph.vector.Stroke} */ (stroke));
       arrow.tag = void 0; //Tooltip will not appear on connector arrow mouse over.
       arrow.type = anychart.enums.TLElementTypes.CONNECTORS;
       arrow.currBounds = null;
       arrow.cursor(this.editable ? acgraph.vector.Cursor.POINTER : acgraph.vector.Cursor.DEFAULT);
       meta['arrow'] = arrow;
       arrow.meta = meta;
-      arrow.stroke(connectorHighlight ? selectedConnectorStroke : /** @type {acgraph.vector.Stroke} */ (stroke));
+      arrow.fill(pointFill || this.connectors().getFill(fromItem, toItem, state, opt_connType, fromPeriodIndex, toPeriodIndex));
+      arrow.stroke(stroke);
     }
   }
 };
@@ -5176,6 +5234,7 @@ anychart.ganttModule.TimeLine.prototype.serialize = function() {
   json['editIntervalWidth'] = this.editIntervalWidth_;
 
   json['elements'] = this.elements().serialize();
+  json['connectors'] = this.connectors().serialize();
   if (this.controller.isResources()) {
     json['periods'] = this.periods().serialize();
   } else {
@@ -5250,6 +5309,7 @@ anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_defau
   this.editIntervalWidth(config['editIntervalWidth']);
 
   this.elements().setupInternal(!!opt_default, config['elements']);
+  this.connectors().setupInternal(!!opt_default, config['connectors']);
   if (this.controller.isResources()) {
     this.periods().setupInternal(!!opt_default, config['periods']);
   } else {
@@ -5651,8 +5711,8 @@ anychart.standalones.resourceTimeline = function() {
 //endregion
 //exports
 /**
-* @suppress {deprecated}
-*/
+ * @suppress {deprecated}
+ */
 (function() {
   var proto = anychart.ganttModule.TimeLine.prototype;
   // auto generated
@@ -5705,16 +5765,10 @@ anychart.standalones.resourceTimeline = function() {
   proto['milestoneOffset'] = proto.milestoneOffset;
   proto['selectedElementFill'] = proto.selectedElementFill;
   proto['selectedElementStroke'] = proto.selectedElementStroke;
+  proto['connectorFill'] = proto.connectorFill;
+  proto['connectorStroke'] = proto.connectorStroke;
+  proto['selectedConnectorStroke'] = proto.selectedConnectorStroke;
 
-
-  // connector coloring
-  //proto['connectorFill'] = proto.connectorFill;
-  //proto['connectorStroke'] = proto.connectorStroke;
-  //proto['selectedConnectorStroke'] = proto.selectedConnectorStroke;
-
-  // full bar stack coloring (bar progress parent milestone)
-  //proto['selectedElementFill'] = proto.selectedElementFill;
-  //proto['selectedElementStroke'] = proto.selectedElementStroke;
 
 
   proto['editing'] = proto.editing;

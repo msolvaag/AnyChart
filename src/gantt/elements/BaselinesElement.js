@@ -64,6 +64,12 @@ anychart.ganttModule.elements.BaselinesElement.prototype.getPaletteNormalStroke 
 };
 
 
+/** @inheritDoc */
+anychart.ganttModule.elements.BaselinesElement.prototype.getPointSettingsResolutionOrder = function() {
+  return this.pointSettingsResolution || (this.pointSettingsResolution = [this.getType(), 'baseline']);
+};
+
+
 //endregion
 //region -- Serialization/Deserialization.
 /**

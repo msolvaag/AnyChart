@@ -39,5 +39,10 @@ anychart.ganttModule.elements.MilestonesElement.prototype.getPaletteNormalStroke
 };
 
 
+/** @inheritDoc */
+anychart.ganttModule.elements.MilestonesElement.prototype.getPointSettingsResolutionOrder = function() {
+  return this.pointSettingsResolution || (this.pointSettingsResolution = [this.getType(), 'milestone', 'actual']);
+};
+
 //endregion
 

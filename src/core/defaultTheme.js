@@ -2368,8 +2368,19 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       'above': false
     },
 
-    'connectorFill': '#545f69',
-    'connectorStroke': '#545f69',
+    'connectors': {
+      'normal': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
+      'selected': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      }
+    },
+
+    // 'connectorFill': '#545f69',
+    // 'connectorStroke': '#545f69',
     'tooltip': {
       'padding': 5,
       'title': {

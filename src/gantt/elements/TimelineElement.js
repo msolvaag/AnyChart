@@ -80,6 +80,12 @@ anychart.ganttModule.elements.TimelineElement = function(timeline) {
   this.labelsResolution = null;
 
   /**
+   * Point settings resolution names list. Includes deprecated point fields.
+   * @type {?Array.<string>}
+   */
+  this.pointSettingsResolution = null;
+
+  /**
    * Resolution chain cache.
    * @type {?Array.<Object|null|undefined>}
    * @private
@@ -307,6 +313,17 @@ anychart.ganttModule.elements.TimelineElement.prototype.selected = function(opt_
 
 
 //endregion
+//region -- Point settings resolution.
+/**
+ * Gets point settings resolution names.
+ * @return {!Array.<string>}
+ */
+anychart.ganttModule.elements.TimelineElement.prototype.getPointSettingsResolutionOrder = function() {
+  return this.pointSettingsResolution || (this.pointSettingsResolution = []);
+};
+
+
+//endregion
 //region -- Color resolution.
 /**
  * Gets color context.
@@ -332,6 +349,31 @@ anychart.ganttModule.elements.TimelineElement.prototype.getColorResolutionContex
 
 
 /**
+ * Gets point settings color.
+ * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Tree Data Item.
+ * @param {number=} opt_periodIndex - Period index.
+ * @return {Object|undefined}
+ */
+anychart.ganttModule.elements.TimelineElement.prototype.getPointSettings = function(item, opt_periodIndex) {
+  var settings;
+  if (goog.isDef(opt_periodIndex)) {
+    return item.get(anychart.enums.GanttDataFields.PERIODS)[opt_periodIndex];
+  } else {
+    var fields = this.getPointSettingsResolutionOrder();
+    for (var i = 0; i < fields.length; i++) {
+      var field = fields[i];
+      var sett = /** @type {Object} */ (item.get(field));
+      if (goog.isDef(sett)) {
+        settings = sett;
+        break;
+      }
+    }
+  }
+  return settings;
+};
+
+
+/**
  * Gets color.
  * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Tree Data Item.
  * @param {anychart.PointState} state - State.
@@ -340,20 +382,35 @@ anychart.ganttModule.elements.TimelineElement.prototype.getColorResolutionContex
  * @return {acgraph.vector.Fill|acgraph.vector.Stroke}
  */
 anychart.ganttModule.elements.TimelineElement.prototype.getColor = function(item, state, colorName, opt_periodIndex) {
-  //TODO (A.Kudryavtsev): In current implementation (6 Mar 2018) only 'normal' and 'selected' are supportd.
-  var isNormal = (state === anychart.PointState.NORMAL);
-  var colorSource = isNormal ? this.normal() : this.selected();
-  var stateColor = colorSource.getOption(colorName);
-
   var color;
+
+  var isNormal = (state === anychart.PointState.NORMAL);
   var normalizer = (colorName == 'stroke') ?
       anychart.core.settings.strokeOrFunctionSimpleNormalizer :
       anychart.core.settings.fillOrFunctionSimpleNormalizer;
-  if (goog.isFunction(stateColor)) {
-    var context = this.getColorResolutionContext(item, colorName, state, opt_periodIndex);
-    color = /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(normalizer(stateColor.call(context, context)));
+
+  var pointSettings = this.getPointSettings(item, opt_periodIndex);
+  if (pointSettings) {
+    color = isNormal ?
+        pointSettings[colorName] :
+        (goog.typeOf(pointSettings['selected']) == 'object' ? pointSettings['selected'][colorName] : void 0);
+  }
+
+  if (color) {
+    //Here we suppose that point settings can not contain color as function.
+    color = /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(normalizer(color));
   } else {
-    color = /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(normalizer(stateColor));
+    //TODO (A.Kudryavtsev): In current implementation (6 Mar 2018) only 'normal' and 'selected' are supported.
+    var colorSource = isNormal ? this.normal() : this.selected();
+    var stateColor = colorSource.getOption(colorName);
+
+
+    if (goog.isFunction(stateColor)) {
+      var context = this.getColorResolutionContext(item, colorName, state, opt_periodIndex);
+      color = /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(normalizer(stateColor.call(context, context)));
+    } else {
+      color = /** @type {acgraph.vector.Fill|acgraph.vector.Stroke} */(normalizer(stateColor));
+    }
   }
   return color;
 };
@@ -442,6 +499,23 @@ anychart.ganttModule.elements.TimelineElement.prototype.getLabelsResolutionOrder
         this.getTimeline().elements().labels(), //Yes, this is duplication, but this method will never be used not overridden.
         this.getTimeline().labels()
       ]);
+};
+
+
+/**
+ * Gets label point settings.
+ * TODO (A.Kudryavtsev): In current implementation (14 Mar 2018) labels selected state is not supported.
+ * @param {(anychart.treeDataModule.Tree.DataItem|anychart.treeDataModule.View.DataItem)} item - Tree Data Item.
+ * @param {number=} opt_periodIndex - Period index.
+ * @return {Object|undefined}
+ */
+anychart.ganttModule.elements.TimelineElement.prototype.getLabelPointSettings = function(item, opt_periodIndex) {
+  var labelSettings;
+  var pointSettings = this.getPointSettings(item, opt_periodIndex);
+  if (pointSettings) {
+    labelSettings = pointSettings['label'];
+  }
+  return labelSettings;
 };
 
 
@@ -591,7 +665,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.getParentState = functio
  */
 anychart.ganttModule.elements.TimelineElement.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttModule.elements.TimelineElement.base(this, 'setupByJSON', config, opt_default);
-  //TODO (A.Kudryavtsev): We can skip setting up fill and stroke in current implementation because it falls back to Timeline API.
   anychart.core.settings.deserialize(this, anychart.ganttModule.elements.TimelineElement.DESCRIPTORS, config, opt_default);
   this.labels().setupInternal(!!opt_default, config['labels']);
   this.normal().setupInternal(!!opt_default, config['normal']);
@@ -628,6 +701,9 @@ anychart.ganttModule.elements.TimelineElement.prototype.disposeInternal = functi
   }
 
   this.resolutionChainCache_ = null;
+  goog.disposeAll(this.normal_, this.selected_, this.labels_, this.shapeManager);
+  if (this.labelsResolution)
+    this.labelsResolution.length = 0;
 
   anychart.ganttModule.elements.TimelineElement.base(this, 'disposeInternal');
 };
