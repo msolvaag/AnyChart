@@ -1494,7 +1494,7 @@
 
     <xsd:complexType name="core.DataGrid.Column">
         <xsd:all>
-            <xsd:element minOccurs="0" maxOccurs="1" name="cell_text_settings" type="core.LabelsFactory"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="labels" type="core.LabelsFactory"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="title" type="core.Title"/>
         </xsd:all>
         <xsd:attributeGroup ref="attrs.VisualBase"/>
@@ -1518,27 +1518,7 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="row_fill" type="Fill"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="row_hover_fill" type="Fill"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="row_selected_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="base_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="base_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="baseline_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="baseline_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="milestone_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="milestone_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="parent_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="parent_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="progress_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="progress_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="connector_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="connector_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="selected_element_fill" type="Fill"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="selected_element_stroke" type="Stroke"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="selected_connector_stroke" type="Stroke"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="labels" type="core.LabelsFactory"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="base_labels" type="core.LabelsFactory"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="parent_labels" type="core.LabelsFactory"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="baseline_labels" type="core.LabelsFactory"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="progress_labels" type="core.LabelsFactory"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="milestone_labels" type="core.LabelsFactory"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="markers" type="core.MarkersFactory"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="connector_preview_stroke" type="Stroke"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="edit_preview_fill" type="Fill"/>
@@ -1571,7 +1551,6 @@
         <xsd:attributeGroup ref="attrs.VisualBase"/>
         <xsd:attribute name="is_standalone" type="simple.Bool"/>
         <xsd:attribute name="header_height" type="xsd:double"/>
-        <xsd:attribute name="baseline_above" type="simple.Bool"/>
         <xsd:attribute name="editing" type="simple.Bool"/>
         <xsd:attribute name="default_row_height" type="xsd:double"/>
         <xsd:attribute name="row_stroke" type="xsd:string"/>
@@ -1582,21 +1561,6 @@
         <xsd:attribute name="row_fill" type="xsd:string"/>
         <xsd:attribute name="row_hover_fill" type="xsd:string"/>
         <xsd:attribute name="row_selected_fill" type="xsd:string"/>
-        <xsd:attribute name="base_fill" type="xsd:string"/>
-        <xsd:attribute name="base_stroke" type="xsd:string"/>
-        <xsd:attribute name="baseline_fill" type="xsd:string"/>
-        <xsd:attribute name="baseline_stroke" type="xsd:string"/>
-        <xsd:attribute name="milestone_fill" type="xsd:string"/>
-        <xsd:attribute name="milestone_stroke" type="xsd:string"/>
-        <xsd:attribute name="parent_fill" type="xsd:string"/>
-        <xsd:attribute name="parent_stroke" type="xsd:string"/>
-        <xsd:attribute name="progress_fill" type="xsd:string"/>
-        <xsd:attribute name="progress_stroke" type="xsd:string"/>
-        <xsd:attribute name="connector_fill" type="xsd:string"/>
-        <xsd:attribute name="connector_stroke" type="xsd:string"/>
-        <xsd:attribute name="selected_element_fill" type="xsd:string"/>
-        <xsd:attribute name="selected_element_stroke" type="xsd:string"/>
-        <xsd:attribute name="selected_connector_stroke" type="xsd:string"/>
         <xsd:attribute name="labels" type="simple.BoolOrNull"/>
         <xsd:attribute name="markers" type="simple.BoolOrNull"/>
         <xsd:attribute name="connector_preview_stroke" type="xsd:string"/>
@@ -1620,27 +1584,6 @@
         <xsd:attribute name="edit_start_connector_marker_vertical_offset" type="xsd:double"/>
         <xsd:attribute name="edit_finish_connector_marker_vertical_offset" type="xsd:double"/>
         <xsd:attribute name="edit_interval_width" type="xsd:double"/>
-
-        <xsd:attribute name="base_bar_height" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="base_bar_anchor" type="xsd:string"/>
-        <xsd:attribute name="base_bar_position" type="xsd:string"/>
-        <xsd:attribute name="base_bar_offset" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="baseline_bar_height" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="baseline_bar_anchor" type="xsd:string"/>
-        <xsd:attribute name="baseline_bar_position" type="xsd:string"/>
-        <xsd:attribute name="baseline_bar_offset" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="parent_bar_height" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="parent_bar_anchor" type="xsd:string"/>
-        <xsd:attribute name="parent_bar_position" type="xsd:string"/>
-        <xsd:attribute name="parent_bar_offset" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="progress_bar_height" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="progress_bar_anchor" type="xsd:string"/>
-        <xsd:attribute name="progress_bar_position" type="xsd:string"/>
-        <xsd:attribute name="progress_bar_offset" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="milestone_height" type="simple.NumberOrPercentOrNull"/>
-        <xsd:attribute name="milestone_anchor" type="xsd:string"/>
-        <xsd:attribute name="milestone_position" type="xsd:string"/>
-        <xsd:attribute name="milestone_offset" type="simple.NumberOrPercentOrNull"/>
     </xsd:complexType>
 
     <xsd:complexType name="core.ColorRange">
