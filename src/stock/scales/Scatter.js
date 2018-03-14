@@ -380,8 +380,17 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     dataMaxKey = goog.math.clamp(this.maxKey, this.dataFullMinKey, this.dataFullMaxKey);
   }
 
-  var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
-  var minorTickRange = minorIntervalRange * (this.maxIndex - this.minIndex) / this.ticksCount_;
+
+  var range = this.intervals.day.range + this.intervals.minute.range + this.intervals.second.range;
+  var minorTickRange = Math.abs(range) / this.ticksCount_;
+
+
+  // var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
+  // var pointsCount = this.maxIndex - this.minIndex;
+  // var minorTickRange = minorIntervalRange * pointsCount / (this.ticksCount_ + 1);
+
+  // console.log(this.unit, this.count, minorIntervalRange, (this.maxIndex - this.minIndex) / (this.ticksCount_ + 1));
+  // console.log(minorTickRange, this.minIndex, this.maxIndex, new Date(this.minIndex), new Date(this.maxIndex));
 
   var last = this.ranges_.length - 1;
   var row;
@@ -490,7 +499,7 @@ anychart.stockModule.scales.Scatter.prototype.setAutoFullRange = function(aligne
  * @param {anychart.enums.Interval} unit
  * @param {number} count
  */
-anychart.stockModule.scales.Scatter.prototype.setCurrentRange = function(startKey, endKey, unit, count) {
+anychart.stockModule.scales.Scatter.prototype.setCurrentRange = function(startKey, endKey, unit, count, intervals) {
   startKey = goog.math.clamp(startKey, this.alignedFullMinKey, this.alignedFullMaxKey);
   endKey = goog.math.clamp(endKey, this.alignedFullMinKey, this.alignedFullMaxKey);
   var startIndex = this.keyIndexTransformer.getIndexByKey(startKey);
@@ -507,6 +516,7 @@ anychart.stockModule.scales.Scatter.prototype.setCurrentRange = function(startKe
   this.unit = unit;
   this.count = count;
   this.consistent = false;
+  this.intervals = intervals;
   this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
 };
 

@@ -299,7 +299,7 @@ anychart.stockModule.Controller.prototype.refreshSelection = function(newPixelWi
     var interval = this.scrollerGrouping_.getCurrentDataInterval();
     scrollerScale.setCurrentRange(
         this.currentScrollerSelection_.startKey, this.currentScrollerSelection_.endKey,
-        interval['unit'], interval['count']);
+        interval['unit'], interval['count'], this.currentScrollerSelection_.intervals);
     result += 2;
   }
 
@@ -573,7 +573,7 @@ anychart.stockModule.Controller.prototype.updateCurrentScaleRange = function(sca
   var interval = this.grouping().getCurrentDataInterval();
   scale.setCurrentRange(
       this.currentSelection_.startKey, this.currentSelection_.endKey,
-      interval['unit'], interval['count']);
+      interval['unit'], interval['count'], this.currentSelection_.intervals);
 };
 
 

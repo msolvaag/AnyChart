@@ -415,7 +415,24 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
     first = last = preFirst = postLast = startIndex = endIndex = minDistance = NaN;
   }
 
+  var intervals = {};
+  for (i = first; i <= last; i++) {
+    if (i) {
+      var interval = this.keys_[i].key - this.keys_[i - 1].key;
+
+      var range = anychart.utils.estimateInterval(interval);
+      if (intervals[range.unit]) {
+        var int = intervals[range.unit];
+        int.count++;
+        int.range += interval;
+      } else {
+        intervals[range.unit] = {count: 1, range: interval};
+      }
+    }
+  }
+
   selection = {
+    intervals: intervals,
     startKey: startKey,
     endKey: endKey,
     startIndex: startIndex,
