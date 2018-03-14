@@ -339,9 +339,8 @@ anychart.core.ui.Crosshair.prototype.xAxis = function(opt_value) {
  *
  * @param {anychart.core.Axis|anychart.mapModule.elements.Axis|anychart.stockModule.Axis} axis
  * @return {anychart.enums.Anchor}
- * @private
  */
-anychart.core.ui.Crosshair.prototype.getAnchorByAxis_ = function(axis) {
+anychart.core.ui.Crosshair.prototype.getAnchorByAxis = function(axis) {
   switch (axis.orientation()) {
     case anychart.enums.Orientation.LEFT:
       return anychart.enums.Anchor.RIGHT_CENTER;
@@ -817,7 +816,7 @@ anychart.core.ui.Crosshair.prototype.drawLabel_ = function(axis, xDirection, lab
     if (goog.isString(labelFormat))
       labelFormat = anychart.core.utils.TokenParser.getInstance().getFormat(labelFormat);
     label.text(labelFormat.call(provider, provider));
-    label.autoAnchor(this.getAnchorByAxis_(axis));
+    label.autoAnchor(this.getAnchorByAxis(axis));
     var labelPosition = this.getLabelPosition_(axis, label, side, start, ratio);
     label.x(/** @type {number}*/(labelPosition.x)).y(/** @type {number}*/(labelPosition.y));
     label.container(/** @type {acgraph.vector.ILayer} */(this.container())).draw();

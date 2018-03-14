@@ -89,8 +89,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'xStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'yStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'zIndex': 41,
-      'xLabels': [{}],
-      'yLabels': [{}]
+      'xLabels': [{'enabled': null}],
+      'yLabels': [{'enabled': null}]
     },
     'xScale': 0,
     'yScale': 1,

@@ -496,8 +496,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'crosshair': {
         'zIndex': 201,
         'enabled': null,
-        'xLabels': [{}],
-        'yLabels': [{}]
+        'xLabels': [{'enabled': null}],
+        'yLabels': [{'enabled': null}]
       }
     },
     'padding': [20, 30, 20, 60],
@@ -717,8 +717,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'crosshair': {
       'enabled': true,
       'displayMode': 'sticky',
-      'xLabels': [{}],
-      'yLabels': [{}],
+      'xLabels': [{'enabled': null}],
+      'yLabels': [{'enabled': null}],
       'xStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'yStroke': anychart.core.defaultTheme.colorStrokeExtraBright
     }

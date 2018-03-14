@@ -262,6 +262,7 @@ anychart.mapModule.elements.Crosshair.prototype.drawLabel = function(axis, label
   var labelFormatProvider = this.getLabelsFormatProvider(axis, value);
   var labelFormat = label.format() || anychart.utils.DEFAULT_FORMATTER;
   label.text(labelFormat.call(labelFormatProvider, labelFormatProvider));
+  label.autoAnchor(this.getAnchorByAxis(axis));
 
   var positionCoords = axis.ticks().calcTick(value);
 

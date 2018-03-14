@@ -296,9 +296,11 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'yStroke': anychart.core.defaultTheme.colorStrokeExtraBright,
       'zIndex': 110,
       'xLabels': [{
+        'enabled': null,
         'axisIndex': 2
       }],
       'yLabels': [{
+        'enabled': null,
         'axisIndex': 3
       }]
     },
