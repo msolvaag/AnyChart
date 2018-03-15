@@ -413,13 +413,47 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
         minDistance = tmp.next.key - tmp.key;
       }
     }
-    for (i = first; i <= last; i++) {
-      if (i) {
-        var currKey = this.keys_[i];
-        var range = currKey.key - this.keys_[i - 1].key;
-        var estRange = anychart.utils.estimateInterval(range);
+
+    var boundariesInfo = this.getBoundariesInfo();
+    var firstKey = goog.math.clamp(startKey, boundariesInfo[2], boundariesInfo[3]);
+    var lastKey = goog.math.clamp(endKey, boundariesInfo[2], boundariesInfo[3]);
+    var firstIndex = this.getIndexByKey(firstKey);
+    var lastIndex = this.getIndexByKey(lastKey);
+
+    var currKey, prevKey, range, estRange, interval;
+    for (i = firstIndex; i <= lastIndex; i++) {
+      if (i < first) {
+        currKey = goog.math.clamp(this.keys_[first].key, boundariesInfo[0], boundariesInfo[1]);
+        prevKey = goog.math.clamp(firstKey, boundariesInfo[0], boundariesInfo[1]);
+
+        i = first;
+      } else if (i && this.keys_[i]) {
+        currKey = this.keys_[i].key;
+        prevKey = this.keys_[i - 1].key;
+      } else {
+        currKey = prevKey = NaN;
+      }
+
+      range = currKey - prevKey;
+      if (!isNaN(range)) {
+        estRange = anychart.utils.estimateInterval(range);
         if (intervals[estRange.unit]) {
-          var interval = intervals[estRange.unit];
+          interval = intervals[estRange.unit];
+          interval.count++;
+          interval.range += range;
+        } else {
+          intervals[estRange.unit] = {count: 1, range: range};
+        }
+      }
+    }
+    if (lastIndex > last) {
+      currKey = goog.math.clamp(lastKey, boundariesInfo[0], boundariesInfo[1])
+      prevKey = goog.math.clamp(this.keys_[last].key, boundariesInfo[0], boundariesInfo[1]);;
+      range = currKey - prevKey;
+      if (!isNaN(range)) {
+        estRange = anychart.utils.estimateInterval(range);
+        if (intervals[estRange.unit]) {
+          interval = intervals[estRange.unit];
           interval.count++;
           interval.range += range;
         } else {

@@ -376,7 +376,6 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
   if (this.consistent) return;
 
   this.ensureTicksIteratorCreated();
-
   var dataMinKey, dataMaxKey;
   if (this.maxKey <= this.dataFullMinKey || this.minKey >= this.dataFullMaxKey) {
     dataMinKey = this.minKey;
