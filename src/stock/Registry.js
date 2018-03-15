@@ -80,6 +80,7 @@ anychart.stockModule.Registry.Item;
  * Internal type to represent table selection range.
  * Fields start* and end* are selected values, others are selection results (data-dependant).
  * @typedef {{
+ *   intervals: Object.<string, {count: number, range: number}>,
  *   startKey: number,
  *   endKey: number,
  *   startIndex: number,
@@ -415,14 +416,14 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
     for (i = first; i <= last; i++) {
       if (i) {
         var currKey = this.keys_[i];
-        var interval = currKey.key - this.keys_[i - 1].key;
-        var range = anychart.utils.estimateInterval(interval);
-        if (intervals[range.unit]) {
-          var int = intervals[range.unit];
-          int.count++;
-          int.range += interval;
+        var range = currKey.key - this.keys_[i - 1].key;
+        var estRange = anychart.utils.estimateInterval(range);
+        if (intervals[estRange.unit]) {
+          var interval = intervals[estRange.unit];
+          interval.count++;
+          interval.range += range;
         } else {
-          intervals[range.unit] = {count: 1, range: interval};
+          intervals[estRange.unit] = {count: 1, range: range};
         }
       }
     }

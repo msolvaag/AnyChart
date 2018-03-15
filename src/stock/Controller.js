@@ -77,6 +77,7 @@ anychart.stockModule.Controller = function() {
    * @private
    */
   this.currentSelection_ = {
+    intervals: {},
     startKey: NaN,
     endKey: NaN,
     startIndex: NaN,
@@ -98,6 +99,7 @@ anychart.stockModule.Controller = function() {
    * @private
    */
   this.currentScrollerSelection_ = {
+    intervals: {},
     startKey: NaN,
     endKey: NaN,
     startIndex: NaN,

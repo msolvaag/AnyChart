@@ -98,6 +98,12 @@ anychart.stockModule.scales.Scatter = function(chartOrScroller) {
   this.maxIndex = NaN;
 
   /**
+   * @type {Object.<string, {count: number, range: number}>}
+   * @protected
+   */
+  this.intervals = {};
+
+  /**
    * Consistency flag. Easier to use than Base consistency here.
    * @type {boolean}
    */
@@ -380,7 +386,8 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     dataMaxKey = goog.math.clamp(this.maxKey, this.dataFullMinKey, this.dataFullMaxKey);
   }
 
-  var error = (this.maxIndex - this.minIndex + 1) * 0.15;
+  var pointsCount = this.maxIndex - this.minIndex + 1;
+  var error = pointsCount * 0.25;
   var range = 0;
 
   goog.object.forEach(this.intervals, function(interval) {
@@ -501,6 +508,7 @@ anychart.stockModule.scales.Scatter.prototype.setAutoFullRange = function(aligne
  * @param {number} endKey
  * @param {anychart.enums.Interval} unit
  * @param {number} count
+ * @param {Object.<string, {count: number, range: number}>} intervals
  */
 anychart.stockModule.scales.Scatter.prototype.setCurrentRange = function(startKey, endKey, unit, count, intervals) {
   startKey = goog.math.clamp(startKey, this.alignedFullMinKey, this.alignedFullMaxKey);
