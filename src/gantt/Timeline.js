@@ -4604,19 +4604,20 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
   }
 
   if (this.redrawHeader) {
-    this.header().invalidate(anychart.ConsistencyState.TIMELINE_HEADER_SCALES);
-    this.header_.draw();
-    var level, ticks = [];
-    if (this.header_.lowLevel().enabled()) {
-      level = this.header_.lowLevel();
-    } else if (this.header_.midLevel().enabled()) {
-      level = this.header_.midLevel();
-    } else if (this.header_.topLevel().enabled()) {
-      level = this.header_.topLevel();
+    var header = this.header();
+    var levels = this.scale_.getLevelsData();
+    header.setLevels(levels);
+
+    var ticks = [];
+    for (var i = 0; i < levels.length; i++) {
+      if (header.levels(i).enabled()) {
+        var level = levels[i];
+        ticks = this.scale_.getSimpleTicks(/** @type {anychart.enums.Interval} */(level.unit), /** @type {number} */(level.count));
+        break;
+      }
     }
 
-    if (level)
-      ticks = level.getTicks();
+    header.draw();
 
     this.drawLowTicks_(ticks);
 

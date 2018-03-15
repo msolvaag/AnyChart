@@ -593,151 +593,42 @@ anychart.ganttModule.Scale.prototype.maximumGap = function(opt_value) {
 
 
 /**
- * Calculates ticks depending on current scale settings and value passed.
- * @param {(number|Date|goog.date.UtcDateTime)} anchorDate - Value to be turned into a date (mills).
- * @param {goog.date.Interval} interval - Interval that definitely must cross the anchorDate.
- * @return {Array.<number>} - Array of ticks.
+ * @param {number} pixStart
+ * @param {number} pixEnd
+ * @param {anychart.enums.Interval} unit
+ * @param {number} count
+ * @return {Array.<{start:number,end:number,holiday:(boolean|undefined)}>}
  */
-anychart.ganttModule.Scale.prototype.getTicks = function(anchorDate, interval) {
-  var anchor = anychart.utils.normalizeTimestamp(anchorDate) + anychart.format.outputTimezone() * 60000;
+anychart.ganttModule.Scale.prototype.getTicks = function(pixStart, pixEnd, unit, count) {
   var range = this.getRange();
-  var min = range['min'];
-  var max = range['max'];
-
-  if (interval.years || interval.months) {
-    /*
-      In this case the intervals have not the same length in milliseconds.
-      (Duration of February != duration of July).
-
-      To make sure that the anchor point is crossed, we have the only way:
-      to go step by step from anchor point.
-      In this case here are three ways:
-        1) Anchor point is lefter than scale's minimum.
-        2) Anchor point is between scale's min and max.
-        3) Anchor point is righter than scale's maximum.
-     */
-
-    if (anchor <= min) {
-      return this.seek_(anchorDate, interval);
-    }
-
-    if (anchor > min && anchor < max) {
-      var foundLeft = this.seek_(anchorDate, interval, true);
-      var foundRight = this.seek_(anchorDate, interval, false, true);
-      return goog.array.concat(foundLeft, foundRight);
-    }
-
-    if (anchor >= max) {
-      return this.seek_(anchorDate, interval, true);
-    }
-  } else {
-    /*
-      In this case interval has the same length in milliseconds.
-      (Duration of March, 15 == duration of December, 2).
-
-      In this case closest left anchor point can be calculated mathematically using the
-      millisecond values.
-     */
-
-    var intervalLength = interval.days * anychart.ganttModule.Scale.MILLISECONDS_IN_DAY +
-        interval.hours * anychart.ganttModule.Scale.MILLISECONDS_IN_HOUR +
-        interval.minutes * anychart.ganttModule.Scale.MILLISECONDS_IN_MINUTE +
-        interval.seconds * anychart.ganttModule.Scale.MILLISECONDS_IN_SECOND;
-
-    var minAnchor, delta;
-    if (anchor <= min) {
-      delta = Math.floor((min - anchor) / intervalLength) * intervalLength;
-      minAnchor = anchor + delta;
-    } else {
-      delta = Math.ceil((anchor - min) / intervalLength) * intervalLength;
-      minAnchor = anchor - delta;
-    }
-
-    return this.seek_(minAnchor, interval);
+  var start = anychart.utils.alignDateLeftByUnit(range['min'], unit, count, 2000);
+  var end = range['end'];
+  var res = [];
+  var current = new goog.date.UtcDateTime(new Date(start));
+  var interval = anychart.utils.getIntervalFromInfo(unit, count);
+  var curr = current.getTime();
+  while (curr < end) {
+    var prev = curr;
+    current.add(interval);
+    curr = current.getTime();
+    res.push({
+      'start': prev,
+      'end': curr
+    });
   }
-
-  return [];
+  return res;
 };
 
 
 /**
- * Calculates ticks depending on current scale settings and value passed.
- * @param {(number|Date|goog.date.UtcDateTime)} anchorDate - Value to be turned into a date (mills).
- * @param {goog.date.Interval} interval - Interval that definitely must cross the anchorDate.
- * @return {Array.<number>} - Array of ticks.
+ * @param {anychart.enums.Interval} unit
+ * @param {number} count
+ * @return {Array.<number>}
  */
-anychart.ganttModule.Scale.prototype.getTicksObjects = function(anchorDate, interval) {
-};
-
-
-/**
- * Performs step-by-step search.
- * @param {(number|Date|goog.date.UtcDateTime)} startDate - Start date.
- * @param {goog.date.Interval} interval - Step interval.
- * @param {boolean=} opt_inverted - If must use inverted interval.
- * @param {boolean=} opt_ignoreFirstFoundValue - Flag if first found value must be added to result.
- * @return {Array.<number>} - Array of dates.
- * @private
- */
-anychart.ganttModule.Scale.prototype.seek_ = function(startDate, interval, opt_inverted, opt_ignoreFirstFoundValue) {
-  startDate = new goog.date.UtcDateTime(anychart.format.parseDateTime(startDate));
-  var range = this.getRange();
-  var min = range['min'];
-  var max = range['max'];
-
-  var result = [];
-
-  var firstFound = false;
-  var secondFound = false;
-
-  var anchorDate = startDate;
-
-  var anchorMs, newAnchorMs, newAnchorDate;
-  if (opt_inverted) {
-    interval = interval.getInverse();
-    while (!(firstFound && secondFound)) {
-      anchorMs = anychart.utils.normalizeTimestamp(anchorDate);
-      newAnchorDate = anchorDate.clone();
-      newAnchorDate.add(interval);
-      newAnchorMs = anychart.utils.normalizeTimestamp(newAnchorDate);
-
-      if (!firstFound) {
-        if (newAnchorMs < max) { // newAnchorMs <= max < anchorMs
-          firstFound = true;
-          if (!opt_ignoreFirstFoundValue) result.push(anchorMs);
-        }
-      } else {
-        goog.array.insertAt(result, anchorMs, 0);
-      }
-
-      secondFound = newAnchorMs <= min;
-      if (secondFound) result.push(newAnchorMs);
-      anchorDate = newAnchorDate.clone();
-
-    }
-  } else {
-    while (!(firstFound && secondFound)) {
-      anchorMs = anychart.utils.normalizeTimestamp(anchorDate);
-      newAnchorDate = anchorDate.clone();
-      newAnchorDate.add(interval);
-      newAnchorMs = anychart.utils.normalizeTimestamp(newAnchorDate);
-
-      if (!firstFound) {
-        if (min < newAnchorMs) { // anchorMs <= this.min_ < newAnchorMs
-          firstFound = true;
-          if (!opt_ignoreFirstFoundValue) result.push(anchorMs);
-        }
-      } else {
-        result.push(anchorMs);
-      }
-
-      secondFound = max <= newAnchorMs;
-      if (secondFound) result.push(newAnchorMs);
-      anchorDate = newAnchorDate.clone();
-    }
-  }
-
-  return result;
+anychart.ganttModule.Scale.prototype.getSimpleTicks = function(unit, count) {
+  return goog.array.map(this.getTicks(NaN, NaN, unit, count), function(item) {
+    return item['start'];
+  });
 };
 
 
@@ -816,29 +707,8 @@ anychart.ganttModule.Scale.prototype.ratioToTimestamp = function(value) {
 
 
 /**
- * Makes level data.
- * @param {{unit: anychart.enums.Interval, count: number}} level
- * @param {{unit: anychart.enums.Interval, count: number}=} opt_parentLevel
- * @return {Object}
- * @private
- */
-anychart.ganttModule.Scale.prototype.makeLevelData_ = function(level, opt_parentLevel) {
-  var interval = anychart.utils.getIntervalFromInfo(level.unit, level.count);
-  var range = this.getRange();
-  var intervalId = anychart.format.getIntervalIdentifier(level.unit, opt_parentLevel && opt_parentLevel.unit, 'timelineHeader');
-  var format = anychart.format.getDateTimeFormat(intervalId, 0);
-
-  return {
-    'anchor': anychart.utils.alignDateLeft(range['min'], interval, 0),
-    'interval': interval,
-    'formatter': anychart.ganttModule.Scale.createFormat_(format)
-  };
-};
-
-
-/**
  * Gets level settings for current scale state.
- * @return {Array|number}
+ * @return {Array.<anychart.ganttBaseModule.TimeLineHeader.Level>}
  */
 anychart.ganttModule.Scale.prototype.getLevelsData = function() {
   this.calculate();
@@ -858,13 +728,11 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
 
   if (index < 0) index = ranges.length - 1;
 
-  var topLevelData = this.makeLevelData_(anychart.ganttModule.Scale.TOP_INTERVALS[index]);
-  var midLevelData = this.makeLevelData_(anychart.ganttModule.Scale.MID_INTERVALS[index],
-      anychart.ganttModule.Scale.TOP_INTERVALS[index]);
-  var lowLevelData = this.makeLevelData_(anychart.ganttModule.Scale.LOW_INTERVALS[index],
-      anychart.ganttModule.Scale.MID_INTERVALS[index]);
-
-  return [topLevelData, midLevelData, lowLevelData];
+  return [
+    anychart.ganttModule.Scale.TOP_INTERVALS[index],
+    anychart.ganttModule.Scale.MID_INTERVALS[index],
+    anychart.ganttModule.Scale.LOW_INTERVALS[index]
+  ];
 };
 
 

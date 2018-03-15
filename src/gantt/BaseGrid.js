@@ -2432,7 +2432,7 @@ anychart.ganttModule.BaseGrid.prototype.selectRow = function(item) {
 /**
  * Special invalidation. Used by child classes to preform own invalidation.
  */
-anychart.ganttModule.BaseGrid.prototype.specialInvalidated = goog.nullFunction;
+anychart.ganttModule.BaseGrid.prototype.specialInvalidated = function(){};
 
 
 /**
