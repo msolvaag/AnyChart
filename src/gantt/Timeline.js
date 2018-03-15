@@ -1119,7 +1119,7 @@ anychart.ganttModule.TimeLine.prototype.parentLabels = function(opt_value) {
 /**
  * Getter/setter for milestones labels.
  * @param {(Object|boolean|null)=} opt_value - Settings.
- * @deprecated since 8.2.0 use timeline.baselines().labels() instead. DVF-3625
+ * @deprecated since 8.2.0 use timeline.milestones().labels() instead. DVF-3625
  * @return {anychart.ganttModule.TimeLine|anychart.core.ui.LabelsFactory|anychart.ganttModule.elements.TimelineElement}
  */
 anychart.ganttModule.TimeLine.prototype.milestoneLabels = function(opt_value) {
@@ -1206,7 +1206,7 @@ anychart.ganttModule.TimeLine.prototype.baseBarPosition = function(opt_value) {
 
 /**
  * @param {(string|number)=} opt_value - Value to set.
- * @deprecated since 8.2.0 use timeline.elements().position() instead. DVF-3625
+ * @deprecated since 8.2.0 use timeline.elements().offset() instead. DVF-3625
  * @return {string|number|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
  */
 anychart.ganttModule.TimeLine.prototype.baseBarOffset = function(opt_value) {
@@ -1218,7 +1218,7 @@ anychart.ganttModule.TimeLine.prototype.baseBarOffset = function(opt_value) {
 
 /**
  * @param {(string|number)=} opt_value - Value to set.
- * @deprecated since 8.2.0 use timeline.elements().height() instead. DVF-3625
+ * @deprecated since 8.2.0 use timeline.groupingTasks().height() instead. DVF-3625
  * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
  */
 anychart.ganttModule.TimeLine.prototype.parentBarHeight = function(opt_value) {
@@ -1266,7 +1266,7 @@ anychart.ganttModule.TimeLine.prototype.parentBarPosition = function(opt_value) 
 
 /**
  * @param {(string|number)=} opt_value - Value to set.
- * @deprecated since 8.2.0 use timeline.elements().offset() instead. DVF-3625
+ * @deprecated since 8.2.0 use timeline.groupingTasks().offset() instead. DVF-3625
  * @return {number|string|anychart.ganttModule.TimeLine|anychart.ganttModule.elements.TimelineElement} - Current value or itself for method chaining.
  */
 anychart.ganttModule.TimeLine.prototype.parentBarOffset = function(opt_value) {
