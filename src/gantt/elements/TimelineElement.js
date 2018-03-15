@@ -588,19 +588,9 @@ anychart.ganttModule.elements.TimelineElement.prototype.labels = function(opt_va
   }
 
   if (goog.isDef(opt_value)) {
-    var redraw = true;
-    if (anychart.utils.instanceOf(opt_value, anychart.core.ui.LabelsFactory)) {
-      this.labels_.setup((/** @type {anychart.core.ui.LabelsFactory} */ (opt_value)).serialize());
-    } else if (goog.isObject(opt_value)) {
-      this.labels_.setup(opt_value);
-    } else if (anychart.utils.isNone(opt_value)) {
-      this.labels_.enabled(false);
-    } else {
-      redraw = false;
-    }
-    if (redraw) {
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
-    }
+    if (goog.isObject(opt_value) && !('enabled' in opt_value))
+      opt_value['enabled'] = true;
+    this.labels_.setup(opt_value);
     return this;
   }
 
