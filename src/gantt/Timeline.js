@@ -1389,7 +1389,7 @@ anychart.ganttModule.TimeLine.prototype.progressBarPosition = function(opt_value
     return this;
   } else {
     anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
-        ['timeline.progressBarPosition()', 'timeline.tasks().progress().anchor() or timeline.groupingTasks().progress().anchor()'], true);
+        ['timeline.progressBarPosition()', 'timeline.tasks().progress().position() or timeline.groupingTasks().progress().position()'], true);
     return this.tasks().progress()['position'](opt_value);
   }
 };
