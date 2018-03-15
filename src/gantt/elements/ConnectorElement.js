@@ -50,6 +50,7 @@ anychart.ganttModule.elements.ConnectorElement = function(timeline) {
 
 };
 goog.inherits(anychart.ganttModule.elements.ConnectorElement, anychart.core.Base);
+anychart.core.settings.populateAliases(anychart.ganttModule.elements.ConnectorElement, ['fill', 'stroke'], 'normal');
 
 
 //endregion

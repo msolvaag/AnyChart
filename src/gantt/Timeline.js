@@ -1110,7 +1110,7 @@ anychart.ganttModule.TimeLine.prototype.parentLabels = function(opt_value) {
     return this;
   } else {
     anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null,
-        ['timeline.baselineLabels()', 'timeline.groupingTasks().labels()'], true);
+        ['timeline.parentLabels()', 'timeline.groupingTasks().labels()'], true);
     return this.groupingTasks().labels(opt_value);
   }
 };
