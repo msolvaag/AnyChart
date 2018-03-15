@@ -5812,6 +5812,7 @@ anychart.standalones.resourceTimeline = function() {
   proto['header'] = proto.header;
 
   proto['elements'] = proto.elements;
+  proto['connectors'] = proto.connectors;
   proto['tasks'] = proto.tasks;
   proto['milestones'] = proto.milestones;
   proto['groupingTasks'] = proto.groupingTasks;
