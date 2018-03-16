@@ -359,6 +359,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.levels = function(opt_indexOrV
  * @deprecated Since 8.2.0. Use levels(2) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.topLevel = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'levels(2)'], true);
   var level = this.levels(2);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
@@ -376,6 +377,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.topLevel = function(opt_value)
  * @deprecated Since 8.2.0. Use levels(1) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.midLevel = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'levels(1)'], true);
   var level = this.levels(1);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
@@ -393,6 +395,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.midLevel = function(opt_value)
  * @deprecated Since 8.2.0. Use levels(0) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.lowLevel = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'levels(0)'], true);
   var level = this.levels(0);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
@@ -443,6 +446,32 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.background = function(opt_valu
     return this;
   }
   return this.background_;
+};
+
+
+/**
+ * @param {acgraph.vector.Fill=} opt_value
+ * @return {anychart.ganttBaseModule.TimeLineHeader|acgraph.vector.Fill}
+ * @deprecated Since 8.2.0. Use background().fill() instead.
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.backgroundFill = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['backgroundFill()', 'background().fill()'], true);
+  if (goog.isDef(opt_value)) {
+    this.background_.enabled(true).fill(opt_value);
+    return this;
+  }
+  return /** @type {acgraph.vector.Fill} */(this.background_.fill());
+};
+
+
+/**
+ * @param {acgraph.vector.Stroke=} opt_value
+ * @return {acgraph.vector.Stroke|anychart.ganttBaseModule.TimeLineHeader}
+ * @deprecated Since 8.2.0. Use stroke() instead.
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.levelsSeparationStroke = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['levelsSeparationStroke()', 'stroke()'], true);
+  return this.stroke(opt_value);
 };
 
 
@@ -1273,26 +1302,28 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
     anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, config);
   }
 
+  // deprecated methods
+  if ('levelsSeparationStroke' in config) this.stroke(config['levelsSeparationStroke']);
+  if ('backgroundFill' in config) this.background_.enabled(true).fill(config['backgroundFill']);
+  var level = config['topLevel'];
+  if (level) {
+    this.levels(2, level);
+  }
+  level = config['midLevel'];
+  if (level) {
+    this.levels(1, level);
+  }
+  level = config['lowLevel'];
+  if (level) {
+    this.levels(0, level);
+  }
+  // end deprecated
+
   if ('background' in config) this.background_.setupInternal(!!opt_default, config['background']);
   if ('padding' in config) this.padding_.setupInternal(!!opt_default, config['padding']);
   //todo (blackart)
   if ('holidays' in config) this.holidays_.setupByJSON(config['holidays'], opt_default);
   if ('overlay' in config) this.overlay_.setupInternal(!!opt_default, config['overlay']);
-
-  var level = config['topLevel'];
-  if (level) {
-    this.levels(2, level);
-  }
-
-  level = config['midLevel'];
-  if (level) {
-    this.levels(1, level);
-  }
-
-  level = config['lowLevel'];
-  if (level) {
-    this.levels(0, level);
-  }
   
   var levels = config['levels'];
   if (goog.isArray(levels)) {
@@ -1413,7 +1444,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.enabled = functio
  * @param {number=} opt_fy .
  * @return {acgraph.vector.Fill|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for method chaining.
  */
-anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
   if (goog.isDef(opt_fillOrColorOrKeys)) {
     var val = acgraph.vector.normalizeFill.apply(null, arguments);
     if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.header_.fillOverrides_[this.index_]), val)) {
@@ -1422,7 +1453,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = functi
     }
     return this;
   }
-  return this.header_.fillOverrides_[this.index_];
+  return /** @type {acgraph.vector.Fill} */(anychart.utils.getFirstDefinedValue(this.header_.fillOverrides_[this.index_], this.header_.fill()));
 };
 
 
@@ -1435,7 +1466,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = functi
  * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
  * @return {acgraph.vector.Stroke|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for chaining.
  */
-anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
   if (goog.isDef(opt_strokeOrFill)) {
     var val = acgraph.vector.normalizeStroke.apply(null, arguments);
     if (!anychart.color.equals(this.header_.strokeOverrides_[this.index_], val)) {
@@ -1444,7 +1475,41 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationSt
     }
     return this;
   }
-  return this.header_.strokeOverrides_[this.index_];
+  return /** @type {acgraph.vector.Stroke} */(anychart.utils.getFirstDefinedValue(this.header_.strokeOverrides_[this.index_], this.header_.stroke()));
+};
+
+
+/**
+ * Gets/sets background fill.
+ * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
+ * @param {number=} opt_opacityOrAngleOrCx .
+ * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
+ * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
+ * @param {number=} opt_opacity .
+ * @param {number=} opt_fx .
+ * @param {number=} opt_fy .
+ * @return {acgraph.vector.Fill|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for method chaining.
+ * @deprecated Since 8.2.0. Use fill() instead.
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['tileFill()', 'fill()'], true);
+  return this.fill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+};
+
+
+/**
+ * Gets/sets a connector preview stroke.
+ * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
+ * @param {number=} opt_thickness .
+ * @param {string=} opt_dashpattern .
+ * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
+ * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
+ * @return {acgraph.vector.Stroke|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for chaining.
+ * @deprecated Since 8.2.0. Use stroke() instead.
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['tilesSeparationStroke()', 'stroke()'], true);
+  return this.stroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
 };
 
 
@@ -1453,8 +1518,8 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.serialize = funct
   var json = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.base(this, 'serialize');
 
   json['enabled'] = this.enabled();
-  json['tileFill'] = anychart.color.serialize(this.header_.fillOverrides_[this.index_]);
-  json['tilesSeparationStroke'] = anychart.color.serialize(this.header_.strokeOverrides_[this.index_]);
+  json['fill'] = anychart.color.serialize(this.header_.fillOverrides_[this.index_]);
+  json['stroke'] = anychart.color.serialize(this.header_.strokeOverrides_[this.index_]);
   json['labels'] = this.labels().serialize();
 
   return json;
@@ -1465,8 +1530,8 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.serialize = funct
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.base(this, 'setupByJSON', config);
 
-  this.tileFill(config['tileFill']);
-  this.tilesSeparationStroke(config['tilesSeparationStroke']);
+  this.fill(/** @type {acgraph.vector.Fill} */(anychart.utils.getFirstDefinedValue(config['fill'], config['tilesFill'])));
+  this.stroke(/** @type {acgraph.vector.Stroke} */(anychart.utils.getFirstDefinedValue(config['stroke'], config['tilesSeparationStroke'])));
   this.enabled(config['enabled']);
   this.labels().setupInternal(!!opt_default, config['labels']);
 };
@@ -1497,16 +1562,28 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.disposeInternal =
   proto['holidays'] = proto.holidays;
   proto['overlay'] = proto.overlay;
   proto['levels'] = proto.levels;
+
+  // support or old Gantt API
+  proto['backgroundFill'] = proto.backgroundFill;
+  proto['levelsSeparationStroke'] = proto.levelsSeparationStroke;
   proto['topLevel'] = proto.topLevel;
   proto['midLevel'] = proto.midLevel;
   proto['lowLevel'] = proto.lowLevel;
   // descriptors
-  // proto['fill'] = proto.fill;
+  // proto['format'] = proto.format;
   // proto['stroke'] = proto.stroke;
+  // proto['fill'] = proto.fill;
   // proto['levelHeight'] = proto.levelHeight;
+  // proto['drawTopLine'] = proto.drawTopLine;
+  // proto['drawRightLine'] = proto.drawRightLine;
+  // proto['drawBottomLine'] = proto.drawBottomLine;
+  // proto['drawLeftLine'] = proto.drawLeftLine;
 
   proto = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype;
   proto['labels'] = proto.labels;
+  proto['fill'] = proto.fill;
+  proto['stroke'] = proto.stroke;
+  proto['enabled'] = proto.enabled;
   proto['tileFill'] = proto.tileFill;
   proto['tilesSeparationStroke'] = proto.tilesSeparationStroke;
 })();

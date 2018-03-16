@@ -4552,8 +4552,8 @@ anychart.ganttModule.TimeLine.prototype.initDom = function() {
  * @override
  */
 anychart.ganttModule.TimeLine.prototype.boundsInvalidated = function() {
-  this.header().parentBounds(new anychart.math.Rect(this.pixelBoundsCache.left, this.pixelBoundsCache.top,
-          this.pixelBoundsCache.width, /** @type {number} */ (this.headerHeight())));
+  this.header().bounds(this.pixelBoundsCache.left, this.pixelBoundsCache.top,
+          this.pixelBoundsCache.width, /** @type {number} */ (this.headerHeight()));
   this.redrawHeader = true;
 };
 
