@@ -4604,7 +4604,6 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
   }
 
   if (this.redrawHeader) {
-    debugger;
     var header = this.header();
     var levels = this.scale_.getLevelsData();
     header.setLevels(levels);
