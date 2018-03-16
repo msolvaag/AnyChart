@@ -447,8 +447,8 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
       }
     }
     if (lastIndex > last) {
-      currKey = goog.math.clamp(lastKey, boundariesInfo[0], boundariesInfo[1])
-      prevKey = goog.math.clamp(this.keys_[last].key, boundariesInfo[0], boundariesInfo[1]);;
+      currKey = goog.math.clamp(lastKey, boundariesInfo[0], boundariesInfo[1]);
+      prevKey = goog.math.clamp(this.keys_[last].key, boundariesInfo[0], boundariesInfo[1]);
       range = currKey - prevKey;
       if (!isNaN(range)) {
         estRange = anychart.utils.estimateInterval(range);
