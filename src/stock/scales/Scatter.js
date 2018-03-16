@@ -120,6 +120,7 @@ anychart.stockModule.scales.Scatter = function(chartOrScroller) {
 goog.inherits(anychart.stockModule.scales.Scatter, anychart.core.Base);
 
 
+
 /**
  * @typedef {Array<{minor:(string|{unit:anychart.enums.Interval,count:number}),major:(string|{unit:anychart.enums.Interval,count:number})}>}
  */

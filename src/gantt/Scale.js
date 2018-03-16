@@ -153,6 +153,8 @@ anychart.ganttModule.Scale = function() {
    */
   this.emptyMax_ = NaN;
 
+  this.ranges_ = this.normalizeLevels_(anychart.ganttModule.Scale.DEFAULT_LEVELS);
+
 };
 goog.inherits(anychart.ganttModule.Scale, anychart.core.Base);
 
@@ -163,6 +165,18 @@ goog.inherits(anychart.ganttModule.Scale, anychart.core.Base);
  */
 anychart.ganttModule.Scale.prototype.SUPPORTED_SIGNALS =
     anychart.Signal.NEEDS_RECALCULATION;
+
+
+/**
+ * @typedef {Array.<Array.<(string|{unit:anychart.enums.Interval,count:number})>>}
+ */
+anychart.ganttModule.Scale.ZoomLevelsSettings;
+
+
+/**
+ * @typedef {Array<{range:number,levels:Array.<{unit:anychart.enums.Interval,count:number}>}>}
+ */
+anychart.ganttModule.Scale.ZoomLevelsSettingsRep;
 
 
 /**
@@ -235,56 +249,15 @@ anychart.ganttModule.Scale.createFormat_ = function(pattern, opt_template) {
 
 
 /**
- * Millisecond ranges.
- * Literally this means that if current scale range suits to RANGES[i], than index i will be
- * used to select all the other settings from TOP_ - MID_ - LOW_INTERVALS and ..TEXT_FORMATTERS.
- * @type {Array.<number>}
+ *
+ * @type {Array.<Array.<anychart.ganttModule.Scale.ZoomLevelsSettings>>}
  */
-anychart.ganttModule.Scale.RANGES = [
-  (anychart.ganttModule.Scale.MILLISECONDS_IN_HOUR * 4),       //0
-  (anychart.ganttModule.Scale.MILLISECONDS_IN_DAY * 3),        //1
-  (anychart.ganttModule.Scale.MILLISECONDS_IN_DAY * 31),       //2
-  (anychart.ganttModule.Scale.MILLISECONDS_IN_DAY * 365),      //3
-  (anychart.ganttModule.Scale.MILLISECONDS_IN_DAY * 365 * 10)  //4
-];
-
-
-/**
- * Top intervals.
- * @type {Array.<{unit: anychart.enums.Interval, count: number}>}
- */
-anychart.ganttModule.Scale.TOP_INTERVALS = [
-  {unit: anychart.enums.Interval.DAY, count: 1},    //0
-  {unit: anychart.enums.Interval.WEEK, count: 1},    //1
-  {unit: anychart.enums.Interval.MONTH, count: 1},  //2
-  {unit: anychart.enums.Interval.YEAR, count: 1},   //3
-  {unit: anychart.enums.Interval.YEAR, count: 10}   //4
-];
-
-
-/**
- * Middle intervals.
- * @type {Array.<{unit: anychart.enums.Interval, count: number}>}
- */
-anychart.ganttModule.Scale.MID_INTERVALS = [
-  {unit: anychart.enums.Interval.HOUR, count: 1},  //0
-  {unit: anychart.enums.Interval.DAY, count: 1},   //1
-  {unit: anychart.enums.Interval.WEEK, count: 1},   //2
-  {unit: anychart.enums.Interval.QUARTER, count: 1}, //3
-  {unit: anychart.enums.Interval.YEAR, count: 1}   //4
-];
-
-
-/**
- * Low intervals.
- * @type {Array.<{unit: anychart.enums.Interval, count: number}>}
- */
-anychart.ganttModule.Scale.LOW_INTERVALS = [
-  {unit: anychart.enums.Interval.MINUTE, count: 10}, //0
-  {unit: anychart.enums.Interval.HOUR, count: 2},    //1
-  {unit: anychart.enums.Interval.DAY, count: 1},     //2
-  {unit: anychart.enums.Interval.MONTH, count: 1},    //3
-  {unit: anychart.enums.Interval.QUARTER, count: 1}    //4
+anychart.ganttModule.Scale.DEFAULT_LEVELS = [
+  [{unit: anychart.enums.Interval.MINUTE, count: 10}, {unit: anychart.enums.Interval.HOUR, count: 1}, {unit: anychart.enums.Interval.DAY, count: 1}],
+  [{unit: anychart.enums.Interval.HOUR, count: 2}, {unit: anychart.enums.Interval.DAY, count: 1}, {unit: anychart.enums.Interval.WEEK, count: 1}],
+  [{unit: anychart.enums.Interval.DAY, count: 1}, {unit: anychart.enums.Interval.WEEK, count: 1}, {unit: anychart.enums.Interval.MONTH, count: 1}],
+  [{unit: anychart.enums.Interval.MONTH, count: 1}, {unit: anychart.enums.Interval.QUARTER, count: 1}, {unit: anychart.enums.Interval.YEAR, count: 1}],
+  [{unit: anychart.enums.Interval.QUARTER, count: 1}, {unit: anychart.enums.Interval.YEAR, count: 1}, {unit: anychart.enums.Interval.YEAR, count: 10}]
 ];
 
 
@@ -627,7 +600,7 @@ anychart.ganttModule.Scale.prototype.getTicks = function(pixStart, pixEnd, unit,
  */
 anychart.ganttModule.Scale.prototype.getSimpleTicks = function(unit, count) {
   return goog.array.map(this.getTicks(NaN, NaN, unit, count), function(item) {
-    return item['start'];
+    return item['end'];
   });
 };
 
@@ -716,23 +689,20 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
   var min = r['min'];
   var max = r['max'];
 
-  var range = max - min;
-  var ranges = anychart.ganttModule.Scale.RANGES;
-  var index = -1;
-  for (var i = 0; i < ranges.length; i++) {
-    if (range <= ranges[i]) {
-      index = i;
+  var minorTickRange = (max - min) / 20;
+  var last = this.ranges_.length - 1;
+  var row;
+  for (var i = 0; i < last; i++) {
+    if (minorTickRange <= this.ranges_[i].range) {
+      row = this.ranges_[i];
       break;
     }
   }
+  if (!row) {
+    row = this.ranges_[last];
+  }
 
-  if (index < 0) index = ranges.length - 1;
-
-  return [
-    anychart.ganttModule.Scale.LOW_INTERVALS[index],
-    anychart.ganttModule.Scale.MID_INTERVALS[index],
-    anychart.ganttModule.Scale.TOP_INTERVALS[index]
-  ];
+  return /** @type {Array.<anychart.ganttBaseModule.TimeLineHeader.Level>} */(row.levels);
 };
 
 
@@ -911,6 +881,89 @@ anychart.ganttModule.Scale.prototype.zoomTo = function(startOrUnit, opt_endOrCou
 
 
 /**
+ * Zoom levels settings.
+ * @param {anychart.ganttModule.Scale.ZoomLevelsSettings=} opt_value
+ * @return {anychart.ganttModule.Scale.ZoomLevelsSettings|anychart.ganttModule.Scale}
+ */
+anychart.ganttModule.Scale.prototype.zoomLevels = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var value = this.normalizeLevels_(opt_value);
+    var same = value.length == this.ranges_.length &&
+        goog.array.every(value, function(item, index) {
+          var levels = this.ranges_[index];
+          return item.length == levels.length &&
+              goog.array.every(item, function(item, index) {
+                return item.unit == levels[index].unit &&
+                    item.count == levels[index].count;
+              });
+        }, this);
+    if (!same) {
+      this.ranges_ = value;
+      this.consistent = false;
+      this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
+    }
+    return this;
+  }
+  return /** @type {anychart.ganttModule.Scale.ZoomLevelsSettings} */(
+      goog.array.map(this.ranges_, function(item) {
+        return goog.array.map(item.levels, function(level) {
+          return {
+            'unit': level.unit,
+            'count': level.count
+          }
+        });
+      }));
+};
+
+
+/**
+ * Normalizes anychart.ganttModule.Scale.ZoomLevelsSettings-like representation to anychart.ganttModule.Scale.ZoomLevelsSettingsRep.
+ * @param {*} value
+ * @return {Array.<anychart.ganttModule.Scale.ZoomLevelsSettingsRep>}
+ * @private
+ */
+anychart.ganttModule.Scale.prototype.normalizeLevels_ = function(value) {
+  var res = [];
+  if (goog.isArray(value)) {
+    for (var i = 0; i < value.length; i++) {
+      var zoomLevel = value[i];
+      if (goog.isArray(zoomLevel)) {
+        var levels = [];
+        for (var j = 0; j < zoomLevel.length; j++) {
+          var val = zoomLevel[j];
+          var unit = null,
+              count;
+          if (goog.isString(val)) {
+            unit = anychart.enums.normalizeInterval(val, null);
+            count = 1;
+          } else if (goog.isObject(val)) {
+            unit = anychart.enums.normalizeInterval(val['unit'], null);
+            count = anychart.utils.normalizeToNaturalNumber(val['count']);
+          }
+          if (unit) {
+            levels.push({
+              unit: unit,
+              count: count
+            });
+          }
+        }
+        if (levels.length) {
+          res.push({
+            range: anychart.utils.getIntervalRange(/** @type {anychart.enums.Interval} */(levels[0].unit), /** @type {number} */(levels[0].count)),
+            levels: levels
+          });
+        }
+      }
+    }
+    res.sort(function(a, b) {
+      return a.range - b.range;
+    });
+  }
+  return res;
+};
+
+
+/**
  * Performs scroll by ratio passed.
  * @param {number} ratio - Ratio.
  * @return {anychart.ganttModule.Scale} - Itself for method chaining.
@@ -1053,6 +1106,7 @@ anychart.ganttModule.Scale.prototype.setupByJSON = function(config, opt_default)
   proto['softMaximum'] = proto.softMaximum;
   proto['getRange'] = proto.getRange;
   proto['getTotalRange'] = proto.getTotalRange;
+  proto['zoomLevels'] = proto.zoomLevels;
   // proto['zoomIn'] = proto.zoomIn;
   // proto['zoomOut'] = proto.zoomOut;
   // proto['zoomTo'] = proto.zoomTo;
