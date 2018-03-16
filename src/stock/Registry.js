@@ -442,7 +442,7 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
           interval.count++;
           interval.range += range;
         } else {
-          intervals[estRange.unit] = {count: 1, range: range};
+          intervals[estRange.unit] = {count: 1, range: range, unit: estRange.unit};
         }
       }
     }
@@ -457,7 +457,7 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
           interval.count++;
           interval.range += range;
         } else {
-          intervals[estRange.unit] = {count: 1, range: range};
+          intervals[estRange.unit] = {count: 1, range: range, unit: estRange.unit};
         }
       }
     }
