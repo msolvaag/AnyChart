@@ -1,4 +1,5 @@
 goog.provide('anychart.linearGaugeModule.pointers.Led');
+goog.require('anychart.color');
 goog.require('anychart.linearGaugeModule.pointers.Base');
 
 
@@ -30,10 +31,11 @@ anychart.linearGaugeModule.pointers.Led = function() {
   this.count_ = null;
 
   /**
-   * @type {Object.<string, acgraph.vector.Path>}
+   * Contains path and it's fill by color hash.
+   * @type {Object.<string, Array>}
    * @private
    */
-  this.colorsToPath_ = {};
+  this.coloringMeta_ = {};
 
   /** @inheritDoc */
   this.BOUNDS_DEPENDENT_STATES |= anychart.ConsistencyState.GAUGE_COLOR_SCALE;
@@ -86,10 +88,10 @@ anychart.linearGaugeModule.pointers.Led.prototype.createShapes = function() {
  * Drops colorsToPath cache.
  */
 anychart.linearGaugeModule.pointers.Led.prototype.dropColorsToPath = function() {
-  for (var color in this.colorsToPath_) {
-    goog.dispose(this.colorsToPath_[color]);
+  for (var colorHash in this.coloringMeta_) {
+    goog.dispose(this.coloringMeta_[colorHash][0]);
   }
-  this.colorsToPath_ = {};
+  this.coloringMeta_ = {};
 };
 
 
@@ -179,25 +181,20 @@ anychart.linearGaugeModule.pointers.Led.prototype.drawVertical = function() {
       var dimmer = this.getOption('dimmer');
       color = /** @type {string} */(goog.isFunction(dimmer) ? dimmer.call({'color' : color}, color) : dimmer);
     }
+    var colorHash = anychart.color.hash(color);
     if (goog.isNull(color))
       color = 'none';
-    if (goog.isNull(currentColor)) {
+
+    if (goog.isNull(currentColor) || (color != currentColor)) {
       currentColor = color;
-      if (!(color in this.colorsToPath_))
-        this.colorsToPath_[color] = this.rootLayer.path().clear();
-      else
-        path = this.colorsToPath_[color].clear();
-      path = this.colorsToPath_[color];
-    } else {
-      if (color != currentColor) {
-        currentColor = color;
-        if (!(color in this.colorsToPath_))
-          this.colorsToPath_[color] = this.rootLayer.path().clear();
-        else
-          path = this.colorsToPath_[color].clear();
+      if (!(colorHash in this.coloringMeta_)) {
+        this.coloringMeta_[colorHash] = [this.rootLayer.path(), color];
+      } else {
+        this.coloringMeta_[colorHash][0].clear();
       }
-      path = this.colorsToPath_[color];
     }
+
+    path = this.coloringMeta_[colorHash][0];
 
     path
         .moveTo(left, top)
@@ -230,8 +227,10 @@ anychart.linearGaugeModule.pointers.Led.prototype.drawHorizontal = anychart.line
 
 /** @inheritDoc */
 anychart.linearGaugeModule.pointers.Led.prototype.colorizePointer = function(pointerState) {
-  for (var color in this.colorsToPath_) {
-    this.colorsToPath_[color].stroke('none').fill(color);
+  var meta;
+  for (var colorHash in this.coloringMeta_) {
+    meta = this.coloringMeta_[colorHash];
+    meta[0].stroke('none').fill(meta[1]);
   }
 
   var hatch = /** @type {acgraph.vector.Fill} */ (this.hatchFillResolver(this, pointerState, false));
