@@ -12,6 +12,7 @@ goog.require('anychart.enums');
 goog.require('anychart.ganttModule.BaseGrid');
 goog.require('anychart.ganttModule.Column');
 goog.require('anychart.ganttModule.Controller');
+goog.require('anychart.ganttModule.DataGridButton');
 goog.require('anychart.ganttModule.ScrollBar');
 goog.require('anychart.math.Rect');
 goog.require('anychart.treeDataModule.Tree');
@@ -100,6 +101,20 @@ anychart.ganttModule.DataGrid = function(opt_controller) {
    * @private
    */
   this.columnsWidthsCache_ = [];
+
+  /**
+   *
+   * @type {?function():(Object|undefined)}
+   * @private
+   */
+  this.onEditStart_ = null;
+
+  /**
+   *
+   * @type {?function():(Object|undefined)}
+   * @private
+   */
+  this.onEditEnd_ = null;
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['columnStroke', anychart.ConsistencyState.DATA_GRID_GRIDS, anychart.Signal.NEEDS_REDRAW],
@@ -353,6 +368,36 @@ anychart.ganttModule.DataGrid.prototype.resolveHeaderFill = function() {
 
 
 //endregion
+//region -- Edit input editing.
+/**
+ *
+ * @param {(function():(Object|undefined))=} opt_value - On edit start callback.
+ * @return {anychart.ganttModule.DataGrid|function():(Object|undefined)}
+ */
+anychart.ganttModule.DataGrid.prototype.onEditStart = function(opt_value) {
+  if (goog.isFunction(opt_value)) {
+    this.onEditStart_ = opt_value;
+    return this;
+  }
+  return this.onEditStart_;
+};
+
+
+/**
+ *
+ * @param {(function():(Object|undefined))=} opt_value - On edit end callback.
+ * @return {anychart.ganttModule.DataGrid|function():(Object|undefined)}
+ */
+anychart.ganttModule.DataGrid.prototype.onEditEnd = function(opt_value) {
+  if (goog.isFunction(opt_value)) {
+    this.onEditEnd_ = opt_value;
+    return this;
+  }
+  return this.onEditEnd_;
+};
+
+
+//endregion
 
 
 /**
@@ -471,7 +516,7 @@ anychart.ganttModule.DataGrid.prototype.addSplitter_ = function() {
  * @return {(anychart.ganttModule.Column|anychart.ganttModule.DataGrid)} - Column by index of itself for method chaining if used
  *  like setter.
  */
-anychart.ganttModule.DataGrid.prototype.column = function(opt_indexOrValue, opt_value) {
+anychart.ganttModule.DataGrid.prototype.columns = function(opt_indexOrValue, opt_value) {
   var index, value;
   var newColumn = false;
   index = anychart.utils.toNumber(opt_indexOrValue);
@@ -485,7 +530,7 @@ anychart.ganttModule.DataGrid.prototype.column = function(opt_indexOrValue, opt_
 
   var column = this.columns_[index];
   if (!column) {
-    column = new anychart.ganttModule.Column(this);
+    column = new anychart.ganttModule.Column(this, index);
     column.setup(this.defaultColumnSettings());
     column.listenSignals(this.columnInvalidated_, this);
     this.registerDisposable(column);
@@ -523,6 +568,21 @@ anychart.ganttModule.DataGrid.prototype.column = function(opt_indexOrValue, opt_
     return column;
   }
 
+};
+
+
+/**
+ * Gets column by index or creates a new one if column doesn't exist yet.
+ * If works like setter, sets a column by index.
+ * @param {(number|anychart.ganttModule.Column|string)=} opt_indexOrValue - Column index or column.
+ * @param {(anychart.ganttModule.Column|Object)=} opt_value - Column to be set.
+ * @deprecated since 8.2.0 use dataGrid.columns() instead. DVF-3625
+ * @return {(anychart.ganttModule.Column|anychart.ganttModule.DataGrid)} - Column by index of itself for method chaining if used
+ *  like setter.
+ */
+anychart.ganttModule.DataGrid.prototype.column = function(opt_indexOrValue, opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['dataGrid.column()', 'dataGrid.columns()'], true);
+  return this.columns(opt_indexOrValue, opt_value);
 };
 
 
@@ -839,12 +899,16 @@ anychart.ganttModule.DataGrid.prototype.specialInvalidated = function() {
  * @private
  */
 anychart.ganttModule.DataGrid.prototype.editInputSubmitHandler_ = function(e) {
-  var val = e['value'];
-  var onEdit = this.editColumn_.onEdit();
-  // console.log('from submit', this.submitted_ ? 'NOT WRITING' : 'WRITING');
-  if (goog.isFunction(onEdit)) {
-    var changes = onEdit(val);
-    if (changes && goog.typeOf(changes) == 'object' && this.editItem_) {
+  var context = {
+    'columnIndex': this.editColumn_.getIndex(),
+    'item': this.editItem_,
+    'value': e['value']
+  };
+  if (goog.isFunction(this.onEditEnd_)) {
+    var result = this.onEditEnd_.call(context);
+    // var changes = onEdit(val);
+    if (result && goog.typeOf(result) == 'object' && !(result['cancelEdit']) && goog.typeOf(result['itemMap']) == 'object' && this.editItem_) {
+      var changes = result['itemMap'];
       var tree = this.controller.data();//this.controller.data() can be Tree or TreeView.
       tree.suspendSignalsDispatching();
       for (var key in changes) {
@@ -880,7 +944,6 @@ anychart.ganttModule.DataGrid.prototype.editInputBlurHandler_ = function(e) {
  */
 anychart.ganttModule.DataGrid.prototype.editInputEscapeHandler_ = function(e) {
   this.escaped_ = true;
-  // console.log('From escape');
 };
 
 
@@ -1016,9 +1079,23 @@ anychart.ganttModule.DataGrid.prototype.addMouseDblClick = function(e) {
         var colLabelTexts = this.editColumn_.getLabelTexts();
         usedIndex = Math.min(hoveredIndex, colLabelTexts.length - 1);
         val = colLabelTexts[usedIndex];
+
+        var context = {
+          'columnIndex': this.editColumn_.getIndex(),
+          'item': this.editItem_,
+          'value': val
+        };
+
+        if (goog.isFunction(this.onEditStart_)) {
+          var result = this.onEditStart_.call(context);
+          if (result && goog.typeOf(result) == 'object' && !(result['cancelEdit']) && this.editItem_) {
+            var valueToShow = goog.isDefAndNotNull(result['value']) ? result['value'] : val;
+            this.editInput_.show(valueToShow, bounds);
+            this.editInput_.focusAndSelect();
+          }
+        }
       }
-      this.editInput_.show(val, bounds);
-      this.editInput_.focusAndSelect();
+
     }
   }
 };
@@ -1057,12 +1134,53 @@ anychart.ganttModule.DataGrid.prototype.mouseOutMove = function(event) {
 };
 
 
+/**
+ * Getter/setter for datagrid button settings.
+ * @param {Object=} opt_value
+ * @return {anychart.ganttModule.DataGrid|anychart.ganttModule.DataGridButton}
+ */
+anychart.ganttModule.DataGrid.prototype.buttons = function(opt_value) {
+  if (!this.buttons_) {
+    this.buttons_ = new anychart.ganttModule.DataGridButton(this);
+    this.buttons_.listenSignals(this.buttonsInvalidated_, this);
+  }
+  if (goog.isDef(opt_value)) {
+    this.buttons_.setup(opt_value);
+    return this;
+  }
+
+  return this.buttons_;
+};
+
+
+/**
+ * Buttons invalidation handler.
+ * @param {anychart.SignalEvent} e
+ * @private
+ */
+anychart.ganttModule.DataGrid.prototype.buttonsInvalidated_ = function(e) {
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    //var buttons = this.buttons();
+    //var json = buttons.serialize();
+    this.buttons().markConsistent(anychart.ConsistencyState.ALL);
+    this.positionInvalidated();
+  }
+};
+
+
 /** @inheritDoc */
 anychart.ganttModule.DataGrid.prototype.serialize = function() {
   var json = anychart.ganttModule.DataGrid.base(this, 'serialize');
 
   anychart.core.settings.serialize(this, anychart.ganttModule.DataGrid.COLOR_DESCRIPTORS, json);
   json['horizontalOffset'] = this.horizontalOffset();
+
+  json['buttons'] = this.buttons().serialize();
+  delete json['buttons']['normal'];
+  delete json['buttons']['hovered'];
+  delete json['buttons']['expanded'];
+  delete json['buttons']['collapsed'];
+  delete json['buttons']['padding'];
 
   json['columns'] = [];
 
@@ -1085,13 +1203,18 @@ anychart.ganttModule.DataGrid.prototype.setupByJSON = function(config, opt_defau
   anychart.core.settings.deserialize(this, anychart.ganttModule.DataGrid.COLOR_DESCRIPTORS, config, opt_default);
   this.horizontalOffset(config['horizontalOffset']);
 
+  this.buttons(config['buttons']);
+
   if ('defaultColumnSettings' in config)
     this.defaultColumnSettings(config['defaultColumnSettings']);
+
+  this.onEditStart(config['onEditStart']);
+  this.onEditEnd(config['onEditEnd']);
 
   if ('columns' in config) {
     for (var i = 0, l = config['columns'].length; i < l; i++) {
       var col = config['columns'][i];
-      if (col) this.column(i, col);
+      if (col) this.columns(i, col);
     }
   }
 
@@ -1162,6 +1285,9 @@ anychart.standalones.dataGrid = function() {
 
 
 //exports
+/**
+ * @suppress {deprecated}
+ */
 (function() {
   var proto = anychart.ganttModule.DataGrid.prototype;
 
@@ -1176,7 +1302,10 @@ anychart.standalones.dataGrid = function() {
   //proto['headerFill'] = proto.headerFill;
 
   proto['editing'] = proto.editing;
+
   proto['column'] = proto.column;
+  proto['columns'] = proto.columns;
+
   proto['data'] = proto.data;
   proto['startIndex'] = proto.startIndex;
   proto['endIndex'] = proto.endIndex;
@@ -1189,6 +1318,10 @@ anychart.standalones.dataGrid = function() {
   proto['editStructurePreviewFill'] = proto.editStructurePreviewFill;
   proto['editStructurePreviewStroke'] = proto.editStructurePreviewStroke;
   proto['editStructurePreviewDashStroke'] = proto.editStructurePreviewDashStroke;
+  proto['buttons'] = proto.buttons;
+
+  proto['onEditStart'] = proto.onEditStart;
+  proto['onEditEnd'] = proto.onEditEnd;
 
 
   proto = anychart.standalones.DataGrid.prototype;
@@ -1201,4 +1334,5 @@ anychart.standalones.dataGrid = function() {
   proto['headerHeight'] = proto.headerHeight;
   proto['verticalScrollBar'] = proto.verticalScrollBar;
   proto['defaultRowHeight'] = proto.defaultRowHeight;
+  proto['buttons'] = proto.buttons;
 })();

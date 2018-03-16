@@ -3,7 +3,7 @@ goog.provide('anychart.ganttModule.Column');
 goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.ui.LabelsFactory');
 goog.require('anychart.core.ui.Title');
-goog.require('anychart.ganttModule.CollapseButton');
+goog.require('anychart.ganttModule.DataGridButton');
 goog.require('anychart.math.Rect');
 
 
@@ -17,11 +17,12 @@ goog.require('anychart.math.Rect');
  * 5) Has vertical offset.
  *
  * @param {anychart.ganttModule.DataGrid} dataGrid - Column's data grid.
+ * @param {number} index - Column's index in DG.
  *
  * @constructor
  * @extends {anychart.core.VisualBase}
  */
-anychart.ganttModule.Column = function(dataGrid) {
+anychart.ganttModule.Column = function(dataGrid, index) {
   anychart.ganttModule.Column.base(this, 'constructor');
 
   /**
@@ -30,6 +31,13 @@ anychart.ganttModule.Column = function(dataGrid) {
    * @private
    */
   this.dataGrid_ = dataGrid;
+
+  /**
+   * Column index.
+   * @type {number}
+   * @private
+   */
+  this.index_ = index;
 
   /**
    * Column's labels factory.
@@ -139,17 +147,10 @@ anychart.ganttModule.Column = function(dataGrid) {
 
   /**
    * Pool of collapse/expand buttons.
-   * @type {Array.<anychart.ganttModule.CollapseButton>}
+   * @type {Array.<anychart.ganttModule.DataGridButton>}
    * @private
    */
   this.buttons_ = [];
-
-
-  /**
-   * @type {function(string):(undefined|Object.<string, *>)}
-   * @private
-   */
-  this.onEdit_ = goog.nullFunction;
 
   /**
    * Labels text values.
@@ -163,7 +164,7 @@ anychart.ganttModule.Column = function(dataGrid) {
    * @type {function(anychart.core.ui.LabelsFactory.Label, anychart.treeDataModule.Tree.DataItem)}
    * @private
    */
-  this.cellTextSettingsOverrider_ = this.defaultCellTextSettingsOverrider_;
+  this.labelsOverrider_ = this.defaultlabelsOverrider_;
 
   this.setParentEventTarget(this.dataGrid_);
 
@@ -186,7 +187,7 @@ anychart.ganttModule.Column.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.ConsistencyState.APPEARANCE |
     anychart.ConsistencyState.DATA_GRID_COLUMN_TITLE |
     anychart.ConsistencyState.DATA_GRID_COLUMN_POSITION |
-    anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON_CURSOR;
+    anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON;
 
 
 /**
@@ -276,7 +277,16 @@ anychart.ganttModule.Column.prototype.depthPaddingMultiplier = function(opt_valu
  * @param {anychart.treeDataModule.Tree.DataItem} treeDataItem - Incoming tree data item.
  * @private
  */
-anychart.ganttModule.Column.prototype.defaultCellTextSettingsOverrider_ = goog.nullFunction;
+anychart.ganttModule.Column.prototype.defaultlabelsOverrider_ = goog.nullFunction;
+
+
+/**
+ * Gets column index.
+ * @return {number}
+ */
+anychart.ganttModule.Column.prototype.getIndex = function() {
+  return this.index_;
+};
 
 
 /**
@@ -289,22 +299,6 @@ anychart.ganttModule.Column.prototype.format = function(opt_value) {
     anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.format()', 'column.labels().format()'], true);
   var l = /** @type {anychart.core.ui.LabelsFactory} */ (this.labels());
   return l.format(opt_value);
-};
-
-
-/**
- * Getter/setter for onEdit callback.
- * @param {(function(string):(undefined|Object.<string, *>))=} opt_value - onEdit callback.
- * @return {(function(string):(undefined|Object.<string, *>)|anychart.ganttModule.Column)}
- */
-anychart.ganttModule.Column.prototype.onEdit = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    this.onEdit_ = opt_value;
-
-    //Doesn't invalidate anything.
-    return this;
-  }
-  return this.onEdit_;
 };
 
 
@@ -352,8 +346,7 @@ anychart.ganttModule.Column.prototype.labels = function(opt_value) {
  * @return {(anychart.ganttModule.Column|anychart.core.ui.LabelsFactory)} - Current value or itself for method chaining.
  */
 anychart.ganttModule.Column.prototype.cellTextSettings = function(opt_value) {
-  if (goog.isDef(opt_value))
-    anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.cellTextSettings()', 'column.labels()'], true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.cellTextSettings()', 'column.labels()'], true);
   return this.labels(opt_value);
 };
 
@@ -376,14 +369,27 @@ anychart.ganttModule.Column.prototype.labelsInvalidated_ = function(event) {
  *  overrider function.
  * @return {(anychart.ganttModule.Column|function(anychart.core.ui.LabelsFactory.Label, anychart.treeDataModule.Tree.DataItem))} - Current value or itself for method chaining.
  */
-anychart.ganttModule.Column.prototype.cellTextSettingsOverrider = function(opt_value) {
+anychart.ganttModule.Column.prototype.labelsOverrider = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    this.cellTextSettingsOverrider_ = opt_value;
+    this.labelsOverrider_ = opt_value;
     //TODO (A.Kudryavtsev): WE invalidate position because labels factory work that way: must clear and redraw all labels.
     this.invalidate(anychart.ConsistencyState.DATA_GRID_COLUMN_POSITION, anychart.Signal.NEEDS_REDRAW);
     return this;
   }
-  return this.cellTextSettingsOverrider_;
+  return this.labelsOverrider_;
+};
+
+
+/**
+ * Gets/sets cells text settings overrider.
+ * @param {function(anychart.core.ui.LabelsFactory.Label, anychart.treeDataModule.Tree.DataItem)=} opt_value - New text settings
+ *  overrider function.
+ * @deprecated since 8.2.0 use column.labelsOverrider() instead. DVF-3625
+ * @return {(anychart.ganttModule.Column|function(anychart.core.ui.LabelsFactory.Label, anychart.treeDataModule.Tree.DataItem))} - Current value or itself for method chaining.
+ */
+anychart.ganttModule.Column.prototype.cellTextSettingsOverrider = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['column.cellTextSettingsOverrider()', 'column.labelsOverrider()'], true);
+  return this.labelsOverrider(opt_value);
 };
 
 
@@ -563,17 +569,16 @@ anychart.ganttModule.Column.prototype.height = function(opt_value) {
  * Getter/setter for buttonCursor.
  * @param {(anychart.enums.Cursor|string)=} opt_value buttonCursor.
  * @return {anychart.enums.Cursor|anychart.ganttModule.Column} buttonCursor or self for chaining.
+ * @deprecated since 8.2.0. Use anychart.core.ui.DataGrid#buttons().cursor() instead
  */
 anychart.ganttModule.Column.prototype.buttonCursor = function(opt_value) {
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['buttonCursor()', 'dataGrid.buttons().cursor()'], true);
+  var buttons = this.dataGrid_.buttons();
   if (goog.isDef(opt_value)) {
-    opt_value = anychart.enums.normalizeCursor(opt_value, anychart.enums.Cursor.DEFAULT);
-    if (this.buttonCursor_ != opt_value) {
-      this.buttonCursor_ = opt_value;
-      this.invalidate(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON_CURSOR, anychart.Signal.NEEDS_REDRAW);
-    }
+    buttons['cursor'](opt_value);
     return this;
   }
-  return this.buttonCursor_;
+  return buttons['cursor'](opt_value);
 };
 
 
@@ -616,6 +621,17 @@ anychart.ganttModule.Column.prototype.calculateBounds = function() {
 
 
 /**
+ * Button invalidation handler.
+ * @param {anychart.SignalEvent} event
+ * @private
+ */
+anychart.ganttModule.Column.prototype.buttonInvalidated_ = function(event) {
+  if (event.hasSignal(anychart.Signal.NEEDS_REDRAW))
+    this.invalidate(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON, anychart.Signal.NEEDS_REDRAW);
+};
+
+
+/**
  * Draws data grid column.
  * @return {anychart.ganttModule.Column} - Itself for method chaining.
  */
@@ -654,6 +670,26 @@ anychart.ganttModule.Column.prototype.draw = function() {
       this.markConsistent(anychart.ConsistencyState.BOUNDS);
     }
 
+    var data, startIndex, endIndex, item, i, counter, button;
+    if (this.hasInvalidationState(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON)) {
+      data = this.dataGrid_.getVisibleItems();
+      startIndex = /** @type {number} */(this.dataGrid_.startIndex());
+      endIndex = /** @type {number} */(this.dataGrid_.endIndex());
+      counter = -1;
+      for (i = startIndex; i <= endIndex; i++) {
+        item = data[i];
+        if (!item) break;
+
+        if (this.collapseExpandButtons_ && item.numChildren()) {
+          counter++;
+          button = this.buttons_[counter];
+          if (button)
+            button.draw();
+        }
+      }
+      this.markConsistent(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON);
+    }
+
     if (this.hasInvalidationState(anychart.ConsistencyState.DATA_GRID_COLUMN_POSITION)) {
       var headerHeight = /** @type {number} */ (this.dataGrid_.headerHeight());
 
@@ -674,9 +710,9 @@ anychart.ganttModule.Column.prototype.draw = function() {
       this.title_.resumeSignalsDispatching(false);
       this.invalidate(anychart.ConsistencyState.DATA_GRID_COLUMN_TITLE);
 
-      var data = this.dataGrid_.getVisibleItems();
-      var startIndex = /** @type {number} */(this.dataGrid_.startIndex());
-      var endIndex = /** @type {number} */(this.dataGrid_.endIndex());
+      data = this.dataGrid_.getVisibleItems();
+      startIndex = /** @type {number} */(this.dataGrid_.startIndex());
+      endIndex = /** @type {number} */(this.dataGrid_.endIndex());
       var verticalOffset = this.dataGrid_.verticalOffset();
       var labels = this.labels();
       var labelsPadding = labels.padding();
@@ -695,10 +731,13 @@ anychart.ganttModule.Column.prototype.draw = function() {
       var paddingBottom = anychart.utils.normalizeSize(/** @type {(number|string)} */ (labelsPadding.getOption('bottom')),
           this.pixelBoundsCache_.height);
 
-      var counter = -1;
       this.labelsTexts_.length = 0;
-      for (var i = startIndex; i <= endIndex; i++) {
-        var item = data[i];
+      counter = -1;
+      var dataGridButtons = this.dataGrid_.buttons();
+      var buttonsJson = dataGridButtons.serialize();
+      dataGridButtons.markConsistent(anychart.ConsistencyState.ALL);
+      for (i = startIndex; i <= endIndex; i++) {
+        item = data[i];
         if (!item) break;
 
         var height = this.dataGrid_.controller.getItemHeight(item);
@@ -708,30 +747,33 @@ anychart.ganttModule.Column.prototype.draw = function() {
 
         if (this.collapseExpandButtons_ && item.numChildren()) {
           counter++;
-          addButton = anychart.ganttModule.CollapseButton.DEFAULT_BUTTON_SIDE + anychart.ganttModule.DataGrid.DEFAULT_PADDING;
-          var button = this.buttons_[counter];
+          //addButton = anychart.ganttModule.DataGrid.DEFAULT_EXPAND_COLLAPSE_BUTTON_SIDE + anychart.ganttModule.DataGrid.DEFAULT_PADDING;
+          button = this.buttons_[counter];
           if (!button) {
-            button = new anychart.ganttModule.CollapseButton(this.dataGrid_);
+            button = new anychart.ganttModule.DataGridButton(this.dataGrid_);
             this.buttons_.push(button);
+            button.setupInternal(true, buttonsJson);
             button.zIndex(anychart.ganttModule.Column.BUTTONS_Z_INDEX);
             button.container(this.getCellsLayer_());
+            button.listenSignals(this.buttonInvalidated_, this);
           }
-
           button.suspendSignalsDispatching();
+          button.setup(buttonsJson);
 
-          var top = totalTop + ((height - anychart.ganttModule.CollapseButton.DEFAULT_BUTTON_SIDE) / 2);
+          addButton = (dataGridButtons.getOption('size') || 0) + anychart.ganttModule.DataGrid.DEFAULT_PADDING;
+
+          var top = totalTop + ((height - anychart.ganttModule.DataGridButton.DEFAULT_BUTTON_SIDE) / 2);
 
           var pixelShift = (acgraph.type() === acgraph.StageType.SVG) ? .5 : 0;
           button
               .enabled(true)
-              .cursor(/** @type {anychart.enums.Cursor} */ (this.buttonCursor()))
-              .collapsed(!!item.meta('collapsed'))
               .dataItemIndex(i)
               .parentBounds(this.pixelBoundsCache_)
               .position({
                 'x': Math.floor(this.pixelBoundsCache_.left + padding) + pixelShift,
                 'y': Math.floor(top) + pixelShift
-              });
+              })
+              .setState(!!item.meta('collapsed') ? anychart.SettingsState.COLLAPSED : anychart.SettingsState.EXPANDED);
 
           button.resumeSignalsDispatching(false);
           button.draw();
@@ -749,7 +791,7 @@ anychart.ganttModule.Column.prototype.draw = function() {
         label.width(this.pixelBoundsCache_.width);
         label.padding(paddingTop, paddingRight, paddingBottom, padding + addButton);
 
-        this.cellTextSettingsOverrider_(label, item);
+        this.labelsOverrider_(label, item);
         label.resumeSignalsDispatching(false);
         label.draw();
 
@@ -778,17 +820,6 @@ anychart.ganttModule.Column.prototype.draw = function() {
     if (this.hasInvalidationState(anychart.ConsistencyState.DATA_GRID_COLUMN_TITLE)) {
       this.title_.draw();
       this.markConsistent(anychart.ConsistencyState.DATA_GRID_COLUMN_TITLE);
-    }
-
-    if (this.hasInvalidationState(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON_CURSOR)) {
-      if (this.buttons_ && this.buttons_.length) {
-        for (i = 0; i < this.buttons_.length; i++) {
-          button = this.buttons_[i];
-          button.cursor(/** @type {anychart.enums.Cursor} */ (this.buttonCursor()));
-          if (button.enabled()) button.draw();
-        }
-      }
-      this.markConsistent(anychart.ConsistencyState.DATA_GRID_COLUMN_BUTTON_CURSOR);
     }
 
     if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {
@@ -822,16 +853,13 @@ anychart.ganttModule.Column.prototype.setupByJSON = function(json, opt_default) 
   this.defaultWidth(json['defaultWidth']);
   this.collapseExpandButtons(json['collapseExpandButtons']);
   this.depthPaddingMultiplier(json['depthPaddingMultiplier']);
-  this.cellTextSettings().setupInternal(!!opt_default, json['cellTextSettings']);
-  this.labels().setupInternal(!!opt_default, json['labels']);
+  this.labels().setupInternal(!!opt_default, json['labels'] || json['cellTextSettings']);
   if (goog.isDef(json['format']))
     this.format(json['format']);
-  this.buttonCursor(json['buttonCursor']);
-  this.onEdit(json['onEdit']);
 
   this.title().setupInternal(!!opt_default, json['title']);
 
-  if ('cellTextSettingsOverrider' in json) this.cellTextSettingsOverrider(json['cellTextSettingsOverrider']);
+  this.labelsOverrider(json['labelsOverrider'] || json['cellTextSettingsOverrider']);
 };
 
 
@@ -852,9 +880,8 @@ anychart.ganttModule.Column.prototype.serialize = function() {
   json['depthPaddingMultiplier'] = this.depthPaddingMultiplier_;
   json['labels'] = this.labels().serialize();
   json['title'] = this.title_.serialize();
-  json['buttonCursor'] = this.buttonCursor_;
 
-  if (this.cellTextSettingsOverrider_ != this.defaultCellTextSettingsOverrider_) {
+  if (this.labelsOverrider_ != this.defaultlabelsOverrider_) {
     anychart.core.reporting.warning(
         anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
         null,
@@ -873,13 +900,13 @@ anychart.ganttModule.Column.prototype.serialize = function() {
 (function() {
   var proto = anychart.ganttModule.Column.prototype;
   proto['title'] = proto.title;
-  proto['onEdit'] = proto.onEdit;
   proto['width'] = proto.width;
   proto['defaultWidth'] = proto.defaultWidth;
   proto['enabled'] = proto.enabled;
   proto['format'] = proto.format;
-  proto['cellTextSettings'] = proto.cellTextSettings;
   proto['labels'] = proto.labels;
+  proto['cellTextSettings'] = proto.cellTextSettings;
+  proto['labelsOverrider'] = proto.labelsOverrider;
   proto['cellTextSettingsOverrider'] = proto.cellTextSettingsOverrider;
   proto['collapseExpandButtons'] = proto.collapseExpandButtons;
   proto['depthPaddingMultiplier'] = proto.depthPaddingMultiplier;
