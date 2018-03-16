@@ -4605,6 +4605,7 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
 
   if (this.redrawHeader) {
     var header = this.header();
+    header.suspendSignalsDispatching();
     var levels = this.scale_.getLevelsData();
     header.setLevels(levels);
 
@@ -4618,6 +4619,7 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
     }
 
     header.draw();
+    header.resumeSignalsDispatching(false);
 
     this.drawLowTicks_(ticks);
 

@@ -85,9 +85,6 @@ anychart.ganttBaseModule.TimeLineHeader = function() {
   this.resolutionChainCache_ = null;
 
   this.labels_ = [];
-  this.fillOverrides_ = [];
-  this.strokeOverrides_ = [];
-  this.disabledLevels_ = [];
   this.wrappers_ = [];
 
   anychart.core.settings.createTextPropertiesDescriptorsMeta(this.descriptorsMeta,
@@ -521,6 +518,18 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.overlay = function(opt_value) 
 };
 
 
+/**
+ * @param {number} i
+ * @param {string} name
+ * @return {*}
+ * @private
+ */
+anychart.ganttBaseModule.TimeLineHeader.prototype.getLevelOption_ = function(i, name) {
+  var wrapper = this.wrappers_[i];
+  return wrapper ? wrapper.getOwnOption(name) : undefined;
+};
+
+
 //endregion
 //region --- IObjectWithSettings overrides
 /** @inheritDoc */
@@ -941,8 +950,9 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
       weekdaysStrokePath = this.levelsWeekdaysStrokePaths_[i];
       holidaysStrokePath = this.levelsHolidaysStrokePaths_[i];
 
-      if (level && !this.disabledLevels_[i]) {
-        var height = 'height' in level ? level['height'] : null;
+      var enabled = this.getLevelOption_(i, 'enabled');
+      if (level && (enabled || !goog.isDef(enabled))) {
+        var height = /** @type {number|string|null|undefined} */(anychart.utils.getFirstDefinedValue(this.getLevelOption_(i, 'height'), level['height'], this.getOption('levelHeight'), null));
         if (!goog.isNull(height)) {
           this.heights_[i] = anychart.utils.normalizeSize(height, this.pixelBoundsCache_.height);
           accumulatedHeight += this.heights_[i];
@@ -1034,7 +1044,8 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
 
     for (i = 0; i < rowCount; i++) {
       level = this.levels_[i];
-      if (level && !this.disabledLevels_[i]) {
+      enabled = this.getLevelOption_(i, 'enabled');
+      if (level && (enabled || !goog.isDef(enabled))) {
         labels = this.labels_[i];
         weekdaysPath = this.levelsWeekdaysPaths_[i];
         holidaysPath = this.levelsHolidaysPaths_[i];
@@ -1048,6 +1059,9 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
         anychart.core.settings.copy(levelWeekDaysLabelsSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, level);
         if ('padding' in level) levelWeekDaysLabelsSettings['padding'] = level['padding'];
         goog.object.extend(weekdaysLabelSettings, levelWeekDaysLabelsSettings);
+        if (this.wrappers_[i]) {
+          anychart.core.settings.copy(weekdaysLabelSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, this.wrappers_[i].ownSettings);
+        }
         weekdaysLabelSettings['enabled'] = true;
         this.weekdaysLabelSettings[i] = weekdaysLabelSettings;
 
@@ -1065,13 +1079,12 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
         holidaysLabelSettings['enabled'] = true;
         this.holidaysLabelSettings[i] = holidaysLabelSettings;
 
-
-        var weekdayStroke = anychart.utils.getFirstDefinedValue(this.strokeOverrides_[i], level['stroke'], this.getOption('stroke'));
-        var weekdayFill = anychart.utils.getFirstDefinedValue(this.fillOverrides_[i], level['fill'], this.getOption('fill'));
+        var weekdayStroke = anychart.utils.getFirstDefinedValue(this.getLevelOption_(i, 'stroke'), level['stroke'], this.getOption('stroke'));
+        var weekdayFill = anychart.utils.getFirstDefinedValue(this.getLevelOption_(i, 'fill'), level['fill'], this.getOption('fill'));
         weekdaysStrokePath.fill(null).stroke(weekdayStroke);
         weekdaysPath.fill(weekdayFill).stroke(null);
 
-        var holidayFill = anychart.utils.getFirstDefinedValue(this.fillOverrides_[i], levelHoliday && levelHoliday['fill'], this.holidays_.getOwnOption('fill'));
+        var holidayFill = anychart.utils.getFirstDefinedValue(this.getLevelOption_(i, 'fill'), levelHoliday && levelHoliday['fill'], this.holidays_.getOwnOption('fill'));
         if (!holidayFill) {
           holidayFill = weekdayFill;
         }
@@ -1292,7 +1305,10 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.serialize = function() {
 };
 
 
-/** @inheritDoc */
+/**
+ * @inheritDoc
+ * @suppress {deprecated}
+ */
 anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttBaseModule.TimeLineHeader.base(this, 'setupByJSON', config, opt_default);
   if (opt_default) {
@@ -1303,19 +1319,33 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
   }
 
   // deprecated methods
-  if ('levelsSeparationStroke' in config) this.stroke(config['levelsSeparationStroke']);
-  if ('backgroundFill' in config) this.background_.enabled(true).fill(config['backgroundFill']);
+  if ('levelsSeparationStroke' in config) {
+    this.stroke(config['levelsSeparationStroke']);
+    if (!opt_default)
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['levelsSeparationStroke()', 'stroke()'], true);
+  }
+  if ('backgroundFill' in config) {
+    this.background_.enabled(true).fill(config['backgroundFill']);
+    if (!opt_default)
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['backgroundFill()', 'background().fill()'], true);
+  }
   var level = config['topLevel'];
   if (level) {
     this.levels(2, level);
+    if (!opt_default)
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'levels(2)'], true);
   }
   level = config['midLevel'];
   if (level) {
     this.levels(1, level);
+    if (!opt_default)
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'levels(1)'], true);
   }
   level = config['lowLevel'];
   if (level) {
     this.levels(0, level);
+    if (!opt_default)
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'levels(0)'], true);
   }
   // end deprecated
 
@@ -1399,83 +1429,86 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper = function(header, index) {
    * @private
    */
   this.enabled_ = true;
+
+  anychart.core.settings.createTextPropertiesDescriptorsMeta(this.descriptorsMeta,
+      anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
+      anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
+      anychart.Signal.NEEDS_REDRAW);
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['format', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
+    ['enabled', anychart.ConsistencyState.RESOURCE_TIMELINE_LEVELS, anychart.Signal.NEEDS_REDRAW],
+    ['stroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
+    ['fill', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
+    ['height', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
+  ]);
 };
 goog.inherits(anychart.ganttBaseModule.TimeLineHeader.LevelWrapper, anychart.core.Base);
+anychart.core.settings.populate(anychart.ganttBaseModule.TimeLineHeader.LevelWrapper, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS);
+
+
+/**
+ * Properties that should be defined in anychart.ganttBaseModule.TimeLineHeader prototype.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'enabled',
+      anychart.core.settings.booleanNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'stroke',
+      anychart.core.settings.strokeNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.MULTI_ARG,
+      'fill',
+      anychart.core.settings.fillNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'height',
+      anychart.core.settings.numberOrPercentNormalizer);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.ganttBaseModule.TimeLineHeader.LevelWrapper, anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS);
 
 
 /**
  * @param {Object=} opt_value - Config object.
- * @return {anychart.core.ui.LabelsFactory|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper}
+ * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper}
+ * @deprecated Since 8.2.0. Use labels methods directly on level.
  */
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.labels = function(opt_value) {
-  var labels = this.header_.getLabelsFactory_(this.index_, true);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['level.labels().*()', 'level.*()'], true);
   if (goog.isDef(opt_value)) {
-    labels.setup(opt_value);
-    return this;
+    this.setup(opt_value);
   }
-  return labels;
+  return this;
 };
 
 
-/**
- * @param {boolean=} opt_value
- * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper|boolean}
- */
-anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.enabled = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    if (this.header_.disabledLevels_[this.index_] != !opt_value) {
-      this.header_.disabledLevels_[this.index_] = !opt_value;
-      this.header_.invalidate(anychart.ConsistencyState.RESOURCE_TIMELINE_LEVELS, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return !this.header_.disabledLevels_[this.index_];
+/** @inheritDoc */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.invalidate = function(state, opt_signal) {
+  return this.header_.invalidate(state, opt_signal);
 };
 
 
-/**
- * Gets/sets background fill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {acgraph.vector.Fill|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for method chaining.
- */
-anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    var val = acgraph.vector.normalizeFill.apply(null, arguments);
-    if (!anychart.color.equals(/** @type {acgraph.vector.Fill} */ (this.header_.fillOverrides_[this.index_]), val)) {
-      this.header_.fillOverrides_[this.index_] = val;
-      this.header_.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return /** @type {acgraph.vector.Fill} */(anychart.utils.getFirstDefinedValue(this.header_.fillOverrides_[this.index_], this.header_.fill()));
-};
-
-
-/**
- * Gets/sets a connector preview stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill .
- * @param {number=} opt_thickness .
- * @param {string=} opt_dashpattern .
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin .
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap .
- * @return {acgraph.vector.Stroke|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper} - Current value or itself for chaining.
- */
-anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var val = acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (!anychart.color.equals(this.header_.strokeOverrides_[this.index_], val)) {
-      this.header_.strokeOverrides_[this.index_] = val;
-      this.header_.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return /** @type {acgraph.vector.Stroke} */(anychart.utils.getFirstDefinedValue(this.header_.strokeOverrides_[this.index_], this.header_.stroke()));
+/** @inheritDoc */
+anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.getThemeOption = function(name) {
+  return name == 'enabled' ?
+      true :
+      this.header_.getOption(name == 'height' ? 'levelHeight' : name);
 };
 
 
@@ -1493,7 +1526,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.stroke = function
  */
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['tileFill()', 'fill()'], true);
-  return this.fill(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
+  return this['fill'](opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy);
 };
 
 
@@ -1509,7 +1542,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tileFill = functi
  */
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationStroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['tilesSeparationStroke()', 'stroke()'], true);
-  return this.stroke(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
+  return this['stroke'](opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap);
 };
 
 
@@ -1517,10 +1550,8 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationSt
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.serialize = function() {
   var json = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.base(this, 'serialize');
 
-  json['enabled'] = this.enabled();
-  json['fill'] = anychart.color.serialize(this.header_.fillOverrides_[this.index_]);
-  json['stroke'] = anychart.color.serialize(this.header_.strokeOverrides_[this.index_]);
-  json['labels'] = this.labels().serialize();
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS, json, 'TimeLine Header Level');
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, json, 'TimeLine Header Level text settings');
 
   return json;
 };
@@ -1530,10 +1561,13 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.serialize = funct
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.setupByJSON = function(config, opt_default) {
   anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.base(this, 'setupByJSON', config);
 
-  this.fill(/** @type {acgraph.vector.Fill} */(anychart.utils.getFirstDefinedValue(config['fill'], config['tilesFill'])));
-  this.stroke(/** @type {acgraph.vector.Stroke} */(anychart.utils.getFirstDefinedValue(config['stroke'], config['tilesSeparationStroke'])));
-  this.enabled(config['enabled']);
-  this.labels().setupInternal(!!opt_default, config['labels']);
+  anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS, config);
+  if (goog.isObject(config['labels'])) {
+    var origEnabled = this.getOwnOption('enabled');
+    anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, config['labels']);
+    this.setOption('enabled', origEnabled);
+  }
+  anychart.core.settings.deserialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, config);
 };
 
 
@@ -1578,14 +1612,62 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.disposeInternal =
   // proto['drawRightLine'] = proto.drawRightLine;
   // proto['drawBottomLine'] = proto.drawBottomLine;
   // proto['drawLeftLine'] = proto.drawLeftLine;
+  // proto['minFontSize'] = proto.minFontSize;
+  // proto['maxFontSize'] = proto.maxFontSize;
+  // proto['adjustFontSize'] = proto.adjustFontSize;
+  // proto['fontSize'] = proto.fontSize;
+  // proto['fontFamily'] = proto.fontFamily;
+  // proto['fontColor'] = proto.fontColor;
+  // proto['fontOpacity'] = proto.fontOpacity;
+  // proto['fontDecoration'] = proto.fontDecoration;
+  // proto['fontStyle'] = proto.fontStyle;
+  // proto['fontVariant'] = proto.fontVariant;
+  // proto['fontWeight'] = proto.fontWeight;
+  // proto['letterSpacing'] = proto.letterSpacing;
+  // proto['textDirection'] = proto.textDirection;
+  // proto['lineHeight'] = proto.lineHeight;
+  // proto['textIndent'] = proto.textIndent;
+  // proto['vAlign'] = proto.vAlign;
+  // proto['hAlign'] = proto.hAlign;
+  // proto['wordWrap'] = proto.wordWrap;
+  // proto['wordBreak'] = proto.wordBreak;
+  // proto['textOverflow'] = proto.textOverflow;
+  // proto['selectable'] = proto.selectable;
+  // proto['disablePointerEvents'] = proto.disablePointerEvents;
+  // proto['useHtml'] = proto.useHtml;
 
   proto = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype;
   proto['labels'] = proto.labels;
-  proto['fill'] = proto.fill;
-  proto['stroke'] = proto.stroke;
-  proto['enabled'] = proto.enabled;
   proto['tileFill'] = proto.tileFill;
   proto['tilesSeparationStroke'] = proto.tilesSeparationStroke;
+  // descriptors
+  // proto['enabled'] = proto.enabled;
+  // proto['stroke'] = proto.stroke;
+  // proto['fill'] = proto.fill;
+  // proto['height'] = proto.height;
+  // proto['minFontSize'] = proto.minFontSize;
+  // proto['maxFontSize'] = proto.maxFontSize;
+  // proto['adjustFontSize'] = proto.adjustFontSize;
+  // proto['fontSize'] = proto.fontSize;
+  // proto['fontFamily'] = proto.fontFamily;
+  // proto['fontColor'] = proto.fontColor;
+  // proto['fontOpacity'] = proto.fontOpacity;
+  // proto['fontDecoration'] = proto.fontDecoration;
+  // proto['fontStyle'] = proto.fontStyle;
+  // proto['fontVariant'] = proto.fontVariant;
+  // proto['fontWeight'] = proto.fontWeight;
+  // proto['letterSpacing'] = proto.letterSpacing;
+  // proto['textDirection'] = proto.textDirection;
+  // proto['lineHeight'] = proto.lineHeight;
+  // proto['textIndent'] = proto.textIndent;
+  // proto['vAlign'] = proto.vAlign;
+  // proto['hAlign'] = proto.hAlign;
+  // proto['wordWrap'] = proto.wordWrap;
+  // proto['wordBreak'] = proto.wordBreak;
+  // proto['textOverflow'] = proto.textOverflow;
+  // proto['selectable'] = proto.selectable;
+  // proto['disablePointerEvents'] = proto.disablePointerEvents;
+  // proto['useHtml'] = proto.useHtml;
 })();
 
 
