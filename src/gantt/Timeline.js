@@ -1020,7 +1020,7 @@ anychart.ganttModule.TimeLine.prototype.getScale = function() {
 anychart.ganttModule.TimeLine.prototype.header = function(opt_value) {
   if (!this.header_) {
     this.header_ = new anychart.ganttBaseModule.TimeLineHeader();
-    this.header_.scale(this.scale_);
+    this.header_.xScale(this.scale_);
     this.header_.zIndex(anychart.ganttModule.TimeLine.HEADER_Z_INDEX);
     this.registerDisposable(this.header_);
     this.header_.listenSignals(this.headerInvalidated_, this);
@@ -4604,6 +4604,7 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
   }
 
   if (this.redrawHeader) {
+    debugger;
     var header = this.header();
     var levels = this.scale_.getLevelsData();
     header.setLevels(levels);

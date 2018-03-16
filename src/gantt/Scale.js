@@ -602,7 +602,7 @@ anychart.ganttModule.Scale.prototype.maximumGap = function(opt_value) {
 anychart.ganttModule.Scale.prototype.getTicks = function(pixStart, pixEnd, unit, count) {
   var range = this.getRange();
   var start = anychart.utils.alignDateLeftByUnit(range['min'], unit, count, 2000);
-  var end = range['end'];
+  var end = range['max'];
   var res = [];
   var current = new goog.date.UtcDateTime(new Date(start));
   var interval = anychart.utils.getIntervalFromInfo(unit, count);
@@ -729,9 +729,9 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
   if (index < 0) index = ranges.length - 1;
 
   return [
-    anychart.ganttModule.Scale.TOP_INTERVALS[index],
+    anychart.ganttModule.Scale.LOW_INTERVALS[index],
     anychart.ganttModule.Scale.MID_INTERVALS[index],
-    anychart.ganttModule.Scale.LOW_INTERVALS[index]
+    anychart.ganttModule.Scale.TOP_INTERVALS[index]
   ];
 };
 

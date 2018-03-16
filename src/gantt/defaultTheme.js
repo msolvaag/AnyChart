@@ -34,6 +34,29 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'isStandalone': false,
       'labels': {
         'padding': [0, 4, 0, 4]
+      },
+      'header': {
+        'enabled': true,
+        'background': {
+          'enabled': false
+        },
+        'overlay': {
+          'enabled': false
+        },
+        'zIndex': 2,
+        'vAlign': 'middle',
+        'hAlign': 'center',
+        'textOverflow': '',
+        'fill': 'none',
+        'stroke': '#ccc',
+        'padding': [2, 10, 2, 10],
+        'fontSize': 11,
+        'fontWeight': 'bold',
+        'fontFamily': '"Helvetica Neue", Helvetica, sans-serif',
+        'drawTopLine': false,
+        'drawRightLine': false,
+        'drawBottomLine': true,
+        'drawLeftLine': false
       }
     }
   },
