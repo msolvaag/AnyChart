@@ -387,64 +387,36 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
   }
 
   var pointsCount = this.maxIndex - this.minIndex + 1;
-  var error = pointsCount * 0.4;
+  var error = pointsCount * 0.25;
   var arr = [];
-  var arr_ = [];
 
-  goog.object.forEach(this.intervals, function(interval, key) {
-    arr_.push(interval);
+  goog.object.forEach(this.intervals, function(interval) {
     if (interval.count > error) {
       arr.push(interval);
-      // console.log(key, interval);
     }
-  }, this);
-
-  goog.array.sortObjectsByKey(arr, 'unit', function(unit1, unit2) {
-    return anychart.utils.getIntervalRange(unit1, 1) - anychart.utils.getIntervalRange(unit2, 1);
   });
 
-
-  for (var j = 0; j < anychart.utils.INTERVAL_ESTIMATIONS.length; j++) {
-    if (j) {
-      var prev = anychart.utils.INTERVAL_ESTIMATIONS[j - 1];
-      var cur = anychart.utils.INTERVAL_ESTIMATIONS[j];
-      console.log(prev.unit, ' / ', cur.unit, '|', prev.range / cur.range);
+  var targetInterval = goog.array.reduce(arr, function(rval, item) {
+    var firstInt = anychart.utils.getIntervalRange(rval.unit, 1);
+    var secondInt = anychart.utils.getIntervalRange(item.unit, 1);
+    var maxInt, minInt, maxRange, minRange;
+    if (firstInt >= secondInt) {
+      maxInt = rval;
+      minInt = item;
+      maxRange = firstInt;
+      minRange = secondInt;
+    } else {
+      maxInt = item;
+      minInt = rval;
+      maxRange = secondInt;
+      minRange = firstInt;
     }
-  }
 
-  // var curIndex = 0;
-  // var targetInterval = goog.array.find(arr, function(interval) {
-  //   curIndex += interval.count;
-  //   return curIndex >= pointsCount / 2;
-  // });
-
-  // var targetInterval =  arr[Math.floor(arr.length / 2 - (arr.length % 2 == 0 ? 1 : 0))];
-  var targetInterval =  arr[Math.floor(arr.length / 2)];
+    return maxRange / minRange > 60 ? maxInt : minInt;
+  }, arr[0]);
 
   var range = targetInterval ? targetInterval.range : Math.abs(dataMaxKey - dataMinKey);
-
-  console.log(arr_, arr, targetInterval);
-
-
-  // goog.array.forEach(arr, function(v) {
-  //
-  // }, this);
-
-  // var avg = (dataMaxKey - dataMinKey) / goog.object.getCount(this.intervals);
-
-  // console.log(avg, error);
-
-
-
   var minorTickRange = Math.abs(range) / this.ticksCount_;
-  // var minorTickRange_ = Math.abs(dataMaxKey - dataMinKey) / this.ticksCount_;
-
-  // console.log(this.intervals);
-  // console.log(minorTickRange, minorTickRange_);
-
-  // var minorIntervalRange = anychart.utils.getIntervalRange(this.unit, this.count);
-  // var pointsCount = this.maxIndex - this.minIndex;
-  // var minorTickRange = minorIntervalRange * pointsCount / (this.ticksCount_ + 1);
 
   var last = this.ranges_.length - 1;
   var row;
