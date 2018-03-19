@@ -229,16 +229,20 @@ anychart.core.ui.Crosshair.prototype.propagateParentalRelationship = function(pa
     var plotCrosshair = this.childrenMap[uid];
     labels = isX ? plotCrosshair.getXLabels() : plotCrosshair.getYLabels();
     childLabel = labels[index];
-    if (childLabel)
-      childLabel.parent(parentOrChildLabel);
+    if (!childLabel) {
+      childLabel = isX ? plotCrosshair.xLabel(index) : plotCrosshair.yLabel(index);
+    }
+    childLabel.parent(parentOrChildLabel);
   }
 
   // check if we have parent (means that <this> crosshair instance is Plot crosshair)
   if (this.parent_) {
     labels = isX ? this.parent_.getXLabels() : this.parent_.getYLabels();
     parentLabel = labels[index];
-    if (parentLabel)
-      parentOrChildLabel.parent(parentLabel);
+    if (!parentLabel) {
+      parentLabel = /** @type {anychart.core.ui.CrosshairLabel} */ (isX ? this.parent_.xLabel(index) : this.parent_.yLabel(index));
+    }
+    parentOrChildLabel.parent(parentLabel);
   }
 };
 
