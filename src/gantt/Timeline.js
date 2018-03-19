@@ -3675,6 +3675,7 @@ anychart.ganttModule.TimeLine.prototype.drawTimelineElements_ = function() {
     element.shapeManager.clearShapes();
   }
 
+  this.getDrawLayer().removeChildren();
   var markers = goog.array.concat(this.lineMarkers_, this.rangeMarkers_, this.textMarkers_);
 
   var dataBounds = new anychart.math.Rect(this.pixelBoundsCache.left,
