@@ -153,8 +153,11 @@ anychart.ganttModule.Scale = function() {
    */
   this.emptyMax_ = NaN;
 
+  /**
+   * @type {anychart.ganttModule.Scale.ZoomLevelsSettingsRep}
+   * @private
+   */
   this.ranges_ = this.normalizeLevels_(anychart.ganttModule.Scale.DEFAULT_LEVELS);
-
 };
 goog.inherits(anychart.ganttModule.Scale, anychart.core.Base);
 
@@ -887,18 +890,18 @@ anychart.ganttModule.Scale.prototype.zoomTo = function(startOrUnit, opt_endOrCou
  */
 anychart.ganttModule.Scale.prototype.zoomLevels = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    var value = this.normalizeLevels_(opt_value);
-    var same = value.length == this.ranges_.length &&
-        goog.array.every(value, function(item, index) {
-          var levels = this.ranges_[index];
-          return item.length == levels.length &&
-              goog.array.every(item, function(item, index) {
-                return item.unit == levels[index].unit &&
-                    item.count == levels[index].count;
+    var newZoomLevels = this.normalizeLevels_(opt_value);
+    var same = newZoomLevels.length == this.ranges_.length &&
+        goog.array.every(newZoomLevels, function(newZoomLevel, index) {
+          var oldZoomLevelLevels = this.ranges_[index].levels;
+          return newZoomLevel.levels.length == oldZoomLevelLevels.length &&
+              goog.array.every(newZoomLevel.levels, function(item, index) {
+                return item.unit == oldZoomLevelLevels[index].unit &&
+                    item.count == oldZoomLevelLevels[index].count;
               });
         }, this);
     if (!same) {
-      this.ranges_ = value;
+      this.ranges_ = newZoomLevels;
       this.consistent = false;
       this.dispatchSignal(anychart.Signal.NEED_UPDATE_TICK_DEPENDENT);
     }
@@ -910,7 +913,7 @@ anychart.ganttModule.Scale.prototype.zoomLevels = function(opt_value) {
           return {
             'unit': level.unit,
             'count': level.count
-          }
+          };
         });
       }));
 };
@@ -919,7 +922,7 @@ anychart.ganttModule.Scale.prototype.zoomLevels = function(opt_value) {
 /**
  * Normalizes anychart.ganttModule.Scale.ZoomLevelsSettings-like representation to anychart.ganttModule.Scale.ZoomLevelsSettingsRep.
  * @param {*} value
- * @return {Array.<anychart.ganttModule.Scale.ZoomLevelsSettingsRep>}
+ * @return {anychart.ganttModule.Scale.ZoomLevelsSettingsRep}
  * @private
  */
 anychart.ganttModule.Scale.prototype.normalizeLevels_ = function(value) {
