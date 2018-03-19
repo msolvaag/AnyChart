@@ -120,45 +120,6 @@ anychart.ganttModule.elements.TimelineElement.prototype.SUPPORTED_CONSISTENCY_ST
 
 
 //endregion
-//region -- Optimized props descriptors
-/**
- * Simple descriptors.
- * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
- */
-anychart.ganttModule.elements.TimelineElement.DESCRIPTORS = (function() {
-  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
-  var map = {};
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'height',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'anchor',
-      anychart.ganttModule.elements.TimelineElement.normalizeAnchor);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'position',
-      anychart.ganttModule.elements.TimelineElement.normalizePosition);
-
-  anychart.core.settings.createDescriptor(
-      map,
-      anychart.enums.PropertyHandlerType.SINGLE_ARG,
-      'offset',
-      anychart.core.settings.numberOrPercentNormalizer);
-
-  return map;
-})();
-anychart.core.settings.populate(anychart.ganttModule.elements.TimelineElement, anychart.ganttModule.elements.TimelineElement.DESCRIPTORS);
-
-
-//endregion
 //region -- Normalisers adaptation
 /**
  * Timeline specific anchor normalizer.
@@ -196,6 +157,45 @@ anychart.ganttModule.elements.TimelineElement.normalizePosition = function(value
     return anychart.enums.Position.LEFT_BOTTOM;
   return anychart.enums.Position.LEFT_CENTER;
 };
+
+
+//endregion
+//region -- Optimized props descriptors
+/**
+ * Simple descriptors.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.ganttModule.elements.TimelineElement.DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'height',
+      anychart.core.settings.numberOrPercentNormalizer);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'anchor',
+      anychart.ganttModule.elements.TimelineElement.normalizeAnchor);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'position',
+      anychart.ganttModule.elements.TimelineElement.normalizePosition);
+
+  anychart.core.settings.createDescriptor(
+      map,
+      anychart.enums.PropertyHandlerType.SINGLE_ARG,
+      'offset',
+      anychart.core.settings.numberOrPercentNormalizer);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.ganttModule.elements.TimelineElement, anychart.ganttModule.elements.TimelineElement.DESCRIPTORS);
 
 
 //endregion
