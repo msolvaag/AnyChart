@@ -2281,6 +2281,9 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
         'fill': anychart.core.defaultTheme.returnSourceColor,
         'stroke': anychart.core.defaultTheme.returnSourceColor
       },
+      'labels': {
+        'enabled': null
+      },
       'rendering': {
         /**
          * @this {*}
