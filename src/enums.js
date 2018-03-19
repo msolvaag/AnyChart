@@ -1527,7 +1527,18 @@ anychart.enums.EventType = {
   SELECT_MARQUEE_FINISH: 'selectmarqueefinish',
 
   // data changed event for no data label
-  DATA_CHANGED: 'datachanged'
+  DATA_CHANGED: 'datachanged',
+
+  // edit input ui events
+  // EDIT_INPUT_BEFORE_SHOW: 'editinputbeforeshow',
+  // EDIT_INPUT_SHOW: 'editinputshow',
+  EDIT_INPUT_SUBMIT: 'editinputsubmit',
+  EDIT_INPUT_ESCAPE: 'editinputescape',
+  EDIT_INPUT_BLUR: 'editinputblur',
+  EDIT_INPUT_FOCUS: 'editinputfocus',
+  EDIT_INPUT_KEY_PRESS: 'editinputkeypress',
+  EDIT_INPUT_BEFORE_HIDE: 'editinputbeforehide',
+  EDIT_INPUT_HIDE: 'editinputhide'
 };
 
 
@@ -1996,6 +2007,35 @@ anychart.enums.LinearGaugePointerType = {
 anychart.enums.normalizeLinearGaugePointerType = function(value, opt_default) {
   return /** @type {anychart.enums.LinearGaugePointerType} */(anychart.enums.normalize(anychart.enums.LinearGaugePointerType, value,
       opt_default || anychart.enums.LinearGaugePointerType.BAR));
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//
+//  CircularGaugePointerTypes
+//
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * List of all circular gauge pointers type.
+ * @enum {string}
+ */
+anychart.enums.CircularGaugePointerType = {
+  BAR: 'bar',
+  KNOB: 'knob',
+  MARKER: 'marker',
+  NEEDLE: 'needle'
+};
+
+
+/**
+ * Normalizes circular gauge pointers type.
+ * @param {*} value Pointer's type to normalize.
+ * @param {anychart.enums.CircularGaugePointerType=} opt_default Custom default value (defaults to BAR).
+ * @return {anychart.enums.CircularGaugePointerType}
+ */
+anychart.enums.normalizeCircularGaugePointerType = function(value, opt_default) {
+  return /** @type {anychart.enums.CircularGaugePointerType} */(anychart.enums.normalize(anychart.enums.CircularGaugePointerType, value,
+      opt_default || anychart.enums.CircularGaugePointerType.BAR));
 };
 
 

@@ -729,7 +729,7 @@ anychart.themes.merging.mergingMap_ = (function() {
               ['header.', [[['top', 'mid', 'low'], 'Level.']]]
             ], 'labels']
           ]],
-          'DataGrid.defaultColumnSettings.cellTextSettings'
+          'DataGrid.defaultColumnSettings.labels'
         ]],
         'standalones.labelsFactory',
         ['map.axesSettings.', [
@@ -776,14 +776,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'map',
           'stock'
-        ], [
-          ['.crosshair.', [
-            [[
-              'x',
-              'y'
-            ], 'Label']
-          ]]
-        ]]
+        ], '.crosshair.defaultLabelSettings']
       ]
     },
     {
@@ -1681,7 +1674,7 @@ anychart.themes.merging.mergingMap_ = (function() {
       defaultObj: 'defaultGroupingSettings',
       targets: [
         ['stock.', [
-            [['g', 'scrollerG'], 'rouping']
+          [['g', 'scrollerG'], 'rouping']
         ]]
       ]
     },

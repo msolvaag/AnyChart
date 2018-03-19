@@ -1,9 +1,9 @@
 goog.provide('anychart.scales.DateTimeTicks');
-goog.forwardDeclare('anychart.stockModule.scales.Ordinal');
 goog.require('anychart.core.Base');
 goog.require('goog.array');
 goog.require('goog.date.Interval');
 goog.require('goog.date.UtcDateTime');
+goog.forwardDeclare('anychart.stockModule.scales.Ordinal');
 
 
 
@@ -404,7 +404,7 @@ anychart.scales.DateTimeTicks.prototype.setupAsMajor = function(min, max, opt_ca
     var endDate = new goog.date.UtcDateTime(new Date(max));
     for (var i = 0; goog.date.Date.compare(date, endDate) <= 0 && i < this.scale.maxTicksCount(); date.add(interval), i++)
       ticks.push(date.getTime());
-    if (opt_canModifyMax && goog.date.Date.compare(date, endDate) > 0)
+    if (opt_canModifyMax && ticks.length && ticks[ticks.length - 1] < endDate.getTime())
       ticks.push(result[1] = date.getTime());
     this.autoTicks_ = ticks;
     this.count_ = backupCount;

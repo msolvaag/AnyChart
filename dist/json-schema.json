@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "AnyChart JSON Schema, version 8.1.0",
+  "description": "AnyChart JSON Schema, version 8.2.0",
   "$ref": "#/definitions/anychart",
   "definitions": {
     "anychart": {
@@ -2051,6 +2051,18 @@
             ]
           }
         },
+        "pointers": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {"$ref": "#/definitions/disable"},
+              {"$ref": "#/definitions/anychart.core.gauge.pointers.Bar"},
+              {"$ref": "#/definitions/anychart.core.gauge.pointers.Marker"},
+              {"$ref": "#/definitions/anychart.core.gauge.pointers.Needle"},
+              {"$ref": "#/definitions/anychart.core.gauge.pointers.Knob"}
+            ]
+          }
+        },
         "encloseWithStraightLine": {
           "type": "boolean"
         }
@@ -4004,7 +4016,15 @@
         "baselines": {"$ref": "#/definitions/anychart.core.ui.GanttTimelineBaselinesElement"},
         "periods": {"$ref": "#/definitions/anychart.core.ui.GanttTimelineElement"},
         "milestones": {"$ref": "#/definitions/anychart.core.ui.GanttTimelineElement"},
-        "connectors": {"$ref": "#/definitions/anychart.core.ui.GanttTimelineConnectorsElement"}
+        "connectors": {"$ref": "#/definitions/anychart.core.ui.GanttTimelineConnectorsElement"},
+
+        "elements": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "tasks": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "groupingTasks": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "baselines": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "periods": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "progress": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"},
+        "milestones": {"$ref": "#/definitions/anychart.core.ui.GanttElementsBase"}
       }
     },
 
@@ -4720,8 +4740,14 @@
         "displayMode": {"$ref": "#/definitions/anychart.enums.CrosshairDisplayMode"},
         "xStroke": {"$ref": "#/definitions/stroke"},
         "yStroke": {"$ref": "#/definitions/stroke"},
-        "xLabel": {"$ref": "#/definitions/anychart.core.ui.CrosshairLabel"},
-        "yLabel": {"$ref": "#/definitions/anychart.core.ui.CrosshairLabel"}
+        "xLabels": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/anychart.core.ui.CrosshairLabel"}
+        },
+        "yLabels": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/anychart.core.ui.CrosshairLabel"}
+        }
       }
     },
     "anychart.core.ui.Legend": {
