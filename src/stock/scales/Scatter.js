@@ -415,7 +415,19 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     return maxRange / minRange > 60 ? maxInt : minInt;
   }, arr[0]);
 
-  var range = targetInterval ? targetInterval.range : Math.abs(dataMaxKey - dataMinKey);
+  var range;
+  if (targetInterval) {
+    range = targetInterval.range;
+    var intervalRange = anychart.utils.getIntervalRange(targetInterval.unit, 1);
+    goog.object.forEach(this.intervals, function(interval) {
+      if (interval != targetInterval) {
+        range += interval.count * intervalRange;
+      }
+    });
+  } else {
+    range = Math.abs(dataMaxKey - dataMinKey);
+  }
+
   var minorTickRange = Math.abs(range) / this.ticksCount_;
 
   var last = this.ranges_.length - 1;
@@ -439,6 +451,8 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     //   majorCount: count
     // };
   }
+
+  console.log(this.intervals, targetInterval, row);
 
   if (this.ticksCallback_) {
     var context = {
@@ -703,6 +717,7 @@ anychart.stockModule.scales.Scatter.DEFAULT_TICKS_ = [
   {'minor': {'unit': anychart.enums.Interval.HOUR, 'count': 3}, 'major': {'unit': anychart.enums.Interval.HOUR, 'count': 12}},
   {'minor': {'unit': anychart.enums.Interval.HOUR, 'count': 12}, 'major': {'unit': anychart.enums.Interval.DAY, 'count': 1}},
   {'minor': {'unit': anychart.enums.Interval.DAY, 'count': 1}, 'major': {'unit': anychart.enums.Interval.WEEK, 'count': 1}},
+  {'minor': {'unit': anychart.enums.Interval.DAY, 'count': 2}, 'major': {'unit': anychart.enums.Interval.WEEK, 'count': 1}},
   {'minor': {'unit': anychart.enums.Interval.WEEK, 'count': 1}, 'major': {'unit': anychart.enums.Interval.MONTH, 'count': 1}},
   {'minor': {'unit': anychart.enums.Interval.MONTH, 'count': 1}, 'major': {'unit': anychart.enums.Interval.QUARTER, 'count': 1}},
   {'minor': {'unit': anychart.enums.Interval.QUARTER, 'count': 1}, 'major': {'unit': anychart.enums.Interval.SEMESTER, 'count': 1}},

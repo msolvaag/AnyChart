@@ -27,16 +27,19 @@ goog.inherits(anychart.stockModule.scales.OrdinalTicksIterator, anychart.stockMo
 
 /** @inheritDoc */
 anychart.stockModule.scales.OrdinalTicksIterator.prototype.reset = function() {
-  this.currentMajor = new goog.date.UtcDateTime(new Date(this.alignedStart));
+  var startAlignedByMajor = anychart.utils.alignDateLeft(this.start, this.majorInterval, this.globalStart);
+  var startAlignedByMinor = anychart.utils.alignDateLeft(this.start, this.minorInterval, this.globalStart);
+
+  this.currentMajor = new goog.date.UtcDateTime(new Date(startAlignedByMajor));
 
   this.preFirstMajor = NaN;
-  if (this.alignedStart < this.start) {
+  if (this.currentMajor.getTime() < this.start) {
     this.preFirstMajor = this.advanceDate_(this.currentMajor, this.majorInterval);
     if (this.preFirstMajor > this.end)
       this.preFirstMajor = NaN;
   }
 
-  this.currentMinor = new goog.date.UtcDateTime(new Date(this.alignedStart));
+  this.currentMinor = new goog.date.UtcDateTime(new Date(startAlignedByMinor));
 
   while (this.currentMinor.getTime() < this.start)
     this.currentMinor.add(this.minorInterval);

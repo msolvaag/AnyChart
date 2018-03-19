@@ -421,6 +421,7 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
     var lastIndex = this.getIndexByKey(lastKey);
 
     var currKey, prevKey, range, estRange, interval;
+
     for (i = firstIndex; i <= lastIndex; i++) {
       if (i < first) {
         currKey = goog.math.clamp(this.keys_[first].key, boundariesInfo[0], boundariesInfo[1]);
