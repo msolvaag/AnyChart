@@ -277,7 +277,7 @@ goog.addDependency('../../../../src/linearGauge/defaultTheme.js', ['anychart.lin
 goog.addDependency('../../../../src/linearGauge/linearGauge.module.js', ['anychart.linearGaugeModule.entry'], ['anychart.linearGaugeModule.Chart'], false);
 goog.addDependency('../../../../src/linearGauge/pointers/Bar.js', ['anychart.linearGaugeModule.pointers.Bar'], ['anychart.linearGaugeModule.pointers.Base'], false);
 goog.addDependency('../../../../src/linearGauge/pointers/Base.js', ['anychart.linearGaugeModule.pointers.Base'], ['anychart.core.IShapeManagerUser', 'anychart.core.StateSettings', 'anychart.core.VisualBase', 'anychart.core.utils.IInteractiveSeries', 'anychart.core.utils.LegendItemSettings', 'anychart.core.utils.LinearGaugeInteractivityState', 'anychart.data.Set', 'anychart.format.Context'], false);
-goog.addDependency('../../../../src/linearGauge/pointers/Led.js', ['anychart.linearGaugeModule.pointers.Led'], ['anychart.linearGaugeModule.pointers.Base'], false);
+goog.addDependency('../../../../src/linearGauge/pointers/Led.js', ['anychart.linearGaugeModule.pointers.Led'], ['anychart.color', 'anychart.linearGaugeModule.pointers.Base'], false);
 goog.addDependency('../../../../src/linearGauge/pointers/Marker.js', ['anychart.linearGaugeModule.pointers.Marker'], ['anychart.linearGaugeModule.pointers.Base'], false);
 goog.addDependency('../../../../src/linearGauge/pointers/RangeBar.js', ['anychart.linearGaugeModule.pointers.RangeBar'], ['anychart.linearGaugeModule.pointers.Bar'], false);
 goog.addDependency('../../../../src/linearGauge/pointers/Tank.js', ['anychart.linearGaugeModule.pointers.Tank'], ['anychart.color', 'anychart.linearGaugeModule.pointers.Base'], false);

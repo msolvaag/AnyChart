@@ -552,7 +552,7 @@ anychart.circularGaugeModule.Chart.prototype.addPointer = function(var_args) {
   this.suspendSignalsDispatching();
   if (count) {
     for (var i = 0; i < count; i++) {
-      rv.push(this.createPointerByType_(type, arrIndex + i, arguments[i]));
+      rv.push(this.createPointerByType_(type, arrIndex, arguments[i]));
     }
   }
   this.resumeSignalsDispatching(true);
@@ -1506,7 +1506,6 @@ anychart.circularGaugeModule.Chart.prototype.setupByJSON = function(config, opt_
     }
   }
 
-  //TODO(AntonKagakin): up setup to config['pointers'] with fallback to bars/markers/etc...
   if ('pointers' in config) {
     var pointers = config['pointers'];
     var json;
@@ -1518,7 +1517,7 @@ anychart.circularGaugeModule.Chart.prototype.setupByJSON = function(config, opt_
         var length = typedArray.length;
         var dataIndex = json['dataIndex'];
         var data = json['data'] || null;
-        var pointerInst = this.createPointerByType_(pointerType, length + i);
+        var pointerInst = this.createPointerByType_(pointerType, length);
         if (pointerInst) {
           pointerInst.dataIndex(dataIndex);
           pointerInst.data(data);

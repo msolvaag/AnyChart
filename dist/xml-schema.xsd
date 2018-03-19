@@ -2476,6 +2476,8 @@
             <xsd:element minOccurs="0" maxOccurs="1" name="normal" type="core.StateSettings"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="hovered" type="core.StateSettings"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="selected" type="core.StateSettings"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="data" type="Data"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="dimmer" type="Fill"/>
         </xsd:all>
         <!--Common-->
         <xsd:attribute name="pointer_type" type="enums.GaugePointerType" />
@@ -2503,6 +2505,7 @@
         <xsd:attribute name="size" type="simple.NumberOrPercentOrNull" />
         <xsd:attribute name="count" type="simple.NumberOrNull" />
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
+        <xsd:attribute name="dimmer" type="xsd:string"/>
 
         <!--Circular Pointer-->
         <xsd:attribute name="axis_index" type="xsd:double"/>

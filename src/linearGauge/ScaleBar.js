@@ -23,7 +23,9 @@ anychart.linearGaugeModule.ScaleBar = function(gauge) {
     ['offset', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
     ['from', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
     ['to', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
-    ['points', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
+    ['points', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
+    ['fill', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
+    ['stroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
   ]);
 };
 goog.inherits(anychart.linearGaugeModule.ScaleBar, anychart.core.VisualBase);
@@ -65,7 +67,9 @@ anychart.linearGaugeModule.ScaleBar.OWN_DESCRIPTORS = (function() {
     [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'offset', anychart.utils.normalizeToPercent],
     [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'from', anychart.core.settings.asIsNormalizer],
     [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'to', anychart.core.settings.asIsNormalizer],
-    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'points', anychart.core.settings.asIsNormalizer]
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'points', anychart.core.settings.asIsNormalizer],
+    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'fill', anychart.core.settings.fillNormalizer],
+    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'stroke', anychart.core.settings.strokeNormalizer]
   ]);
   return map;
 })();
@@ -155,53 +159,6 @@ anychart.linearGaugeModule.ScaleBar.prototype.colorScaleInvalidated_ = function(
   if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REAPPLICATION)) {
     this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
   }
-};
-
-
-/**
- * Scale bar fill.
- * @param {(!acgraph.vector.Fill|!Array.<(acgraph.vector.GradientKey|string)>|null)=} opt_fillOrColorOrKeys .
- * @param {number=} opt_opacityOrAngleOrCx .
- * @param {(number|boolean|!anychart.math.Rect|!{left:number,top:number,width:number,height:number})=} opt_modeOrCy .
- * @param {(number|!anychart.math.Rect|!{left:number,top:number,width:number,height:number}|null)=} opt_opacityOrMode .
- * @param {number=} opt_opacity .
- * @param {number=} opt_fx .
- * @param {number=} opt_fy .
- * @return {(!anychart.linearGaugeModule.ScaleBar|acgraph.vector.Fill)} .
- */
-anychart.linearGaugeModule.ScaleBar.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
-  if (goog.isDef(opt_fillOrColorOrKeys)) {
-    var fill = acgraph.vector.normalizeFill.apply(null, arguments);
-    if (fill != this.fill_) {
-      this.fill_ = fill;
-      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return this.fill_;
-};
-
-
-/**
- * Scale bar stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {(!anychart.linearGaugeModule.ScaleBar|acgraph.vector.Stroke)} .
- */
-anychart.linearGaugeModule.ScaleBar.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (stroke != this.stroke_) {
-      this.stroke_ = stroke;
-      this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  }
-  return this.stroke_;
 };
 
 
@@ -459,11 +416,11 @@ anychart.linearGaugeModule.ScaleBar.prototype.draw = function() {
 
     // if one of fill/stroke is set - use them
     // only if there no fill/stroke - use color scale
-    var fillIsSet = !!this.fill();
-    var strokeIsSet = !!this.stroke();
+    fill = this.getOption('fill');
+    stroke = this.getOption('stroke');
+    var fillIsSet = goog.isDefAndNotNull(fill);
+    var strokeIsSet = goog.isDefAndNotNull(stroke);
     if (fillIsSet || strokeIsSet) {
-      fill = this.fill();
-      stroke = this.stroke();
       path = this.paths[0] ? this.paths[0] : this.paths[0] = this.rootLayer.path();
       path
           .moveTo(left, top)
@@ -560,30 +517,8 @@ anychart.linearGaugeModule.ScaleBar.prototype.serialize = function() {
   var json = anychart.linearGaugeModule.ScaleBar.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.linearGaugeModule.ScaleBar.OWN_DESCRIPTORS, json, 'ScaleBar');
 
-  if (goog.isFunction(this.fill())) {
-    anychart.core.reporting.warning(
-        anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
-        null,
-        ['ScaleBar fill']
-    );
-  } else {
-    json['fill'] = anychart.color.serialize(/** @type {acgraph.vector.Fill}*/(this.fill()));
-  }
-
-  if (goog.isFunction(this.stroke())) {
-    anychart.core.reporting.warning(
-        anychart.enums.WarningCode.CANT_SERIALIZE_FUNCTION,
-        null,
-        ['ScaleBar stroke']
-    );
-  } else {
-    json['stroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke}*/(this.stroke()));
-  }
-
   if (this.colorScale()) {
     json['colorScale'] = this.colorScale().serialize();
-    delete json['fill'];
-    delete json['stroke'];
   }
 
   return json;
@@ -608,8 +543,6 @@ anychart.linearGaugeModule.ScaleBar.prototype.setupByJSON = function(config, opt
     if (scale)
       this.colorScale(/** @type {anychart.colorScalesModule.Linear|anychart.colorScalesModule.Ordinal} */ (scale));
   }
-  this.fill(config['fill']);
-  this.stroke(config['stroke']);
 };
 
 
@@ -642,8 +575,8 @@ anychart.linearGaugeModule.ScaleBar.prototype.disposeInternal = function() {
   //proto['width'] = proto.width;
   //proto['offset'] = proto.offset;
   //proto['points'] = proto.points;
+  //proto['fill'] = proto.fill;
+  //proto['stroke'] = proto.stroke;
   proto['scale'] = proto.scale;
   proto['colorScale'] = proto.colorScale;
-  proto['fill'] = proto.fill;
-  proto['stroke'] = proto.stroke;
 })();
