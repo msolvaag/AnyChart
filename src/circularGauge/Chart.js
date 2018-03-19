@@ -552,7 +552,7 @@ anychart.circularGaugeModule.Chart.prototype.addPointer = function(var_args) {
   this.suspendSignalsDispatching();
   if (count) {
     for (var i = 0; i < count; i++) {
-      rv.push(this.createPointerByType_(type, arrIndex, arguments[i]));
+      rv.push(this.createPointerByType_(type, arrIndex + i, arguments[i]));
     }
   }
   this.resumeSignalsDispatching(true);
