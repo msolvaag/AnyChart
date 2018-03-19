@@ -452,8 +452,6 @@ anychart.stockModule.scales.Scatter.prototype.calculate = function() {
     // };
   }
 
-  console.log(this.intervals, targetInterval, row);
-
   if (this.ticksCallback_) {
     var context = {
       'fullMin': this.dataFullMinKey,

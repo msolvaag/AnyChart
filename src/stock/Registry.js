@@ -438,12 +438,12 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
       range = currKey - prevKey;
       if (!isNaN(range)) {
         estRange = anychart.utils.estimateInterval(range);
-        if (intervals[estRange.unit]) {
-          interval = intervals[estRange.unit];
+        if (intervals[estRange['unit']]) {
+          interval = intervals[estRange['unit']];
           interval.count++;
           interval.range += range;
         } else {
-          intervals[estRange.unit] = {count: 1, range: range, unit: estRange.unit};
+          intervals[estRange['unit']] = {count: 1, range: range, unit: estRange['unit']};
         }
       }
     }
@@ -453,12 +453,12 @@ anychart.stockModule.Registry.prototype.getSelection = function(startKey, endKey
       range = currKey - prevKey;
       if (!isNaN(range)) {
         estRange = anychart.utils.estimateInterval(range);
-        if (intervals[estRange.unit]) {
-          interval = intervals[estRange.unit];
+        if (intervals[estRange['unit']]) {
+          interval = intervals[estRange['unit']];
           interval.count++;
           interval.range += range;
         } else {
-          intervals[estRange.unit] = {count: 1, range: range, unit: estRange.unit};
+          intervals[estRange['unit']] = {count: 1, range: range, unit: estRange.unit};
         }
       }
     }
