@@ -161,7 +161,7 @@ anychart.core.reporting.getInfoDescription_ = function(code, opt_arguments) {
 anychart.core.reporting.warning = function(code, opt_exception, opt_descArgs, opt_forceProd) {
   var desc;
   if ((anychart.DEVELOP || opt_forceProd) && !anychart.core.reporting.shownWarningMessages_[desc = anychart.core.reporting.getWarningDescription_(code, opt_descArgs)]) {
-    anychart.core.reporting.shownWarningMessages_['desc'] = true;
+    anychart.core.reporting.shownWarningMessages_[desc] = true;
     anychart.core.reporting.callLog_(
         'warn',
         ('Warning: ' + code + '\nDescription: ' + desc),
