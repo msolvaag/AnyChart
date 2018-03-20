@@ -18,6 +18,22 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'rowEvenFill': '#fff',
     'rowFill': '#fff',
 
+    /**
+     * @this {*}
+     * @return {*}
+     */
+    'onEditStart': function() {
+      return this['columnIndex'] < 1 ? {'cancelEdit': true} : {'value': this['value']};
+    },
+
+    /**
+     * @this {*}
+     * @return {*}
+     */
+    'onEditEnd': function() {
+      return this['columnIndex'] == 1 ? {'itemMap': {'name': this['value']}} : {'cancelEdit': true};
+    },
+
     'buttons': {
       'size': 15,
       'padding': [0, 0, 0, 0],
@@ -66,19 +82,12 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'separator': {
         'enabled': true
       },
-      /**
-       * @this {*}
-       * @return {string}
-       */
-      'format': function() {
-        var name = this['name'];
-        return (name !== void 0) ? name + '' : '';
-      }
+      'format': '{%name}'
     },
     'defaultColumnSettings': {
       'width': 90,
       'buttonCursor': 'pointer',
-      'cellTextSettings': {
+      'labels': {
         'enabled': true,
         'wordBreak': 'break-all',
         'anchor': 'left-top',
@@ -99,28 +108,19 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'enabled': true,
         'margin': 0,
         'vAlign': 'middle',
+        'hAlign': 'center',
         'background': {
           'enabled': false
-        }
-      },
-      /**
-       * @this {*}
-       * @return {string}
-       */
-      'format': function() {
-        return '';
+        },
+        'wordWrap': 'normal',
+        'wordBreak': 'normal'
       }
     },
     'columns': [
       {
         'width': 50,
-        /**
-         * @this {*}
-         * @return {string}
-         */
-        'format': function() {
-          var val = this['item']['meta']('index');
-          return (val != null) ? (val + 1) + '' : '';
+        'labels': {
+          'format': '{%linearIndex}'
         },
         'title': {
           'text': '#'
@@ -130,13 +130,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'width': 170,
         'collapseExpandButtons': true,
         'depthPaddingMultiplier': 15,
-        /**
-         * @this {*}
-         * @return {string}
-         */
-        'format': function() {
-          var val = this['name'];
-          return (val != null) ? (val + '') : '';
+        'labels': {
+          'format': '{%name}'
         },
         'title': {
           'text': 'Name'
@@ -153,8 +148,6 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
 
     'rowHoverFill': anychart.core.defaultTheme.returnSourceColor,
     'rowSelectedFill': anychart.core.defaultTheme.returnSourceColor,
-    'selectedElementFill': anychart.core.defaultTheme.returnSourceColor,
-    'selectedElementStroke': anychart.core.defaultTheme.returnSourceColor,
 
     'rowStroke': anychart.core.defaultTheme.ganttDefaultStroke,
     'rowOddFill': '#fff',
@@ -212,21 +205,124 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'editFinishConnectorMarkerVerticalOffset': 0,
     'editIntervalWidth': 3,
 
-    'baseFill': anychart.core.defaultTheme.returnSourceColor,
-    'baseStroke': anychart.core.defaultTheme.returnSourceColor,
-
-    'baseBarAnchor': 'auto',
-    'baseBarPosition': 'left-center',
-    'baseBarOffset': 0,
-    'baseBarHeight': '70%',
-    'progressBarHeight': '100%',
-    'progressBarPosition': 'left-center',
-    'progressBarAnchor': 'left-center',
     //all another settings should be set to 'null' for serialization demerging purposes
 
-    'connectorFill': '#545f69',
-    'connectorStroke': '#545f69',
-    'baselineAbove': false,
+    'elements': {
+      'anchor': 'auto',
+      'position': 'left-center',
+      'offset': 0,
+      'height': '70%',
+      'normal': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
+      'selected': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
+      'labels': {
+        'enabled': null
+      },
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['path'];
+          var bounds = this['predictedBounds'];
+          anychart.graphics['vector']['primitives']['roundedRect'](path, bounds, 0);
+        },
+        'shapes': [
+          {
+            'name': 'path',
+            'shapeType': 'path',
+            'zIndex': 10,
+            'disablePointerEvents': false
+          }
+        ]
+      }
+    },
+
+    'tasks': {
+      'progress': {
+        'height': '100%',
+        'anchor': 'left-center',
+        'rendering': {
+          'shapes': [
+            {
+              'name': 'path',
+              'shapeType': 'path',
+              'zIndex': 11,
+              'disablePointerEvents': true
+            }
+          ]
+        }
+      }
+    },
+
+    'groupingTasks': {
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['path'];
+          var bounds = this['predictedBounds'];
+
+          var right = bounds.left + bounds.width;
+          var top = bounds.top + bounds.height;
+          var top2 = bounds.top + bounds.height * 1.4;
+          path
+              .moveTo(bounds.left, bounds.top)
+              .lineTo(right, bounds.top)
+              .lineTo(right, top2)
+              .lineTo(right - 1, top2)
+              .lineTo(right - 1, top)
+              .lineTo(bounds.left + 1, top)
+              .lineTo(bounds.left + 1, top2)
+              .lineTo(bounds.left, top2)
+              .close();
+        }
+      }
+    },
+
+    'milestones': {
+      'rendering': {
+        /**
+         * @this {*}
+         * @return {*}
+         */
+        'drawer': function() {
+          var shapes = this['shapes'];
+          var path = shapes['path'];
+          var bounds = this['predictedBounds'];
+          var radius = bounds.width / 2;
+          anychart.graphics['vector']['primitives']['diamond'](path, bounds.left + radius, bounds.top + radius, radius);
+        }
+      }
+    },
+
+    'baselines': {
+      'above': false
+    },
+
+    'connectors': {
+      'normal': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      },
+      'selected': {
+        'fill': anychart.core.defaultTheme.returnSourceColor,
+        'stroke': anychart.core.defaultTheme.returnSourceColor
+      }
+    },
+
+    // 'connectorFill': '#545f69',
+    // 'connectorStroke': '#545f69',
     'tooltip': {
       'padding': 5,
       'title': {
@@ -384,33 +480,45 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'titleFormat': '{%Name}',
         'format': 'Start Date: {%actualStart}\nEnd Date: {%actualEnd}\nComplete: {%progress}'
       },
-      'baseLabels': {
-        'format': '{%Progress}',
-        'position': 'right-center',
-        'anchor': 'left-center',
-        'enabled': null
+      'elements': {
+        'labels': {
+          'format': '{%Progress}',
+          'position': 'right-center',
+          'anchor': 'left-center',
+          'enabled': null
+        }
       },
-      'baselineLabels': {
-        'position': 'right-center',
-        'anchor': 'left-center',
-        'format': 'Baseline Label',
-        'enabled': false
+      'tasks': {
+        'progress': {
+          'labels': {
+            'format': '{%Progress}',
+            'enabled': false
+          }
+        }
       },
-      'parentLabels': {
-        'format': '{%Progress}',
-        'position': 'right-center',
-        'anchor': 'left-center',
-        'enabled': null
+      'groupingTasks': {
+        'progress': {
+          'labels': {
+            'format': '{%Progress}',
+            'enabled': false
+          }
+        }
       },
-      'milestoneLabels': {
-        'format': '{%Name}',
-        'anchor': 'left-center',
-        'position': 'right-center',
-        'enabled': null
+      'baselines': {
+        'labels': {
+          'position': 'right-center',
+          'anchor': 'left-center',
+          'format': 'Baseline Label',
+          'enabled': false
+        }
       },
-      'progressLabels': {
-        'format': '{%Progress}',
-        'enabled': false
+      'milestones': {
+        'labels': {
+          'format': '{%Name}',
+          'anchor': 'left-center',
+          'position': 'right-center',
+          'enabled': null
+        }
       }
     }
   }

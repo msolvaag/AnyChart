@@ -468,7 +468,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.backgroundFill = function(opt_
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.levelsSeparationStroke = function(opt_value) {
   anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['levelsSeparationStroke()', 'stroke()'], true);
-  return this.stroke(opt_value);
+  return this['stroke'](opt_value);
 };
 
 
@@ -1320,7 +1320,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
 
   // deprecated methods
   if ('levelsSeparationStroke' in config) {
-    this.stroke(config['levelsSeparationStroke']);
+    this['stroke'](config['levelsSeparationStroke']);
     if (!opt_default)
       anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['levelsSeparationStroke()', 'stroke()'], true);
   }

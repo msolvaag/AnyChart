@@ -728,7 +728,7 @@ anychart.themes.merging.mergingMap_ = (function() {
             'header',
             'labels'
           ]],
-          'DataGrid.defaultColumnSettings.cellTextSettings'
+          'DataGrid.defaultColumnSettings.labels'
         ]],
         'standalones.labelsFactory',
         ['map.axesSettings.', [
@@ -775,14 +775,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'map',
           'stock'
-        ], [
-          ['.crosshair.', [
-            [[
-              'x',
-              'y'
-            ], 'Label']
-          ]]
-        ]]
+        ], '.crosshair.defaultLabelSettings']
       ]
     },
     {
@@ -1654,6 +1647,20 @@ anychart.themes.merging.mergingMap_ = (function() {
       ]
     },
     {
+      defaultObj: 'defaultTimeline.elements',
+      targets: [
+        ['defaultTimeline.', [
+          'tasks', 'baselines', 'milestones', 'periods'
+        ]]
+      ]
+    },
+    {
+      defaultObj: 'defaultTimeline.tasks',
+      targets: [
+        ['defaultTimeline.', ['groupingTasks']]
+      ]
+    },
+    {
       defaultObj: 'ganttBase',
       targets: [
         ['gantt', [
@@ -1666,7 +1673,7 @@ anychart.themes.merging.mergingMap_ = (function() {
       defaultObj: 'defaultGroupingSettings',
       targets: [
         ['stock.', [
-            [['g', 'scrollerG'], 'rouping']
+          [['g', 'scrollerG'], 'rouping']
         ]]
       ]
     },
@@ -1818,7 +1825,8 @@ anychart.themes.merging.NonMergableEntityTypes_ = {
   HATCH_PALETTE: 5,
   MARKER_PALETTE: 6,
   SCALE: 7,
-  PADDING: 8
+  PADDING: 8,
+  SHAPES: 9
 };
 
 
@@ -1836,7 +1844,8 @@ anychart.themes.merging.nonMergableEntities_ = (function() {
     'fill': anychart.themes.merging.NonMergableEntityTypes_.FILL,
     'stroke': anychart.themes.merging.NonMergableEntityTypes_.STROKE,
     'hatchFill': anychart.themes.merging.NonMergableEntityTypes_.HATCH_FILL,
-    'hatchFillPalette': anychart.themes.merging.NonMergableEntityTypes_.HATCH_PALETTE
+    'hatchFillPalette': anychart.themes.merging.NonMergableEntityTypes_.HATCH_PALETTE,
+    'shapes': anychart.themes.merging.NonMergableEntityTypes_.SHAPES
   };
 
   populate([[
