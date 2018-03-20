@@ -1360,7 +1360,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
     goog.disposeAll(this.wrappers_);
     this.wrappers_.length = 0;
     for (var i = 0; i < levels.length; i++) {
-      this.levels(i, this.wrappers_[i]);
+      this.levels(i, levels[i]);
     }
   }
 };
