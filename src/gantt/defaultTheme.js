@@ -381,6 +381,9 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       'anchor': 'left-top',
       'fontSize': 10,
       'vAlign': 'middle',
+      'holidays': {
+        'padding': {}
+      },
       //'format': anychart.core.defaultTheme.returnValueAsIs,
       'padding': {
         'top': 0,
