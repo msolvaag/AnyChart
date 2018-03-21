@@ -4843,7 +4843,7 @@ anychart.ganttModule.TimeLine.prototype.specialInvalidated = function() {
     for (var i = 0; i < levels.length; i++) {
       if (header.levels(i).enabled()) {
         var level = levels[i];
-        ticks = this.scale_.getSimpleTicks(/** @type {anychart.enums.Interval} */(level.unit), /** @type {number} */(level.count));
+        ticks = this.scale_.getSimpleTicks(/** @type {anychart.enums.Interval} */(level['unit']), /** @type {number} */(level['count']));
         break;
       }
     }

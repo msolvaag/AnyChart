@@ -704,7 +704,7 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
   var last = this.ranges_.length - 1;
   var row;
   for (var i = 0; i < last; i++) {
-    if (minorTickRange <= this.ranges_[i].range) {
+    if (minorTickRange <= this.ranges_[i]['range']) {
       row = this.ranges_[i];
       break;
     }
@@ -713,7 +713,7 @@ anychart.ganttModule.Scale.prototype.getLevelsData = function() {
     row = this.ranges_[last];
   }
 
-  return /** @type {Array.<anychart.ganttBaseModule.TimeLineHeader.Level>} */(row.levels);
+  return /** @type {Array.<anychart.ganttBaseModule.TimeLineHeader.Level>} */(row['levels']);
 };
 
 
@@ -901,11 +901,11 @@ anychart.ganttModule.Scale.prototype.zoomLevels = function(opt_value) {
     var newZoomLevels = this.normalizeLevels_(opt_value);
     var same = newZoomLevels.length == this.ranges_.length &&
         goog.array.every(newZoomLevels, function(newZoomLevel, index) {
-          var oldZoomLevelLevels = this.ranges_[index].levels;
-          return newZoomLevel.levels.length == oldZoomLevelLevels.length &&
-              goog.array.every(newZoomLevel.levels, function(item, index) {
-                return item.unit == oldZoomLevelLevels[index].unit &&
-                    item.count == oldZoomLevelLevels[index].count;
+          var oldZoomLevelLevels = this.ranges_[index]['levels'];
+          return newZoomLevel['levels'].length == oldZoomLevelLevels.length &&
+              goog.array.every(newZoomLevel['levels'], function(item, index) {
+                return item['unit'] == oldZoomLevelLevels[index]['unit'] &&
+                    item['count'] == oldZoomLevelLevels[index]['count'];
               });
         }, this);
     if (!same) {
@@ -953,21 +953,21 @@ anychart.ganttModule.Scale.prototype.normalizeLevels_ = function(value) {
           }
           if (unit) {
             levels.push({
-              unit: unit,
-              count: count
+              'unit': unit,
+              'count': count
             });
           }
         }
         if (levels.length) {
           res.push({
-            range: anychart.utils.getIntervalRange(/** @type {anychart.enums.Interval} */(levels[0].unit), /** @type {number} */(levels[0].count)),
-            levels: levels
+            'range': anychart.utils.getIntervalRange(/** @type {anychart.enums.Interval} */(levels[0]['unit']), /** @type {number} */(levels[0]['count'])),
+            'levels': levels
           });
         }
       }
     }
     res.sort(function(a, b) {
-      return a.range - b.range;
+      return a['range'] - b['range'];
     });
   }
   return res;
