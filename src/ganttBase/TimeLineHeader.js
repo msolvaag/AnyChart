@@ -941,28 +941,28 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
           weekdaysPath.clear().parent(this.levelsLayer_);
         } else {
           weekdaysPath = this.levelsLayer_.path();
-          this.levelsWeekdaysPaths_.push(weekdaysPath);
+          this.levelsWeekdaysPaths_[i] = weekdaysPath;
         }
 
         if (holidaysPath) {
           holidaysPath.clear().parent(this.levelsLayer_);
         } else {
           holidaysPath = this.levelsLayer_.path();
-          this.levelsHolidaysPaths_.push(holidaysPath);
+          this.levelsHolidaysPaths_[i] = holidaysPath;
         }
 
         if (weekdaysStrokePath) {
           weekdaysStrokePath.clear().parent(this.levelsLayer_);
         } else {
           weekdaysStrokePath = this.levelsLayer_.path();
-          this.levelsWeekdaysStrokePaths_.push(weekdaysStrokePath);
+          this.levelsWeekdaysStrokePaths_[i] = weekdaysStrokePath;
         }
 
         if (holidaysStrokePath) {
           holidaysStrokePath.clear().parent(this.levelsLayer_);
         } else {
           holidaysStrokePath = this.levelsLayer_.path();
-          this.levelsHolidaysStrokePaths_.push(holidaysStrokePath);
+          this.levelsHolidaysStrokePaths_[i] = holidaysStrokePath;
         }
 
         labels = this.getLabelsFactory_(i, true);
@@ -1105,83 +1105,87 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
     var pixelShiftTo = 0;
 
     for (var row = 0; row < rowCount; row++) {
-      var isLastRow = row == lastRow;
-      var levelHeight = goog.isNull(this.heights_[row]) ? this.heights_[row] = this.autoLevelHeight_ : this.heights_[row];
       level = this.levels_[row];
+      enabled = this.getLevelOption_(row, 'enabled');
+      if (level && (enabled || !goog.isDef(enabled))) {
 
-      weekdaysPath = this.levelsWeekdaysPaths_[row].clear();
-      holidaysPath = this.levelsHolidaysPaths_[row].clear();
-      weekdaysStrokePath = this.levelsWeekdaysStrokePaths_[row].clear();
-      holidaysStrokePath = this.levelsHolidaysStrokePaths_[row].clear();
-      if (drawLabels) {
-        labels = this.labels_[row];
-        labels.clear();
-      }
+        var isLastRow = row == lastRow;
+        var levelHeight = goog.isNull(this.heights_[row]) ? this.heights_[row] = this.autoLevelHeight_ : this.heights_[row];
 
-      var horzTicks = this.xScale_.getTicks(0, this.pixelBoundsCache_.width, level['unit'], level['count']);
-      var colsCount = horzTicks.length;
-      var lastCol = colsCount - 1;
+        weekdaysPath = this.levelsWeekdaysPaths_[row].clear();
+        holidaysPath = this.levelsHolidaysPaths_[row].clear();
+        weekdaysStrokePath = this.levelsWeekdaysStrokePaths_[row].clear();
+        holidaysStrokePath = this.levelsHolidaysStrokePaths_[row].clear();
+        if (drawLabels) {
+          labels = this.labels_[row];
+          labels.clear();
+        }
 
-      var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(weekdaysStrokePath.stroke()));
+        var horzTicks = this.xScale_.getTicks(0, this.pixelBoundsCache_.width, level['unit'], level['count']);
+        var colsCount = horzTicks.length;
+        var lastCol = colsCount - 1;
 
-      pixelShiftFrom = !row && drawBottom ? thickness / 2 : row ? Math.ceil(thickness / 2) : 0;
-      from = anychart.utils.applyPixelShift(from - pixelShiftFrom, thickness);
+        var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(weekdaysStrokePath.stroke()));
 
-      pixelShiftTo = isLastRow && drawTop ? thickness / 2 : !isLastRow ? Math.floor(thickness / 2) : 0;
-      levelHeight -= (row ? pixelShiftFrom / 2 : pixelShiftFrom) + (isLastRow ? pixelShiftTo : pixelShiftTo / 2);
-      to = anychart.utils.applyPixelShift(from - levelHeight, thickness, true);
+        pixelShiftFrom = !row && drawBottom ? thickness / 2 : row ? Math.ceil(thickness / 2) : 0;
+        from = anychart.utils.applyPixelShift(from - pixelShiftFrom, thickness);
 
-      this.formatIndex_ = 0;
-      for (var col = 0; col < colsCount; col++) {
-        var isLastCol = col == lastCol;
-        var tick = horzTicks[col];
-        var holiday = tick['holiday'];
-        var strokePath = holiday ? holidaysStrokePath : weekdaysStrokePath;
+        pixelShiftTo = isLastRow && drawTop ? thickness / 2 : !isLastRow ? Math.floor(thickness / 2) : 0;
+        levelHeight -= (row ? pixelShiftFrom / 2 : pixelShiftFrom) + (isLastRow ? pixelShiftTo : pixelShiftTo / 2);
+        to = anychart.utils.applyPixelShift(from - levelHeight, thickness, true);
 
-        thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(strokePath.stroke()));
+        this.formatIndex_ = 0;
+        for (var col = 0; col < colsCount; col++) {
+          var isLastCol = col == lastCol;
+          var tick = horzTicks[col];
+          var holiday = tick['holiday'];
+          var strokePath = holiday ? holidaysStrokePath : weekdaysStrokePath;
 
-        var left = anychart.utils.applyPixelShift(this.dateToPix(tick['start']), thickness);
-        var right = anychart.utils.applyPixelShift(this.dateToPix(tick['end']), thickness);
+          thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(strokePath.stroke()));
 
-        var l = Math.floor(left);
-        var r = Math.ceil(right);
-        var t = (drawTop || !isLastRow) ? Math.ceil(to) : Math.floor(to);
-        var b = (drawBottom && !row) ? Math.floor(from) : Math.ceil(from);
+          var left = anychart.utils.applyPixelShift(this.dateToPix(tick['start']), thickness);
+          var right = anychart.utils.applyPixelShift(this.dateToPix(tick['end']), thickness);
 
-        if (drawLeft && !col)
-          strokePath
-              .moveTo(left, t)
-              .lineTo(left, b);
-        if (drawRight || !isLastCol)
-          strokePath
-              .moveTo(right, t)
-              .lineTo(right, b);
-        if (drawTop || !isLastRow)
-          strokePath
-              .moveTo(l, to)
-              .lineTo(r, to);
-        if (drawBottom && !row)
-          strokePath
-              .moveTo(l, from)
-              .lineTo(r, from);
+          var l = Math.floor(left);
+          var r = Math.ceil(right);
+          var t = (drawTop || !isLastRow) ? Math.ceil(to) : Math.floor(to);
+          var b = (drawBottom && !row) ? Math.floor(from) : Math.ceil(from);
 
-        var path = holiday ? holidaysPath : weekdaysPath;
-        path
-            .moveTo(l, b)
-            .lineTo(r, b)
-            .lineTo(r, t)
-            .lineTo(l, t)
-            .close();
+          if (drawLeft && !col)
+            strokePath
+                .moveTo(left, t)
+                .lineTo(left, b);
+          if (drawRight || !isLastCol)
+            strokePath
+                .moveTo(right, t)
+                .lineTo(right, b);
+          if (drawTop || !isLastRow)
+            strokePath
+                .moveTo(l, to)
+                .lineTo(r, to);
+          if (drawBottom && !row)
+            strokePath
+                .moveTo(l, from)
+                .lineTo(r, from);
+
+          var path = holiday ? holidaysPath : weekdaysPath;
+          path
+              .moveTo(l, b)
+              .lineTo(r, b)
+              .lineTo(r, t)
+              .lineTo(l, t)
+              .close();
+
+          if (drawLabels) {
+            this.labelsConfiguration(row, col, tick, holiday, left, right, from, to);
+          }
+        }
 
         if (drawLabels) {
-          this.labelsConfiguration(row, col, tick, holiday, left, right, from, to);
+          this.drawLabels(row);
         }
+        from = to;
       }
-
-      if (drawLabels) {
-        this.drawLabels(row);
-      }
-      from = to;
     }
   }
 };
