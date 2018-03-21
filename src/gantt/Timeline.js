@@ -5286,7 +5286,7 @@ anychart.ganttModule.TimeLine.prototype.setupByJSON = function(config, opt_defau
   this.labels().setupInternal(!!opt_default, config['labels']);
 
   if ('markers' in config) this.markers(config['markers']);
-  if ('header' in config) this.header(config['header']);
+  if ('header' in config) this.header().setupInternal(!!opt_default, config['header']);
 
   anychart.core.settings.deserialize(this, anychart.ganttModule.TimeLine.COLOR_DESCRIPTORS, config, opt_default);
 

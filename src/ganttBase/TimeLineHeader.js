@@ -84,7 +84,16 @@ anychart.ganttBaseModule.TimeLineHeader = function() {
    */
   this.resolutionChainCache_ = null;
 
+  /**
+   * @type {Array.<anychart.core.ui.LabelsFactory>}
+   * @private
+   */
   this.labels_ = [];
+
+  /**
+   * @type {Array.<anychart.ganttBaseModule.TimeLineHeader.LevelWrapper>}
+   * @private
+   */
   this.wrappers_ = [];
 
   anychart.core.settings.createTextPropertiesDescriptorsMeta(this.descriptorsMeta,
@@ -762,40 +771,34 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.getLabelsFormatProvider_ = fun
 anychart.ganttBaseModule.TimeLineHeader.prototype.labelsConfiguration = function(row, col, tick, holiday, left, right, from, to) {
   var settings = holiday ? this.holidaysLabelSettings[row] : this.weekdaysLabelSettings[row];
 
-  var padding = settings['padding'];
-  if (padding && !(anychart.utils.instanceOf(padding, anychart.core.utils.Padding))) {
-    if (!this.tempPadding_) this.tempPadding_ = new anychart.core.utils.Padding();
-    this.tempPadding_.setup(settings['padding']);
-    padding = this.tempPadding_;
-  }
-
   var levelHeight = this.heights_[row];
   var labels = this.labels_[row];
 
-  var x = left + (right - left) / 2;
-  var y = to + levelHeight / 2;
-  var positionProvider = {'value': {'x': x, 'y': y}};
-
+  var sourceBounds = anychart.math.rect(left, to, right - left, levelHeight);
   var left_ = Math.max(left, this.pixelBoundsCache_.left);
   var right_ = Math.min(right, this.pixelBoundsCache_.getRight());
-  var bounds = anychart.math.rect(
-      left_,
-      to,
-      right_ - left_,
-      levelHeight);
-  var sourceBounds = anychart.math.rect(left, to, right - left, levelHeight);
+  var bounds = anychart.math.rect(left_, to, right_ - left_, levelHeight);
 
-  var label = labels.add({'tickValue': tick['start']}, positionProvider, col);
-  settings['width'] = bounds.width;
-  settings['height'] = bounds.height;
+  var label = labels.add({'tickValue': tick['start']}, null, col);
 
-  if (padding)
-    label.cellBoundsWithPadding = padding.tightenBounds(bounds);
-  label.cellBounds = bounds;
-  label.sourceBounds = sourceBounds;
+  var padding = settings['padding'];
+  if (padding) {
+    if (!(anychart.utils.instanceOf(padding, anychart.core.utils.Padding))) {
+      if (!this.tempPadding_) this.tempPadding_ = new anychart.core.utils.Padding();
+      this.tempPadding_.setup(settings['padding']);
+      padding = this.tempPadding_;
+    }
+    label.cellBounds = padding.tightenBounds(bounds);
+    label.sourceBounds = padding.tightenBounds(sourceBounds);
+  } else {
+    label.cellBounds = bounds;
+    label.sourceBounds = sourceBounds;
+  }
 
-  label['clip'](bounds);
+  settings['anchor'] = 'left-top';
+  label.getTextElement().clip(label.cellBounds);
   label.setSettings(settings);
+  label.padding(0);
 
   if (!this.choosenFormats_[row] && this.formatIndex_ != this.sourceFormats_[row].length - 1) {
     this.formatIndex_ = Math.max(
@@ -815,7 +818,6 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.labelsConfiguration = function
  * @param {number} row Index of level.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.drawLabels = function(row) {
-  var x, y;
   var labels = this.labels_[row];
   var format = this.choosenFormats_[row] ? this.choosenFormats_[row] : this.choosenFormats_[row] = this.sourceFormats_[row][this.formatIndex_];
   for (var i = 0, len = labels.labelsCount(); i < len; i++) {
@@ -823,62 +825,27 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.drawLabels = function(row) {
     var tickValue = label.formatProvider()['tickValue'];
     label.formatProvider(this.getLabelsFormatProvider_(tickValue, format));
 
-    if (!i || i == len - 1) {
-      var settings = label.getMergedSettings();
-      settings['width'] = null;
-      settings['height'] = null;
-
-      var labelBounds = labels.measure(label, undefined, settings);
-      var parentBounds = label.cellBounds;
-
-      var hAlign = label.getFinalSettings('hAlign');
-      // var width = label.getFinalSettings('width');
-
-      if (hAlign == 'start' || hAlign == 'left') {
-        labelBounds.left = label.sourceBounds.left;
-      } else if (hAlign == 'end' || hAlign == 'right') {
-        labelBounds.left = label.sourceBounds.getRight() - labelBounds.width;
-      }
-
-      // if (!this['lbl' + i + '_' + row + 'pb']) this['lbl' + i + '_' + row + 'pb'] = this.container().rect().zIndex(1000);
-      // this['lbl' + i + '_' + row + 'pb'].setBounds(parentBounds);
-      //
-      // if (!this['lbl' + i + '_' + row + 'lb']) this['lbl' + i + '_' + row + 'lb'] = this.container().rect().zIndex(1000);
-      // this['lbl' + i + '_' + row + 'lb'].setBounds(labelBounds);
-
-      var bounds = parentBounds;
-      if (labelBounds.left < parentBounds.left) {
-        bounds = labelBounds;
-        bounds.left = parentBounds.left;
-
-        x = bounds.left + bounds.width / 2;
-        y = bounds.top + bounds.height / 2;
-
-        label.positionProvider({'value': {'x': x, 'y': y}});
-        label.setOption('width', labelBounds.width);
-      } else if (labelBounds.getRight() > parentBounds.getRight()) {
-        bounds = labelBounds;
-
-        if (labelBounds.width >= parentBounds.width) {
-          bounds.left = parentBounds.left;
-        } else {
-          bounds.left = parentBounds.getRight() - labelBounds.width;
-        }
-
-        x = bounds.left + bounds.width / 2;
-        y = bounds.top + bounds.height / 2;
-
-        label.positionProvider({'value': {'x': x, 'y': y}});
-        label.setOption('width', labelBounds.width);
-      } else if (hAlign != 'center') {
-        x = bounds.left + bounds.width / 2;
-        y = bounds.top + bounds.height / 2;
-
-        label.positionProvider({'value': {'x': x, 'y': y}});
-      }
-
-      label['clip'](label.cellBoundsWithPadding);
+    var bounds = labels.measure(label);
+    var hAlign = label.getFinalSettings('hAlign');
+    if (hAlign == anychart.enums.HAlign.LEFT || hAlign == anychart.enums.HAlign.START) {
+      bounds.left = label.sourceBounds.left;
+    } else if (hAlign == anychart.enums.HAlign.RIGHT || hAlign == anychart.enums.HAlign.END) {
+      bounds.left = label.sourceBounds.getRight() - bounds.width;
+    } else {
+      bounds.left = label.sourceBounds.left + (label.sourceBounds.width - bounds.width) / 2;
     }
+    var vAlign = label.getFinalSettings('vAlign');
+    if (vAlign == anychart.enums.VAlign.TOP) {
+      bounds.top = label.sourceBounds.top;
+    } else if (vAlign == anychart.enums.VAlign.BOTTOM) {
+      bounds.top = label.sourceBounds.getBottom() - bounds.height;
+    } else {
+      bounds.top = label.sourceBounds.top + (label.sourceBounds.height - bounds.height) / 2;
+    }
+    bounds.left = Math.max(label.cellBounds.left, bounds.left);
+    bounds.top = Math.max(label.cellBounds.top, bounds.top);
+
+    label.positionProvider({'value': {'x': bounds.left, 'y': bounds.top}});
   }
   labels.dropCallsCache();
   labels.draw();
@@ -1063,6 +1030,8 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
           anychart.core.settings.copy(weekdaysLabelSettings, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, this.wrappers_[i].ownSettings);
         }
         weekdaysLabelSettings['enabled'] = true;
+        weekdaysLabelSettings['width'] = null;
+        weekdaysLabelSettings['height'] = null;
         this.weekdaysLabelSettings[i] = weekdaysLabelSettings;
 
         var holidaysLabelSettings = {};
@@ -1077,6 +1046,8 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
           if ('padding' in levelHoliday) holidaysLabelSettings['padding'] = levelHoliday['padding'];
         }
         holidaysLabelSettings['enabled'] = true;
+        holidaysLabelSettings['width'] = null;
+        holidaysLabelSettings['height'] = null;
         this.holidaysLabelSettings[i] = holidaysLabelSettings;
 
         var weekdayStroke = anychart.utils.getFirstDefinedValue(this.getLevelOption_(i, 'stroke'), level['stroke'], this.getOption('stroke'));

@@ -373,8 +373,8 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     },
     'header': {
       'background': {
-        'enabled': true,
-        'fill': '#cecece'
+        'enabled': false,
+        'fill': '#f7f7f7'
       },
       'fill': '#f7f7f7',
       'stroke': anychart.core.defaultTheme.ganttDefaultStroke,
@@ -430,19 +430,15 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'overlay': {
           'enabled': false
         },
-        'zIndex': 2,
+        'textOverflow': '',
+        'stroke': '#ccc',
+        'padding': [0, 5, 0, 5],
+        'fontSize': 10,
         'vAlign': 'middle',
         'hAlign': 'center',
-        'textOverflow': '',
-        'fill': 'none',
-        'stroke': '#ccc',
-        'padding': [2, 10, 2, 10],
-        'fontSize': 11,
-        'fontWeight': 'bold',
-        'fontFamily': '"Helvetica Neue", Helvetica, sans-serif',
         'drawTopLine': false,
         'drawRightLine': false,
-        'drawBottomLine': true,
+        'drawBottomLine': false,
         'drawLeftLine': false
       }
     }
