@@ -257,7 +257,7 @@ anychart.ganttModule.Scale.createFormat_ = function(pattern, opt_template) {
  */
 anychart.ganttModule.Scale.DEFAULT_LEVELS = [
   [{'unit': anychart.enums.Interval.MINUTE, 'count': 10}, {'unit': anychart.enums.Interval.HOUR, 'count': 1}, {'unit': anychart.enums.Interval.DAY, 'count': 1}],
-  [{'unit': anychart.enums.Interval.HOUR, 'count': 2}, {'unit': anychart.enums.Interval.DAY, 'count': 1}, {'unit': anychart.enums.Interval.WEEK, 'count': 1}],
+  [{'unit': anychart.enums.Interval.HOUR, 'count': 2}, {'unit': anychart.enums.Interval.DAY, 'count': 1}, {'unit': anychart.enums.Interval.MONTH, 'count': 1}],
   [{'unit': anychart.enums.Interval.DAY, 'count': 1}, {'unit': anychart.enums.Interval.WEEK, 'count': 1}, {'unit': anychart.enums.Interval.MONTH, 'count': 1}],
   [{'unit': anychart.enums.Interval.MONTH, 'count': 1}, {'unit': anychart.enums.Interval.QUARTER, 'count': 1}, {'unit': anychart.enums.Interval.YEAR, 'count': 1}],
   [{'unit': anychart.enums.Interval.QUARTER, 'count': 1}, {'unit': anychart.enums.Interval.YEAR, 'count': 1}, {'unit': anychart.enums.Interval.YEAR, 'count': 10}]

@@ -335,7 +335,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setLevels = function(value) {
  * @param {(Object|boolean|null)=} opt_value Chart
  * @return {anychart.ganttBaseModule.TimeLineHeader|anychart.ganttBaseModule.TimeLineHeader.LevelWrapper}
  */
-anychart.ganttBaseModule.TimeLineHeader.prototype.levels = function(opt_indexOrValue, opt_value) {
+anychart.ganttBaseModule.TimeLineHeader.prototype.level = function(opt_indexOrValue, opt_value) {
   var index,
       value;
   index = anychart.utils.toNumber(opt_indexOrValue);
@@ -362,11 +362,11 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.levels = function(opt_indexOrV
  * Getter for top level of header.
  * @param {(Object|boolean)=} opt_value - Value to set.
  * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper|anychart.ganttBaseModule.TimeLineHeader} - Top level or itself for chaining..
- * @deprecated Since 8.2.0. Use levels(2) instead.
+ * @deprecated Since 8.2.0. Use level(2) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.topLevel = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'levels(2)'], true);
-  var level = this.levels(2);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'level(2)'], true);
+  var level = this.level(2);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
     return this;
@@ -380,11 +380,11 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.topLevel = function(opt_value)
  * Getter for mid level of header.
  * @param {(Object|boolean)=} opt_value - Value to set.
  * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper|anychart.ganttBaseModule.TimeLineHeader} - Mid level or itself for chaining..
- * @deprecated Since 8.2.0. Use levels(1) instead.
+ * @deprecated Since 8.2.0. Use level(1) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.midLevel = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'levels(1)'], true);
-  var level = this.levels(1);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'level(1)'], true);
+  var level = this.level(1);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
     return this;
@@ -398,11 +398,11 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.midLevel = function(opt_value)
  * Getter for low level of header.
  * @param {(Object|boolean)=} opt_value - Value to set.
  * @return {anychart.ganttBaseModule.TimeLineHeader.LevelWrapper|anychart.ganttBaseModule.TimeLineHeader} - Low level or itself for chaining..
- * @deprecated Since 8.2.0. Use levels(0) instead.
+ * @deprecated Since 8.2.0. Use level(0) instead.
  */
 anychart.ganttBaseModule.TimeLineHeader.prototype.lowLevel = function(opt_value) {
-  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'levels(0)'], true);
-  var level = this.levels(0);
+  anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'level(0)'], true);
+  var level = this.level(0);
   if (goog.isDef(opt_value)) {
     level.setup(opt_value);
     return this;
@@ -842,8 +842,8 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.drawLabels = function(row) {
     } else {
       bounds.top = label.sourceBounds.top + (label.sourceBounds.height - bounds.height) / 2;
     }
-    bounds.left = Math.max(label.cellBounds.left, bounds.left);
-    bounds.top = Math.max(label.cellBounds.top, bounds.top);
+    bounds.left = Math.max(label.cellBounds.left, Math.min(bounds.left, label.cellBounds.getRight() - bounds.width));
+    bounds.top = Math.max(label.cellBounds.top, Math.min(bounds.top, label.cellBounds.getBottom() - bounds.height));
 
     label.positionProvider({'value': {'x': bounds.left, 'y': bounds.top}});
   }
@@ -931,7 +931,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.draw = function() {
         if ('formats' in level) {
           this.sourceFormats_[i] = level['formats'];
         } else {
-          var parentLevelUnit = this.levels_[i + 1] ? this.levels_[i + 1]['unit'] : undefined;
+          var parentLevelUnit = this.levels_[i + 1] ? anychart.utils.getParentInterval(this.levels_[i + 1]['unit'], -1) : undefined;
           var id = anychart.format.getIntervalIdentifier(level['unit'], parentLevelUnit, 'timeline');
           this.sourceFormats_[i] = anychart.format.getDateTimeFormats(id);
         }
@@ -1306,21 +1306,21 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
   }
   var level = config['topLevel'];
   if (level) {
-    this.levels(2, level);
+    this.level(2, level);
     if (!opt_default)
-      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'levels(2)'], true);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['topLevel()', 'level(2)'], true);
   }
   level = config['midLevel'];
   if (level) {
-    this.levels(1, level);
+    this.level(1, level);
     if (!opt_default)
-      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'levels(1)'], true);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['midLevel()', 'level(1)'], true);
   }
   level = config['lowLevel'];
   if (level) {
-    this.levels(0, level);
+    this.level(0, level);
     if (!opt_default)
-      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'levels(0)'], true);
+      anychart.core.reporting.warning(anychart.enums.WarningCode.DEPRECATED, null, ['lowLevel()', 'level(0)'], true);
   }
   // end deprecated
 
@@ -1335,7 +1335,7 @@ anychart.ganttBaseModule.TimeLineHeader.prototype.setupByJSON = function(config,
     goog.disposeAll(this.wrappers_);
     this.wrappers_.length = 0;
     for (var i = 0; i < levels.length; i++) {
-      this.levels(i, levels[i]);
+      this.level(i, levels[i]);
     }
   }
 };
@@ -1525,8 +1525,8 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.tilesSeparationSt
 anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.serialize = function() {
   var json = anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.base(this, 'serialize');
 
-  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS, json, 'TimeLine Header Level');
-  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, json, 'TimeLine Header Level text settings');
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.DESCRIPTORS, json, 'TimeLine Header Level', undefined, true);
+  anychart.core.settings.serialize(this, anychart.ganttBaseModule.TimeLineHeader.TEXT_DESCRIPTORS, json, 'TimeLine Header Level text settings', undefined, true);
 
   return json;
 };
@@ -1570,7 +1570,7 @@ anychart.ganttBaseModule.TimeLineHeader.LevelWrapper.prototype.disposeInternal =
   proto['padding'] = proto.padding;
   proto['holidays'] = proto.holidays;
   proto['overlay'] = proto.overlay;
-  proto['levels'] = proto.levels;
+  proto['level'] = proto.level;
 
   // support or old Gantt API
   proto['backgroundFill'] = proto.backgroundFill;
