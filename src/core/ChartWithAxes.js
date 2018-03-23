@@ -363,7 +363,6 @@ anychart.core.ChartWithAxes.prototype.xGrid = function(opt_indexOrValue, opt_val
     grid.setup(this.defaultGridSettings());
     grid.zIndex(this.getGridZIndex(true));
     this.xGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -401,7 +400,6 @@ anychart.core.ChartWithAxes.prototype.yGrid = function(opt_indexOrValue, opt_val
     grid.setup(this.defaultGridSettings());
     grid.zIndex(this.getGridZIndex(true));
     this.yGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -439,7 +437,6 @@ anychart.core.ChartWithAxes.prototype.xMinorGrid = function(opt_indexOrValue, op
     grid.setup(this.defaultMinorGridSettings());
     grid.zIndex(this.getGridZIndex(false));
     this.xMinorGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -477,7 +474,6 @@ anychart.core.ChartWithAxes.prototype.yMinorGrid = function(opt_indexOrValue, op
     grid.setup(this.defaultMinorGridSettings());
     grid.zIndex(this.getGridZIndex(false));
     this.yMinorGrids_[index] = grid;
-    this.registerDisposable(grid);
     grid.listenSignals(this.onGridSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -561,7 +557,6 @@ anychart.core.ChartWithAxes.prototype.xAxis = function(opt_indexOrValue, opt_val
     axis.setParentEventTarget(this);
     axis.setupInternal(true, this.defaultXAxisSettings());
     this.xAxes_[index] = axis;
-    this.registerDisposable(axis);
     axis.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -597,7 +592,6 @@ anychart.core.ChartWithAxes.prototype.yAxis = function(opt_indexOrValue, opt_val
     axis.setParentEventTarget(this);
     axis.setupInternal(true, this.defaultYAxisSettings());
     this.yAxes_[index] = axis;
-    this.registerDisposable(axis);
     axis.listenSignals(this.onAxisSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -707,7 +701,6 @@ anychart.core.ChartWithAxes.prototype.lineMarker = function(opt_indexOrValue, op
     lineMarker.setup(this.defaultLineMarkerSettings());
     lineMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.lineAxesMarkers_[index] = lineMarker;
-    this.registerDisposable(lineMarker);
     lineMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -754,7 +747,6 @@ anychart.core.ChartWithAxes.prototype.rangeMarker = function(opt_indexOrValue, o
     rangeMarker.setup(this.defaultRangeMarkerSettings());
     rangeMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.rangeAxesMarkers_[index] = rangeMarker;
-    this.registerDisposable(rangeMarker);
     rangeMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -782,7 +774,7 @@ anychart.core.ChartWithAxes.prototype.createTextMarkerInstance = function() {
  * Getter/setter for textMarker.
  * @param {(Object|boolean|null|number)=} opt_indexOrValue Chart line marker settings to set.
  * @param {(Object|boolean|null)=} opt_value Chart line marker settings to set.
- * @return {!(anychart.core.axisMarkers.Text|anychart.cartesian3dModule.axisMarkers.Text|anychart.core.ChartWithAxes)} Line marker instance by index or itself for chaining call.
+ * @return {!(anychart.core.axisMarkers.Text|anychart.cartesian3dModule.axisMarkers.Text|anychart.core.ChartWithAxes)} Text marker instance by index or itself for chaining call.
  */
 anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, opt_value) {
   var index, value;
@@ -801,7 +793,6 @@ anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, op
     textMarker.setup(this.defaultTextMarkerSettings());
     textMarker.setDefaultLayout(this.isVerticalInternal ? anychart.enums.Layout.VERTICAL : anychart.enums.Layout.HORIZONTAL);
     this.textAxesMarkers_[index] = textMarker;
-    this.registerDisposable(textMarker);
     textMarker.listenSignals(this.onMarkersSignal, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS | anychart.ConsistencyState.SCALE_CHART_SCALES_STATISTICS, anychart.Signal.NEEDS_REDRAW);
   }
@@ -912,7 +903,6 @@ anychart.core.ChartWithAxes.prototype.crosshair = function(opt_value) {
     this.crosshair_ = new anychart.core.ui.Crosshair();
     this.crosshair_.enabled(false);
     this.crosshair_.interactivityTarget(this);
-    this.registerDisposable(this.crosshair_);
     this.crosshair_.listenSignals(this.onCrosshairSignal_, this);
     this.invalidate(anychart.ConsistencyState.AXES_CHART_CROSSHAIR, anychart.Signal.NEEDS_REDRAW);
   }
@@ -963,7 +953,6 @@ anychart.core.ChartWithAxes.prototype.annotations = function(opt_annotationsList
      */
     this.annotationsPlotController_ = new this.annotationsModule_['PlotController'](this.annotationsChartController_, this);
     this.annotationsPlotController_.listenSignals(this.annotationsInvalidated_, this);
-    this.registerDisposable(this.annotationsPlotController_);
   }
   if (goog.isDef(opt_annotationsList)) {
     if (this.annotationsPlotController_)

@@ -51,7 +51,7 @@ anychart.core.axisMarkers.TextBase = function() {
 
   /**
    * Parent chart instance.
-   * @type {anychart.core.SeparateChart}
+   * @type {anychart.core.SeparateChart|anychart.stockModule.Plot}
    * @private
    */
   this.chart_ = null;
@@ -139,7 +139,7 @@ anychart.core.axisMarkers.TextBase.prototype.SUPPORTED_CONSISTENCY_STATES =
 
 /**
  * Sets the chart axisMarkers belongs to.
- * @param {anychart.core.SeparateChart} chart Chart instance.
+ * @param {anychart.core.SeparateChart|anychart.stockModule.Plot} chart Chart instance.
  */
 anychart.core.axisMarkers.TextBase.prototype.setChart = function(chart) {
   this.chart_ = chart;
@@ -148,7 +148,7 @@ anychart.core.axisMarkers.TextBase.prototype.setChart = function(chart) {
 
 /**
  * Get the chart axisMarkers belongs to.
- * @return {anychart.core.SeparateChart}
+ * @return {anychart.core.SeparateChart|anychart.stockModule.Plot}
  */
 anychart.core.axisMarkers.TextBase.prototype.getChart = function() {
   return this.chart_;
@@ -251,7 +251,6 @@ anychart.core.axisMarkers.TextBase.prototype.axis = function(opt_value) {
 anychart.core.axisMarkers.TextBase.prototype.axesLinesSpace = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.axesLinesSpace_) {
     this.axesLinesSpace_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.axesLinesSpace_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -641,7 +640,6 @@ anychart.core.axisMarkers.TextBase.prototype.markerElement = function() {
   if (!this.markerElement_) {
     this.markerElement_ = acgraph.text();
     this.markerElement_.attr('aria-hidden', 'true');
-    this.registerDisposable(this.markerElement_);
   }
   return this.markerElement_;
 };
@@ -652,8 +650,9 @@ anychart.core.axisMarkers.TextBase.prototype.markerElement = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.axisMarkers.TextBase.prototype.disposeInternal = function() {
-  goog.dispose(this.markerElement_);
+  goog.disposeAll(this.markerElement_, this.axesLinesSpace_);
   this.markerElement_ = null;
+  this.axesLinesSpace_ = null;
   this.chart_ = null;
   this.axis_ = null;
   anychart.core.axisMarkers.TextBase.base(this, 'disposeInternal');

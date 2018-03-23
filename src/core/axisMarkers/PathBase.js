@@ -40,7 +40,7 @@ anychart.core.axisMarkers.PathBase = function() {
 
   /**
    * Parent chart instance.
-   * @type {anychart.core.SeparateChart}
+   * @type {anychart.core.SeparateChart|anychart.stockModule.Plot}
    * @private
    */
   this.chart_ = null;
@@ -89,7 +89,7 @@ anychart.core.axisMarkers.PathBase.prototype.SUPPORTED_CONSISTENCY_STATES =
 
 /**
  * Sets the chart axisMarkers belongs to.
- * @param {anychart.core.SeparateChart} chart - Chart instance.
+ * @param {(anychart.core.SeparateChart|anychart.stockModule.Plot)} chart - Chart or plot instance.
  */
 anychart.core.axisMarkers.PathBase.prototype.setChart = function(chart) {
   this.chart_ = chart;
@@ -98,7 +98,7 @@ anychart.core.axisMarkers.PathBase.prototype.setChart = function(chart) {
 
 /**
  * Get the chart axisMarkers belongs to.
- * @return {anychart.core.SeparateChart}
+ * @return {(anychart.core.SeparateChart|anychart.stockModule.Plot)}
  */
 anychart.core.axisMarkers.PathBase.prototype.getChart = function() {
   return this.chart_;
@@ -250,7 +250,6 @@ anychart.core.axisMarkers.PathBase.prototype.axis = function(opt_value) {
 anychart.core.axisMarkers.PathBase.prototype.axesLinesSpace = function(opt_spaceOrTopOrTopAndBottom, opt_rightOrRightAndLeft, opt_bottom, opt_left) {
   if (!this.axesLinesSpace_) {
     this.axesLinesSpace_ = new anychart.core.utils.Padding();
-    this.registerDisposable(this.axesLinesSpace_);
   }
 
   if (goog.isDef(opt_spaceOrTopOrTopAndBottom)) {
@@ -461,7 +460,6 @@ anychart.core.axisMarkers.PathBase.prototype.remove = function() {
 anychart.core.axisMarkers.PathBase.prototype.markerElement = function() {
   if (!this.markerElement_) {
     this.markerElement_ = /** @type {!acgraph.vector.Path} */(acgraph.path());
-    this.registerDisposable(this.markerElement_);
   }
   return this.markerElement_;
 };
@@ -488,5 +486,8 @@ anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_
 anychart.core.axisMarkers.PathBase.prototype.disposeInternal = function() {
   this.axis_ = null;
   this.chart_ = null;
+  goog.disposeAll(this.markerElement_, this.axesLinesSpace_);
+  this.markerElement_ = null;
+  this.axesLinesSpace_ = null;
   anychart.core.axisMarkers.PathBase.base(this, 'disposeInternal');
 };

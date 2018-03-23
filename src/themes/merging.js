@@ -939,7 +939,8 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'mekko',
           'sparkline',
-          'defaultTimeline'
+          'defaultTimeline',
+          'stock.defaultPlotSettings'
         ], '.defaultLineMarkerSettings'],
         'standalones.lineAxisMarker'
       ]
@@ -952,7 +953,8 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'mekko',
           'sparkline',
-          'defaultTimeline'
+          'defaultTimeline',
+          'stock.defaultPlotSettings'
         ], '.defaultTextMarkerSettings'],
         'standalones.textAxisMarker'
       ]
@@ -965,7 +967,8 @@ anychart.themes.merging.mergingMap_ = (function() {
           'scatter',
           'mekko',
           'sparkline',
-          'defaultTimeline'
+          'defaultTimeline',
+          'stock.defaultPlotSettings'
         ], '.defaultRangeMarkerSettings'],
         'standalones.rangeAxisMarker'
       ]
