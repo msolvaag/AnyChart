@@ -3365,5 +3365,8 @@ anychart.stockModule.Plot.Dragger.prototype.limitY = function(y) {
   proto['annotations'] = proto.annotations;
   proto['eventMarkers'] = proto.eventMarkers;
   proto['priceIndicator'] = proto.priceIndicator;
+  proto['lineMarker'] = proto.lineMarker;
+  proto['rangeMarker'] = proto.rangeMarker;
+  proto['textMarker'] = proto.textMarker;
   proto['noData'] = proto.noData;
 })();
