@@ -31,7 +31,7 @@ def create_github_release(version, tag):
     url = build_github_url('/repos/AnyChart/AnyChart/releases')
     data = {
         'tag_name': tag,
-        'target_commitish': tag,
+        #'target_commitish': tag,
         'name': 'Release %s' % tag,
         'body': """See version history at [AnyChart.com](http://www.anychart.com)
 - [AnyChart version history](http://www.anychart.com/products/anychart/history?version=%s)
