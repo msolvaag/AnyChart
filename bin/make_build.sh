@@ -242,10 +242,11 @@ fi
 echo Dropping CDN cache
 if [ ${IS_PREVIEW_BUILD} = "true" ]; then
     # drop cache for /releases/develop/*
-    python ./bin/drop_cdn_cache.py ${TRAVIS_BRANCH} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
-else
+    #python ./bin/drop_cdn_cache.py ${TRAVIS_BRANCH} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
+    #else
     # drop cache for /releases/X.X.X/*
-    python ./bin/drop_cdn_cache.py ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
+    echo ${VERSION} ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
+    #python ./bin/drop_cdn_cache.py v8 ${CDN_ALIASE} ${CDN_CONSUMER_KEY} ${CDN_CONSUMER_SECRET} ${CDN_ZONE_ID}
 fi
 
 if [ "${VERSION}" != "${TRAVIS_BRANCH}" ]; then
