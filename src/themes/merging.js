@@ -673,6 +673,7 @@ anychart.themes.merging.mergingMap_ = (function() {
           ['default', [
             'Title',
             'Timeline.header',
+            'TextMarkerSettings',
             'ButtonSettings.normal',
             ['Tooltip', [
               '',

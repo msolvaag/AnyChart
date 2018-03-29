@@ -1026,7 +1026,8 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'width': null,
     'height': null,
     'zIndex': 25.3,
-    'scale': 1
+    'scale': 1,
+    'padding': 0
   },
 
   'defaultRangeMarkerSettings': {
