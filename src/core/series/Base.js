@@ -3603,12 +3603,18 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
       positive = !(isVertical ^ inverted);
     }
 
+    //fixes DVF-3048
+    var hasNotZero = shared.hasNotZero;
+    var drawPoint = !!height;
+
     if (positive) {
       height = -height;
       if (isNaN(shared.positiveAnchor)) {//Drawing first point.
         shared.positiveAnchor = zero + height;
         newZero = zero;
         newY = shared.positiveAnchor;
+        if (!hasNotZero)
+          drawPoint = true;
       } else {
         newZero = Math.min(zero, shared.positiveAnchor);
         newY = newZero + height;
@@ -3619,6 +3625,8 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
         shared.negativeAnchor = zero + height;
         newZero = zero;
         newY = shared.negativeAnchor;
+        if (!hasNotZero)
+          drawPoint = true;
       } else {
         newZero = Math.max(zero, shared.negativeAnchor);
         newY = newZero + height;
@@ -3628,6 +3636,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     rowInfo.meta('value', newY);
     rowInfo.meta('zero', newZero);
+    rowInfo.meta('drawPoint', drawPoint);
   }
   return pointMissing;
 };
