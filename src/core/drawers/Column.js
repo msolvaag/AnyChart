@@ -80,7 +80,7 @@ anychart.core.drawers.Column.prototype.updatePointOnAnimate = function(point) {
  * @protected
  */
 anychart.core.drawers.Column.prototype.drawPointShape = function(point, path, hatchFill) {
-  if (point.meta('drawPoint')) { //fixes DVF-3048
+  if (!point.meta('skipDrawing')) { //fixes DVF-3048
     var x = /** @type {number} */(point.meta('x'));
     var zero = /** @type {number} */(point.meta('zero'));
     var y = /** @type {number} */(point.meta('value'));

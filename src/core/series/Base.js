@@ -3605,7 +3605,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     //fixes DVF-3048
     var hasNotZero = shared.hasNotZero;
-    var drawPoint = !!height;
+    var skipDrawing = !height;
 
     if (positive) {
       height = -height;
@@ -3614,7 +3614,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
         newZero = zero;
         newY = shared.positiveAnchor;
         if (!hasNotZero)
-          drawPoint = true;
+          skipDrawing = false;
       } else {
         newZero = Math.min(zero, shared.positiveAnchor);
         newY = newZero + height;
@@ -3626,7 +3626,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
         newZero = zero;
         newY = shared.negativeAnchor;
         if (!hasNotZero)
-          drawPoint = true;
+          skipDrawing = false;
       } else {
         newZero = Math.max(zero, shared.negativeAnchor);
         newY = newZero + height;
@@ -3636,7 +3636,7 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     rowInfo.meta('value', newY);
     rowInfo.meta('zero', newZero);
-    rowInfo.meta('drawPoint', drawPoint);
+    rowInfo.meta('skipDrawing', skipDrawing);
   }
   return pointMissing;
 };
