@@ -1607,6 +1607,15 @@ anychart.stockModule.Plot.prototype.onMarkersSignal = function(event) {
 };
 
 
+/**
+ * Returns all axis markers. Used to calculate scale.
+ * @return {Array.<anychart.core.axisMarkers.Line|anychart.core.axisMarkers.Range|anychart.core.axisMarkers.Text>}
+ */
+anychart.stockModule.Plot.prototype.getAxisMarkers = function() {
+  return goog.array.concat(this.lineAxesMarkers_, this.rangeAxesMarkers_, this.textAxesMarkers_);
+};
+
+
 //endregion
 
 

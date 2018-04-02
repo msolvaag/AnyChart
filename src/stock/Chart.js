@@ -1403,9 +1403,12 @@ anychart.stockModule.Chart.prototype.calculateScales_ = function() {
       var stackDirection = /** @type {anychart.enums.ScaleStackDirection} */ (plot.yScale().stackDirection());
       var stackIsDirect = stackDirection == anychart.enums.ScaleStackDirection.DIRECT;
 
+      var axisMarkers = /** @type {Array.<anychart.core.axisMarkers.Line|anychart.core.axisMarkers.Range|anychart.core.axisMarkers.Text>} */ (plot.getAxisMarkers());
+
       seriesList = plot.getAllSeries();
       stacksByScale = {};
       hasPercentStacks = false;
+
       for (j = 0; j < seriesList.length; j++) {
         series = seriesList[stackIsDirect ? seriesList.length - j - 1 : j];
         series.updateComparisonZero();
@@ -1430,6 +1433,17 @@ anychart.stockModule.Chart.prototype.calculateScales_ = function() {
             if (scale.stackMode() == anychart.enums.ScaleStackMode.PERCENT) {
               this.finalizePercentStackCalc_(series, scale, stacksByScale);
             }
+          }
+        }
+      }
+      for (j = 0; j < seriesList.length; j++) {
+        series = seriesList[j];
+        if (series.enabled()) {
+          scale = /** @type {anychart.scales.Base} */(series.yScale());
+          for (var k = 0; k < axisMarkers.length; k++) {
+            var marker = axisMarkers[k];
+            if (marker && marker.scale() && marker.scale() == scale)
+              scale.extendDataRange(marker.value());
           }
         }
       }

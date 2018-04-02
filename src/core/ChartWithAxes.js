@@ -898,6 +898,25 @@ anychart.core.ChartWithAxes.prototype.getYScales = function() {
 };
 
 
+/** @inheritDoc */
+anychart.core.ChartWithAxes.prototype.calculate = function() {
+  anychart.core.ChartWithAxes.base(this, 'calculate');
+  var scales = goog.array.concat(this.getScales(this.xScales), this.getScales(this.yScales));
+  var markers = goog.array.concat(this.lineAxesMarkers_, this.rangeAxesMarkers_, this.textAxesMarkers_);
+  for (var i = 0; i < markers.length; i++) {
+    var marker = markers[i];
+    var markerScale = marker.scale() ? marker.scale() : this.isVerticalInternal ? this.xScale() : this.yScale();
+    if (marker && markerScale) {
+      for (var j = 0; j < scales.length; j++) {
+        var scale = scales[j];
+        if (scale === markerScale)
+          scale.extendDataRange(marker.value());
+      }
+    }
+  }
+};
+
+
 //endregion
 //region --- Crosshair
 //----------------------------------------------------------------------------------------------------------------------
