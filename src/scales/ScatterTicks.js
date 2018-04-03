@@ -102,7 +102,6 @@ anychart.scales.ScatterTicks.prototype.mode_ = anychart.enums.ScatterTicksMode.L
  */
 anychart.scales.ScatterTicks.prototype.allowFractional = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    opt_value = this.mode_ == anychart.enums.ScatterTicksMode.LOGARITHMIC ? false : opt_value;
     if (this.allowFractional_ != opt_value) {
       this.allowFractional_ = opt_value;
       if (this.mode_ != anychart.enums.ScatterTicksMode.LOGARITHMIC)
