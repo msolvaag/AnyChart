@@ -711,10 +711,7 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'zoomMarqueeFill': '#d3d3d3 0.4',
     'zoomMarqueeStroke': '#d3d3d3',
     'interactivity': {
-      'zoomOnMouseWheel': {
-        'value': false,
-        'inverted': true
-      },
+      'zoomOnMouseWheel': false,
       'scrollOnMouseWheel': false
     },
     'crosshair': {

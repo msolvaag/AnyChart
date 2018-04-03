@@ -2294,7 +2294,7 @@ anychart.stockModule.Chart.prototype.handleMouseWheel_ = function(e) {
 
     var interactivity = /** @type {anychart.stockModule.Interactivity} */(this.interactivity());
     if (doZoom) {
-      if (interactivity.zoomOnMouseWheel()['value']) {
+      if (interactivity.zoomOnMouseWheel()) {
         var first,
             last,
             start,
@@ -2313,8 +2313,7 @@ anychart.stockModule.Chart.prototype.handleMouseWheel_ = function(e) {
         }
         if (isNaN(start) || isNaN(end))
           return;
-        var sign = interactivity.zoomOnMouseWheel()['inverted'] ? 1 : -1;
-        var factor = (-delta * sign * anychart.stockModule.Chart.ZOOM_FACTOR_PER_WHEEL_STEP) * (end - start);
+        var factor = (delta * anychart.stockModule.Chart.ZOOM_FACTOR_PER_WHEEL_STEP) * (end - start);
         start -= factor;
         end += factor;
         if (end - start > last - first) {

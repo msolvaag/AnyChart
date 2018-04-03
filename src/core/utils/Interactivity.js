@@ -55,10 +55,10 @@ anychart.core.utils.Interactivity = function(parent) {
   this.multiSelectOnClick_;
 
   /**
-   * @type {Object.<boolean>}
+   * @type {boolean}
    * @private
    */
-  this.zoomOnMouseWheel_ = {};
+  this.zoomOnMouseWheel_;
 };
 goog.inherits(anychart.core.utils.Interactivity, anychart.core.Base);
 
@@ -173,24 +173,17 @@ anychart.core.utils.Interactivity.prototype.allowMultiSeriesSelection = function
 /**
  * Allows use mouse wheel for zooming.
  * @param {boolean=} opt_value Whether will use mouse wheel.
- * @param {boolean=} opt_inverted flag that inverts zoom behaviour.
- * @return {anychart.core.utils.Interactivity|Object.<boolean>} .
+ * @return {anychart.core.utils.Interactivity|boolean} .
  */
-anychart.core.utils.Interactivity.prototype.zoomOnMouseWheel = function(opt_value, opt_inverted) {
+anychart.core.utils.Interactivity.prototype.zoomOnMouseWheel = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    if (arguments.length == 1) {
-      if (goog.isObject(opt_value)) {
-        this.zoomOnMouseWheel_['value'] = !!opt_value['value'];
-        this.zoomOnMouseWheel_['inverted'] = !!opt_value['inverted'];
-      } else
-        this.zoomOnMouseWheel_['value'] = !!opt_value;
-    } else if (arguments.length > 1) {
-      this.zoomOnMouseWheel_['value'] = !!opt_value;
-      this.zoomOnMouseWheel_['inverted'] = !!opt_inverted;
+    opt_value = !!opt_value;
+    if (opt_value != this.zoomOnMouseWheel_) {
+      this.zoomOnMouseWheel_ = opt_value;
     }
     return this;
   }
-  return /** @type {Object.<boolean>} */(this.zoomOnMouseWheel_);
+  return /** @type {boolean} */(this.zoomOnMouseWheel_);
 };
 
 
@@ -201,6 +194,9 @@ anychart.core.utils.Interactivity.prototype.setupByJSON = function(config, opt_d
   anychart.core.utils.Interactivity.base(this, 'setupByJSON', config, opt_default);
 
   this.parent_.suspendSignalsDispatching();
+  //TODO(AntonKagakin): uncomment this line when zoom will be implemented in chart
+  //TODO(AntonKagakin): and remove it from map and stock interactivity class
+  //this.zoomOnMouseWheel(config['zoomOnMouseWheel']);
   this.hoverMode(config['hoverMode']);
   this.selectionMode(config['selectionMode']);
   this.spotRadius(config['spotRadius']);
@@ -217,6 +213,9 @@ anychart.core.utils.Interactivity.prototype.setupByJSON = function(config, opt_d
  */
 anychart.core.utils.Interactivity.prototype.serialize = function() {
   var json = {};
+  //TODO(AntonKagakin): uncomment this line when zoom will be implemented in chart
+  //TODO(AntonKagakin): and remove it from map and stock interactivity class
+  //json['zoomOnMouseWheel'] = this.zoomOnMouseWheel();
   json['hoverMode'] = this.hoverMode();
   json['selectionMode'] = this.selectionMode();
   json['spotRadius'] = this.spotRadius();

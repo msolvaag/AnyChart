@@ -1726,11 +1726,6 @@
         </xsd:sequence>
     </xsd:complexType>
 
-    <xsd:complexType name="utils.ZoomOnMouseWheelObj">
-        <xsd:attribute name="value" type="simple.Bool" />
-        <xsd:attribute name="inverted" type="simple.Bool" />
-    </xsd:complexType>
-
     <xsd:complexType name="utils.Interactivity">
         <xsd:attribute name="hover_mode" type="enums.HoverMode"/>
         <xsd:attribute name="selection_mode" type="enums.SelectionMode"/>
@@ -1741,13 +1736,11 @@
     </xsd:complexType>
 
     <xsd:complexType name="utils.MapInteractivity">
-        <xsd:all>
-            <xsd:element name="zoom_on_mouse_wheel" minOccurs="0" maxOccurs="1" type="utils.ZoomOnMouseWheelObj" />
-        </xsd:all>
         <xsd:attribute name="hover_mode" type="enums.HoverMode"/>
         <xsd:attribute name="selection_mode" type="enums.SelectionMode"/>
         <xsd:attribute name="spot_radius" type="xsd:integer"/>
         <xsd:attribute name="allow_multi_series_selection" type="xsd:boolean"/>
+        <xsd:attribute name="zoom_on_mouse_wheel" type="xsd:boolean"/>
         <xsd:attribute name="keyboard_zoom_and_move" type="xsd:boolean"/>
         <xsd:attribute name="zoom_on_double_click" type="xsd:boolean"/>
         <xsd:attribute name="drag" type="xsd:boolean"/>
