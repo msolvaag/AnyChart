@@ -27,7 +27,7 @@ anychart.scales.ScatterTicks = function(scale) {
    * @type {boolean}
    * @private
    */
-  this.allowFractional_ = true;
+  this.allowFractional_;
 };
 goog.inherits(anychart.scales.ScatterTicks, anychart.core.Base);
 
@@ -105,7 +105,8 @@ anychart.scales.ScatterTicks.prototype.allowFractional = function(opt_value) {
     opt_value = this.mode_ == anychart.enums.ScatterTicksMode.LOGARITHMIC ? false : opt_value;
     if (this.allowFractional_ != opt_value) {
       this.allowFractional_ = opt_value;
-      this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
+      if (this.mode_ != anychart.enums.ScatterTicksMode.LOGARITHMIC)
+        this.dispatchSignal(anychart.Signal.NEEDS_REAPPLICATION);
     }
     return this;
   }
@@ -734,8 +735,7 @@ anychart.scales.ScatterTicks.prototype.setupByJSON = function(config, opt_defaul
   this.minCount_ = anychart.utils.toNumber(config['count']) || anychart.utils.toNumber(config['minCount']) || NaN;
   this.maxCount_ = anychart.utils.toNumber(config['count']) || anychart.utils.toNumber(config['maxCount']) || NaN;
   this.interval_ = anychart.utils.toNumber(config['interval']) || NaN;
-  var allowFractional = this.mode_ == anychart.enums.ScatterTicksMode.LOGARITHMIC ? false : config['allowFractional'];
-  this.allowFractional(allowFractional);
+  this.allowFractional(config['allowFractional']);
   if (this.explicit_) {
     this.minCount_ = this.maxCount_ = this.interval_ = NaN;
   } else if (this.interval_) {
