@@ -6147,7 +6147,11 @@
       ],
       "properties": {
         "zoomOnMouseWheel": {
-          "type": "boolean"
+          "type": "object",
+          "properties": {
+            "value": {"type": "boolean"},
+            "inverted": {"type": "boolean"}
+          },
         },
         "keyboardZoomAndMove": {
           "type": "boolean"

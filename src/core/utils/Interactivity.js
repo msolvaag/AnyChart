@@ -53,6 +53,12 @@ anychart.core.utils.Interactivity = function(parent) {
    * @private
    */
   this.multiSelectOnClick_;
+
+  /**
+   * @type {Object.<boolean>}
+   * @private
+   */
+  this.zoomOnMouseWheel_ = {};
 };
 goog.inherits(anychart.core.utils.Interactivity, anychart.core.Base);
 
@@ -165,18 +171,42 @@ anychart.core.utils.Interactivity.prototype.allowMultiSeriesSelection = function
 
 
 /**
+ * Allows use mouse wheel for zooming.
+ * @param {boolean=} opt_value Whether will use mouse wheel.
+ * @param {boolean=} opt_inverted flag that inverts zoom behaviour.
+ * @return {anychart.core.utils.Interactivity|Object.<boolean>} .
+ */
+anychart.core.utils.Interactivity.prototype.zoomOnMouseWheel = function(opt_value, opt_inverted) {
+  if (goog.isDef(opt_value)) {
+    if (arguments.length == 1) {
+      if (goog.isObject(opt_value)) {
+        this.zoomOnMouseWheel_['value'] = !!opt_value['value'];
+        this.zoomOnMouseWheel_['inverted'] = !!opt_value['inverted'];
+      } else
+        this.zoomOnMouseWheel_['value'] = !!opt_value;
+    } else if (arguments.length > 1) {
+      this.zoomOnMouseWheel_['value'] = !!opt_value;
+      this.zoomOnMouseWheel_['inverted'] = !!opt_inverted;
+    }
+    return this;
+  }
+  return /** @type {Object.<boolean>} */(this.zoomOnMouseWheel_);
+};
+
+
+/**
  * @inheritDoc
  */
-anychart.core.utils.Interactivity.prototype.setupByJSON = function(value, opt_default) {
-  anychart.core.utils.Interactivity.base(this, 'setupByJSON', value, opt_default);
+anychart.core.utils.Interactivity.prototype.setupByJSON = function(config, opt_default) {
+  anychart.core.utils.Interactivity.base(this, 'setupByJSON', config, opt_default);
 
   this.parent_.suspendSignalsDispatching();
-  this.hoverMode(value['hoverMode']);
-  this.selectionMode(value['selectionMode']);
-  this.spotRadius(value['spotRadius']);
-  this.allowMultiSeriesSelection(value['allowMultiSeriesSelection']);
-  this.multiSelectOnClick(value['multiSelectOnClick']);
-  this.unselectOnClickOutOfPoint(value['unselectOnClickOutOfPoint']);
+  this.hoverMode(config['hoverMode']);
+  this.selectionMode(config['selectionMode']);
+  this.spotRadius(config['spotRadius']);
+  this.allowMultiSeriesSelection(config['allowMultiSeriesSelection']);
+  this.multiSelectOnClick(config['multiSelectOnClick']);
+  this.unselectOnClickOutOfPoint(config['unselectOnClickOutOfPoint']);
   this.parent_.resumeSignalsDispatching(true);
 };
 
@@ -201,6 +231,9 @@ anychart.core.utils.Interactivity.prototype.serialize = function() {
 (function() {
   var proto = anychart.core.utils.Interactivity.prototype;
   //proto['allowMultiSeriesSelection'] = proto.allowMultiSeriesSelection;
+  //TODO(AntonKagakin): uncomment this line when zoom will be implemented in chart
+  //TODO(AntonKagakin): also remove export from map and stock interactivity class
+  //proto['zoomOnMouseWheel'] = proto.zoomOnMouseWheel;
   proto['multiSelectOnClick'] = proto.multiSelectOnClick;
   proto['unselectOnClickOutOfPoint'] = proto.unselectOnClickOutOfPoint;
   proto['hoverMode'] = proto.hoverMode;

@@ -733,10 +733,12 @@ anychart.mapModule.Chart.prototype.controlsInteractivity_ = function() {
       var be = e.getBrowserEvent ? e.getBrowserEvent() : e;
 
       var scene = this.getCurrentScene();
-      var zoomFactor = goog.math.clamp(1 - be.deltaY / 120, 0.7, 2);
+      var sign = this.interactivity_.zoomOnMouseWheel()['inverted'] ? -1 : 1;
+      var deltaY = sign * be.deltaY;
+      var zoomFactor = goog.math.clamp(1 - deltaY / 120, 0.7, 2);
       var maxZoomFactor = maxZoomLevel;
       var minZoomFactor = minZoomLevel;
-      var isMouseWheel = scene.interactivity().zoomOnMouseWheel();
+      var isMouseWheel = scene.interactivity().zoomOnMouseWheel()['value'];
       var bounds = this.getPlotBounds();
 
       var insideBounds = bounds &&
@@ -767,9 +769,11 @@ anychart.mapModule.Chart.prototype.controlsInteractivity_ = function() {
           e.clientY >= bounds.top + containerPosition.y &&
           e.clientY <= bounds.top + containerPosition.y + bounds.height;
 
-      if (this.interactivity_.zoomOnMouseWheel() && insideBounds) {
+      if (this.interactivity_.zoomOnMouseWheel()['value'] && insideBounds) {
         if (scene.goingToHome) return;
-        var zoomFactor = goog.math.clamp(1 - e.deltaY / 120, 0.7, 2);
+        var sign = this.interactivity_.zoomOnMouseWheel()['inverted'] ? -1 : 1;
+        var deltaY = sign * e.deltaY;
+        var zoomFactor = goog.math.clamp(1 - deltaY / 120, 0.7, 2);
 
         this.prevZoomState_ = this.zoomState_;
         this.zoomState_ = zoomFactor > 1 ? true : zoomFactor == 1 ? !this.prevZoomState_ : false;
@@ -1222,7 +1226,7 @@ anychart.mapModule.Chart.prototype.touchMoveHandler = function(e) {
 
     var minZoomLevel = /** @type {number} */ (this.getOption('minZoomLevel'));
     var maxZoomLevel = /** @type {number} */ (this.getOption('maxZoomLevel'));
-    if (this.interactivity_.zoomOnMouseWheel() && isZooming) {
+    if (this.interactivity_.zoomOnMouseWheel()['value'] && isZooming) {
       var zoomRatio = 1.3;
       var zoomFactor = (dist - this.touchDist) > 0 ? zoomRatio : 1 / zoomRatio;
 

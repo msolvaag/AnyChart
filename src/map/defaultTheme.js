@@ -327,7 +327,10 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         return result || 'no selected points';
       },
       'drag': true,
-      'zoomOnMouseWheel': false,
+      'zoomOnMouseWheel': {
+        'value': false,
+        'inverted': false
+      },
       'keyboardZoomAndMove': true,
       'zoomOnDoubleClick': false
     },
