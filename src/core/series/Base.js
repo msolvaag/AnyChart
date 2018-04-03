@@ -2882,8 +2882,8 @@ anychart.core.series.Base.prototype.resetPointStack_ = function(point) {
     if (shared) {
       shared.positiveAnchor = NaN;
       shared.negativeAnchor = NaN;
-      shared.drawn = false;
-      shared.hasNotZero = false;
+      // shared.drawn = false;
+      // shared.hasNotZero = false;
     }
   }
 };
