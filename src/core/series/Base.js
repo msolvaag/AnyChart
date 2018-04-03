@@ -3726,6 +3726,20 @@ anychart.core.series.Base.prototype.makeStackedMeta = function(rowInfo, yNames, 
   };
   this.makePointsMetaFromMap(rowInfo, map, xRatio);
   rowInfo.meta('zeroMissing', rowInfo.meta('stackedMissing'));
+
+  //code below fixes DVF-3048.
+  var shared = rowInfo.meta('shared');
+  var zero = /** @type {number} */ (map['zero']);
+  var val = /** @type {number} */ (map['value']);
+  var height = Math.abs(val - zero);
+  var hasNotZero = shared.hasNotZero;
+  var skipDrawing = !height;
+  if (!shared.drawn && !hasNotZero) {
+    skipDrawing = false;
+    shared.drawn = true;
+  }
+  rowInfo.meta('skipDrawing', skipDrawing);
+
   return pointMissing;
 };
 
@@ -3751,6 +3765,7 @@ anychart.core.series.Base.prototype.makeComparisonMeta = function(rowInfo, yName
   }
   return pointMissing;
 };
+
 
 /**
  * Prepares Extremum part of point meta.
