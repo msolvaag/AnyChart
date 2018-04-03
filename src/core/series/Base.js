@@ -2882,6 +2882,8 @@ anychart.core.series.Base.prototype.resetPointStack_ = function(point) {
     if (shared) {
       shared.positiveAnchor = NaN;
       shared.negativeAnchor = NaN;
+      shared.drawn = false;
+      shared.hasNotZero = false;
     }
   }
 };
@@ -3729,16 +3731,18 @@ anychart.core.series.Base.prototype.makeStackedMeta = function(rowInfo, yNames, 
 
   //code below fixes DVF-3048.
   var shared = rowInfo.meta('shared');
-  var zero = /** @type {number} */ (map['zero']);
-  var val = /** @type {number} */ (map['value']);
-  var height = Math.abs(val - zero);
-  var hasNotZero = shared.hasNotZero;
-  var skipDrawing = !height;
-  if (!shared.drawn && !hasNotZero) {
-    skipDrawing = false;
-    shared.drawn = true;
+  if (shared) {
+    var zero = /** @type {number} */ (map['zero']);
+    var val = /** @type {number} */ (map['value']);
+    var height = Math.abs(val - zero);
+    var hasNotZero = shared.hasNotZero;
+    var skipDrawing = !height;
+    if (!shared.drawn && !hasNotZero) {
+      skipDrawing = false;
+      shared.drawn = true;
+    }
+    rowInfo.meta('skipDrawing', skipDrawing);
   }
-  rowInfo.meta('skipDrawing', skipDrawing);
 
   return pointMissing;
 };

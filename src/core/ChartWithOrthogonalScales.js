@@ -881,7 +881,8 @@ anychart.core.ChartWithOrthogonalScales.prototype.calculateYScales = function() 
               shared: {
                 positiveAnchor: NaN,
                 negativeAnchor: NaN,
-                hasNotZero: false
+                hasNotZero: false,
+                drawn: false
               }
             });
           }
