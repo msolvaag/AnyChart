@@ -1973,17 +1973,17 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(h
     if (goog.isDef(result_)) {
       if (goog.isObject(result_) && !goog.isFunction(result_)) {
         if (goog.isDefAndNotNull(result)) {
-          console.log('!!!!', result);
           opt_invert ? goog.object.extend(result, result_) : goog.object.extend(result_, result);
+        } else {
+          result = result_;
         }
-        result = opt_invert ? !result ? result_ : result : result_;
       } else {
         result = result_;
       }
     }
 
-    if (opt_field == 'background')
-      console.log('iterateDrawingPlans_ ---------------X ', result);
+    // if (opt_field == 'background')
+    //   console.log('iterateDrawingPlans_ ---------------X ', result);
   }, this);
 
   return result;
@@ -2022,8 +2022,8 @@ anychart.core.ui.LabelsFactory.Label.prototype.resolveSetting_ = function(field,
     if (opt_handler && goog.isDef(setting))
       setting = opt_handler(setting);
 
-    if (field == 'background')
-      console.log('resolveSetting_ -----> ', setting);
+    // if (field == 'background')
+    //   console.log('resolveSetting_ -----> ', setting);
     return setting;
   }, true, field);
 };

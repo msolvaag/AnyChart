@@ -35,7 +35,7 @@ goog.require('goog.object');
  */
 anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
   var result = [];
-  console.log('array ---------------------------------------- ', settingsArray);
+  // console.log('array ---------------------------------------- ', settingsArray);
   for (var i = 0; i < settingsArray.length; i += 2) {
     var obj = settingsArray[i];
     var ownSettings;
@@ -96,7 +96,7 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
       } else {
         res = obj;
       }
-      console.log('result: ', res);
+      // console.log('result: ', res);
     }
     result.push(res);
   }
