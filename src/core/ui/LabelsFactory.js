@@ -1957,7 +1957,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.getFinalSettings = function(value
  * @return {*}
  * @private
  */
-anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(handler, opt_invert) {
+anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(handler, opt_invert, opt_field) {
   var iterator = opt_invert ? goog.array.forEachRight : goog.array.forEach;
 
   var result = void 0;
@@ -1969,15 +1969,21 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(h
       return;
 
     var result_ = handler.call(this, state, stateSettings, i);
+
     if (goog.isDef(result_)) {
       if (goog.isObject(result_) && !goog.isFunction(result_)) {
-        if (goog.isDefAndNotNull(result))
+        if (goog.isDefAndNotNull(result)) {
+          console.log('!!!!', result);
           opt_invert ? goog.object.extend(result, result_) : goog.object.extend(result_, result);
-        result = result_;
+        }
+        result = opt_invert ? !result ? result_ : result : result_;
       } else {
         result = result_;
       }
     }
+
+    if (opt_field == 'background')
+      console.log('iterateDrawingPlans_ ---------------X ', result);
   }, this);
 
   return result;
@@ -2015,8 +2021,11 @@ anychart.core.ui.LabelsFactory.Label.prototype.resolveSetting_ = function(field,
     }
     if (opt_handler && goog.isDef(setting))
       setting = opt_handler(setting);
+
+    if (field == 'background')
+      console.log('resolveSetting_ -----> ', setting);
     return setting;
-  }, true);
+  }, true, field);
 };
 
 

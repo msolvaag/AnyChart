@@ -35,24 +35,56 @@ goog.require('goog.object');
  */
 anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
   var result = [];
+  console.log('array ---------------------------------------- ', settingsArray);
   for (var i = 0; i < settingsArray.length; i += 2) {
     var obj = settingsArray[i];
+    var ownSettings;
+    if (obj) {
+      ownSettings = goog.object.clone(obj.ownSettings);
+      // ownSettings = obj.ownSettings;
+    }
+
     var res = undefined;
     var mode = settingsArray[i + 1];
+
     if (mode == anychart.utils.ExtractSettingModes.PLAIN_VALUE) {
       res = obj;
     } else if (obj) {
       switch (mode) {
         case anychart.utils.ExtractSettingModes.OWN_SETTINGS:
-          obj = obj.ownSettings;
+          obj = goog.object.clone(obj.ownSettings);
+          // obj = obj.ownSettings;
           break;
         case anychart.utils.ExtractSettingModes.THEME_SETTINGS:
-          obj = obj.themeSettings;
+          obj = goog.object.clone(obj.themeSettings);
+          // obj = obj.themeSettings;
           break;
         case anychart.utils.ExtractSettingModes.AUTO_SETTINGS:
-          obj = obj.autoSettings;
+          obj = goog.object.clone(obj.autoSettings);
+          // obj = obj.autoSettings;
           break;
       }
+      goog.object.forEach(ownSettings, function(value, key) {
+        if (key == 'background' || key == 'padding') {
+          // console.log(value, goog.object.findKey(anychart.utils.ExtractSettingModes, function(v) {return v == mode}));
+          if (anychart.utils.instanceOf(value, anychart.core.Base)) {
+            switch (mode) {
+              case anychart.utils.ExtractSettingModes.OWN_SETTINGS:
+                obj[key] = goog.object.isEmpty(value.ownSettings) ? void 0 : goog.object.clone(value.ownSettings);
+                break;
+              case anychart.utils.ExtractSettingModes.THEME_SETTINGS:
+                obj[key] = goog.object.isEmpty(value.themeSettings) ? void 0 : goog.object.clone(value.themeSettings);
+                break;
+              case anychart.utils.ExtractSettingModes.AUTO_SETTINGS:
+                obj[key] = goog.object.isEmpty(value.autoSettings) ? void 0 : goog.object.clone(value.autoSettings);
+                break;
+            }
+          } else {
+            obj[key] = value;
+          }
+        }
+      });
+
       if (opt_callProp) {
         if (mode == anychart.utils.ExtractSettingModes.I_ROW_INFO) {
           res = obj.get(opt_callProp);
@@ -64,6 +96,7 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
       } else {
         res = obj;
       }
+      console.log('result: ', res);
     }
     result.push(res);
   }
