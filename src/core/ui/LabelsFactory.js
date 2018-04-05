@@ -1982,7 +1982,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(h
       }
     }
 
-    // if (opt_field == 'background')
+    // if (opt_field == 'anchor')
     //   console.log('iterateDrawingPlans_ ---------------X ', result);
   }, this);
 
@@ -2022,7 +2022,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.resolveSetting_ = function(field,
     if (opt_handler && goog.isDef(setting))
       setting = opt_handler(setting);
 
-    // if (field == 'background')
+    // if (field == 'anchor')
     //   console.log('resolveSetting_ -----> ', setting);
     return setting;
   }, true, field);

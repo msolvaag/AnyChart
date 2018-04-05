@@ -41,7 +41,6 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
     var ownSettings;
     if (obj) {
       ownSettings = goog.object.clone(obj.ownSettings);
-      // ownSettings = obj.ownSettings;
     }
 
     var res = undefined;
@@ -52,7 +51,7 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
     } else if (obj) {
       switch (mode) {
         case anychart.utils.ExtractSettingModes.OWN_SETTINGS:
-          obj = goog.object.clone(obj.ownSettings);
+          obj = ownSettings;
           // obj = obj.ownSettings;
           break;
         case anychart.utils.ExtractSettingModes.THEME_SETTINGS:
@@ -60,10 +59,10 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
           // obj = obj.themeSettings;
           break;
         case anychart.utils.ExtractSettingModes.AUTO_SETTINGS:
-          obj = goog.object.clone(obj.autoSettings);
-          // obj = obj.autoSettings;
+          obj = obj.autoSettings;
           break;
       }
+
       goog.object.forEach(ownSettings, function(value, key) {
         if (key == 'background' || key == 'padding') {
           // console.log(value, goog.object.findKey(anychart.utils.ExtractSettingModes, function(v) {return v == mode}));
@@ -74,9 +73,6 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
                 break;
               case anychart.utils.ExtractSettingModes.THEME_SETTINGS:
                 obj[key] = goog.object.isEmpty(value.themeSettings) ? void 0 : goog.object.clone(value.themeSettings);
-                break;
-              case anychart.utils.ExtractSettingModes.AUTO_SETTINGS:
-                obj[key] = goog.object.isEmpty(value.autoSettings) ? void 0 : goog.object.clone(value.autoSettings);
                 break;
             }
           } else {
@@ -96,7 +92,6 @@ anychart.utils.extractSettings = function(settingsArray, opt_callProp) {
       } else {
         res = obj;
       }
-      // console.log('result: ', res);
     }
     result.push(res);
   }
