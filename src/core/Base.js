@@ -74,6 +74,7 @@ anychart.ConsistencyState = {
   BULLET_AXES_MARKERS: 1 << 15,
   BULLET_MARKERS: 1 << 16,
   //---------------------------------- CHART WITH SERIES STATES (CHART) ---------------------------------
+  SERIES_CHART_DATA_AREA: 1 << 4, // APPEARANCE CONSISTENCY STATE
   SERIES_CHART_PALETTE: 1 << 12,
   SERIES_CHART_MARKER_PALETTE: 1 << 13,
   SERIES_CHART_HATCH_FILL_PALETTE: 1 << 14,

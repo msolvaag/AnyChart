@@ -3150,6 +3150,7 @@ anychart.mapModule.Chart.prototype.calculate = function() {
 
 /** @inheritDoc */
 anychart.mapModule.Chart.prototype.drawContent = function(bounds) {
+  anychart.mapModule.Chart.base(this, 'drawContent', bounds);
   this.getRootScene();
 
   var i, series, tx, dx, dy, cx, cy, len, geom, callout;

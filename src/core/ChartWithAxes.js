@@ -1280,6 +1280,8 @@ anychart.core.ChartWithAxes.prototype.drawContent = function(bounds) {
     this.annotationsChartController_.ready(true);
   }
 
+  anychart.core.ChartWithAxes.base(this, 'drawContent', bounds);
+
   var i, count;
 
   this.calculate();

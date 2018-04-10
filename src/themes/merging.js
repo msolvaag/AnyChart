@@ -691,7 +691,8 @@ anychart.themes.merging.mergingMap_ = (function() {
             [[
               '',
               '.defaultQuarterSettings'
-            ], '.defaultLabelSettings']
+            ], '.defaultLabelSettings'],
+            '.dataArea'
           ]],
           ['stock.', [
             [[
