@@ -2340,8 +2340,6 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
     pointState = pointProps[2];
     pointExtremumState = pointProps[3];
 
-
-    // console.log('>>>>>>>> enabled');
     isDraw = anychart.utils.getFirstNotNullValueRecursive(anychart.utils.extractSettings([
       pointExtremumState, anychart.utils.ExtractSettingModes.PLAIN_OBJECT,
       pointState, anychart.utils.ExtractSettingModes.PLAIN_OBJECT,
@@ -2356,7 +2354,6 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
       chartExtremumNormal, anychart.utils.ExtractSettingModes.CALL_METHOD,
       chartNormal, anychart.utils.ExtractSettingModes.CALL_METHOD
     ], 'enabled'));
-    // console.log('<<<<<<<< enabled');
   }
 
   if (isDraw) {
@@ -2382,7 +2379,6 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
     } else {
       var position;
       if (isLabel) {
-        // console.log('>>>>>>>> position');
         position = anychart.utils.getFirstDefinedValueRecursive(
             anychart.utils.extractSettings([
               pointExtremumState, anychart.utils.ExtractSettingModes.PLAIN_OBJECT,
@@ -2405,9 +2401,7 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
               chartNormal, anychart.utils.ExtractSettingModes.THEME_SETTINGS
             ], 'position'),
             'auto');
-        // console.log('<<<<<<<< position');
       } else {
-        // console.log('>>>>>>>> position');
         position = anychart.utils.getFirstDefinedValueRecursive(
             anychart.utils.extractSettings([
               pointState, anychart.utils.ExtractSettingModes.PLAIN_OBJECT,
@@ -2416,7 +2410,6 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
               seriesNormal, anychart.utils.ExtractSettingModes.CALL_METHOD
             ], 'position'),
             'auto');
-        // console.log('<<<<<<<< position');
       }
       positionProvider = this.createPositionProvider(/** @type {anychart.enums.Position|string} */(position), true);
       return this.drawSingleFactoryElement(factories, settings, index, positionProvider, formatProvider, callDraw, /** @type {string} */(position));
@@ -2593,9 +2586,7 @@ anychart.core.series.Base.prototype.drawSingleFactoryElement = function(factorie
   if (formatProvider) {
     var label = /** @type {anychart.core.ui.LabelsFactory.Label} */(element);
     settings.unshift(label);
-    // console.log('>>>>>>>>>> drawSingleFactoryElement');
     this.setupLabelDrawingPlan.apply(this, settings);
-    // console.log('<<<<<<<<<< drawSingleFactoryElement');
 
     var anchor = label.getFinalSettings('anchor');
     label.autoVertical(/** @type {boolean} */ (this.getOption('isVertical')));

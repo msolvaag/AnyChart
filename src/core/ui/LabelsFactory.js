@@ -1197,11 +1197,24 @@ anychart.core.ui.LabelsFactory.prototype.setupByJSON = function(config, opt_defa
     this.enabled('enabled' in config ? config['enabled'] : enabledState);
   }
 
-  if ('background' in config)
-    this.background().setupInternal(!!opt_default, config['background']);
+  if ('background' in config) {
+    if (opt_default) {
+      var background = anychart.core.settings.createComplexSettings('background', anychart.core.ui.Background, this.themeSettings);
+      background.setupInternal(!!opt_default, config['background']);
+      background.markConsistent(anychart.ConsistencyState.ALL);
+    } else {
+      this.background(config['background']);
+    }
+  }
 
-  if ('padding' in config)
-    this.padding().setupInternal(!!opt_default, config['padding']);
+  if ('padding' in config) {
+    if (opt_default) {
+      var padding = anychart.core.settings.createComplexSettings('padding', anychart.core.utils.Padding, this.themeSettings);
+      padding.setupInternal(!!opt_default, config['padding']);
+    } else {
+      this.padding(config['padding']);
+    }
+  }
 };
 //endregion
 
@@ -1597,9 +1610,9 @@ anychart.core.ui.LabelsFactory.Label.prototype.setIndex = function(index) {
 anychart.core.ui.LabelsFactory.Label.prototype.background = function(opt_value) {
   var makeDefault = goog.isNull(opt_value);
   if (!makeDefault && !this.ownSettings['background']) {
-    this.ownSettings['background'] = new anychart.core.ui.Background();
-    this.ownSettings['background'].setup(anychart.getFullTheme('standalones.labelsFactory.background'));
-    this.ownSettings['background'].listenSignals(this.backgroundInvalidated_, this);
+    var background = this.ownSettings['background'] = new anychart.core.ui.Background();
+    background.markConsistent(anychart.ConsistencyState.ALL);
+    background.listenSignals(this.backgroundInvalidated_, this);
   }
 
   if (goog.isDef(opt_value)) {
@@ -1957,7 +1970,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.getFinalSettings = function(value
  * @return {*}
  * @private
  */
-anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(handler, opt_invert, opt_field) {
+anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(handler, opt_invert) {
   var iterator = opt_invert ? goog.array.forEachRight : goog.array.forEach;
 
   var result = void 0;
@@ -1969,7 +1982,6 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(h
       return;
 
     var result_ = handler.call(this, state, stateSettings, i);
-
     if (goog.isDef(result_)) {
       if (goog.isObject(result_) && !goog.isFunction(result_)) {
         if (goog.isDefAndNotNull(result)) {
@@ -1981,9 +1993,6 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(h
         result = result_;
       }
     }
-
-    // if (opt_field == 'anchor')
-    //   console.log('iterateDrawingPlans_ ---------------X ', result);
   }, this);
 
   return result;
@@ -2021,11 +2030,8 @@ anychart.core.ui.LabelsFactory.Label.prototype.resolveSetting_ = function(field,
     }
     if (opt_handler && goog.isDef(setting))
       setting = opt_handler(setting);
-
-    // if (field == 'anchor')
-    //   console.log('resolveSetting_ -----> ', setting);
     return setting;
-  }, true, field);
+  }, true);
 };
 
 
@@ -2685,11 +2691,25 @@ anychart.core.ui.LabelsFactory.Label.prototype.setupByJSON = function(config, op
   if (!goog.isDef(config['enabled'])) delete this.ownSettings['enabled'];
   this.setOption('enabled', 'enabled' in config ? config['enabled'] : enabledState);
 
-  if ('background' in config)
-    this.background(config['background']);
+  if ('background' in config) {
+    if (opt_default) {
+      var background = anychart.core.settings.createComplexSettings('background', anychart.core.ui.Background, this.themeSettings);
+      background.setup(anychart.getFullTheme('standalones.labelsFactory.background'));
+      background.setup(config['background']);
+      background.markConsistent(anychart.ConsistencyState.ALL);
+    } else {
+      this.background(config['background']);
+    }
+  }
 
-  if ('padding' in config)
-    this.padding(config['padding']);
+  if ('padding' in config) {
+    if (opt_default) {
+      var padding = anychart.core.settings.createComplexSettings('padding', anychart.core.utils.Padding, this.themeSettings);
+      padding.setupInternal(!!opt_default, config['padding']);
+    } else {
+      this.padding(config['padding']);
+    }
+  }
 };
 
 

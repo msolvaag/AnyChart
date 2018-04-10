@@ -332,6 +332,23 @@ anychart.core.settings.copy = function(target, descriptors, config) {
 };
 
 
+/**
+ *
+ * @param {string} name
+ * @param {Function} ctor
+ * @param {Object} settingsObj
+ * @param {...*} var_args
+ * @return {*}
+ */
+anychart.core.settings.createComplexSettings = function(name, ctor, settingsObj, var_args) {
+  var setting = settingsObj[name];
+  if (!goog.isDef(setting)) {
+    setting = settingsObj[name] = anychart.utils.construct(ctor, goog.array.slice(arguments, 3));
+  }
+  return setting;
+};
+
+
 //endregion
 //region Handlers
 //----------------------------------------------------------------------------------------------------------------------
