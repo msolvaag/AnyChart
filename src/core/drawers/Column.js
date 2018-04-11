@@ -87,14 +87,17 @@ anychart.core.drawers.Column.prototype.drawPointShape = function(point, path, ha
 
     var leftX = x - this.pointWidth / 2;
     var rightX = leftX + this.pointWidth;
+    var shared = point.meta('shared');
+    //This inversion allow to show single zero value.
+    var invertShift = this.isVertical ? false : (shared ? !shared.hasNotZero : true);
 
     var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(path.stroke()));
     if (this.crispEdges) {
-      leftX = anychart.utils.applyPixelShift(leftX, thickness);
-      rightX = anychart.utils.applyPixelShift(rightX, thickness);
+      leftX = anychart.utils.applyPixelShift(leftX, thickness, invertShift);
+      rightX = anychart.utils.applyPixelShift(rightX, thickness, invertShift);
     }
-    y = anychart.utils.applyPixelShift(y, thickness);
-    zero = anychart.utils.applyPixelShift(zero, thickness);
+    y = anychart.utils.applyPixelShift(y, thickness, invertShift);
+    zero = anychart.utils.applyPixelShift(zero, thickness, invertShift);
 
     anychart.core.drawers.move(path, this.isVertical, leftX, y);
     anychart.core.drawers.line(path, this.isVertical, rightX, y, rightX, zero, leftX, zero);
