@@ -2279,7 +2279,7 @@ anychart.core.series.Base.prototype.drawFactoryElement = function(seriesFactoryG
 
   var tmp;
 
-  if (point.meta('missing')) {
+  if (point.meta('missing') || point.meta('skipDrawing')) {
     isDraw = false;
   } else {
     state = anychart.core.utils.InteractivityState.clarifyState(state);
