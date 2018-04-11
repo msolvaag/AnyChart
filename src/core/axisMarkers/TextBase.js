@@ -111,7 +111,8 @@ anychart.core.axisMarkers.TextBase = function() {
   this.defaultLayout_ = anychart.enums.Layout.HORIZONTAL;
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
-    ['text', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED]
+    ['text', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
+    ['scaleRangeMode', anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_RECALCULATION]
   ]);
 };
 goog.inherits(anychart.core.axisMarkers.TextBase, anychart.core.Text);
@@ -126,7 +127,8 @@ anychart.core.settings.populate(anychart.core.axisMarkers.TextBase, anychart.cor
  * @type {number}
  */
 anychart.core.axisMarkers.TextBase.prototype.SUPPORTED_SIGNALS =
-    anychart.core.Text.prototype.SUPPORTED_SIGNALS;
+    anychart.core.Text.prototype.SUPPORTED_SIGNALS |
+    anychart.Signal.NEEDS_RECALCULATION;
 
 
 /**
@@ -645,6 +647,23 @@ anychart.core.axisMarkers.TextBase.prototype.markerElement = function() {
 };
 
 
+/**
+ * Properties that should be defined in class prototype.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.core.axisMarkers.TextBase.OWN_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptors(map, [
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'scaleRangeMode', anychart.enums.normalizeScaleRangeMode]
+  ]);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.core.axisMarkers.TextBase, anychart.core.axisMarkers.TextBase.OWN_DESCRIPTORS);
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //  Disposing.
 //----------------------------------------------------------------------------------------------------------------------
@@ -671,6 +690,7 @@ anychart.core.axisMarkers.TextBase.prototype.serialize = function() {
   json['offsetY'] = this.offsetY();
   json['height'] = this.height();
   json['width'] = this.width();
+  anychart.core.settings.serialize(this, anychart.core.axisMarkers.TextBase.OWN_DESCRIPTORS, json);
   return json;
 };
 
@@ -679,11 +699,13 @@ anychart.core.axisMarkers.TextBase.prototype.serialize = function() {
 anychart.core.axisMarkers.TextBase.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.axisMarkers.TextBase.base(this, 'setupByJSON', config, opt_default);
 
-  if (opt_default) {
-    anychart.core.settings.copy(this.themeSettings, anychart.core.Text.TEXT_DESCRIPTORS, config);
-  } else {
-    anychart.core.settings.deserialize(this, anychart.core.Text.TEXT_DESCRIPTORS, config);
-  }
+  // if (opt_default) {
+  //   anychart.core.settings.copy(this.themeSettings, anychart.core.Text.TEXT_DESCRIPTORS, config);
+  // } else {
+  anychart.core.settings.deserialize(this, anychart.core.Text.TEXT_DESCRIPTORS, config, opt_default);
+  // }
+
+  anychart.core.settings.deserialize(this, anychart.core.axisMarkers.TextBase.OWN_DESCRIPTORS, config, opt_default);
 
   this.anchor(config['anchor']);
   this.align(config['align']);

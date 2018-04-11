@@ -1603,6 +1603,11 @@ anychart.stockModule.Plot.prototype.textMarker = function(opt_indexOrValue, opt_
  * @protected
  */
 anychart.stockModule.Plot.prototype.onMarkersSignal = function(event) {
+  console.log('qwer');
+  if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION)) {
+    console.log('need recalculation', this.chart_);
+    this.chart_.invalidate(anychart.ConsistencyState.STOCK_SCALES);
+  }
   this.invalidate(anychart.ConsistencyState.STOCK_PLOT_AXIS_MARKERS, anychart.Signal.NEEDS_REDRAW);
 };
 

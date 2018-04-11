@@ -20,7 +20,7 @@ anychart.core.axisMarkers.Range = function() {
   this.val = {from: 0, to: 0};
 
   /**
-   * @type {string|acgraph.vector.Fill}
+   * @type {?(string|acgraph.vector.Fill)}
    * @private
    */
   this.fill_;
@@ -132,7 +132,7 @@ anychart.core.axisMarkers.Range.prototype.scale = function(opt_value) {
  * @param {number=} opt_opacity .
  * @param {number=} opt_fx .
  * @param {number=} opt_fy .
- * @return {!(acgraph.vector.Fill|anychart.core.axisMarkers.Range)} .
+ * @return {(acgraph.vector.Fill|anychart.core.axisMarkers.Range)} .
  */
 anychart.core.axisMarkers.Range.prototype.fill = function(opt_fillOrColorOrKeys, opt_opacityOrAngleOrCx, opt_modeOrCy, opt_opacityOrMode, opt_opacity, opt_fx, opt_fy) {
   if (goog.isDef(opt_fillOrColorOrKeys)) {
@@ -220,7 +220,7 @@ anychart.core.axisMarkers.Range.prototype.appearanceInvalidated = function() {
 //----------------------------------------------------------------------------------------------------------------------
 /** @inheritDoc */
 anychart.core.axisMarkers.Range.prototype.disposeInternal = function() {
-  delete this.fill_;
+  this.fill_ = null;
   anychart.core.axisMarkers.Range.base(this, 'disposeInternal');
 };
 

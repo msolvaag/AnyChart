@@ -52,6 +52,9 @@ anychart.core.axisMarkers.PathBase = function() {
    */
   this.markerElement_;
 
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['scaleRangeMode', anychart.ConsistencyState.BOUNDS, anychart.Signal.NEEDS_RECALCULATION]
+  ]);
 };
 goog.inherits(anychart.core.axisMarkers.PathBase, anychart.core.VisualBase);
 
@@ -74,7 +77,7 @@ anychart.core.axisMarkers.PathBase.Range;
  */
 anychart.core.axisMarkers.PathBase.prototype.SUPPORTED_SIGNALS =
     anychart.core.VisualBase.prototype.SUPPORTED_SIGNALS |
-    anychart.Signal.BOUNDS_CHANGED;
+    anychart.Signal.NEEDS_RECALCULATION;
 
 
 /**
@@ -465,6 +468,23 @@ anychart.core.axisMarkers.PathBase.prototype.markerElement = function() {
 };
 
 
+/**
+ * Properties that should be defined in class prototype.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
+anychart.core.axisMarkers.PathBase.OWN_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptors(map, [
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'scaleRangeMode', anychart.enums.normalizeScaleRangeMode]
+  ]);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.core.axisMarkers.PathBase, anychart.core.axisMarkers.PathBase.OWN_DESCRIPTORS);
+
+
 /** @inheritDoc */
 anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_default) {
   anychart.core.axisMarkers.PathBase.base(this, 'setupByJSON', config, opt_default);
@@ -479,6 +499,15 @@ anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_
       this.axis(ax);
     }
   }
+  anychart.core.settings.deserialize(this, anychart.core.axisMarkers.PathBase.OWN_DESCRIPTORS, config, opt_default);
+};
+
+
+/** @inheritDoc */
+anychart.core.axisMarkers.PathBase.prototype.serialize = function() {
+  var json = anychart.core.axisMarkers.PathBase.base(this, 'serialize');
+  anychart.core.settings.serialize(this, anychart.core.axisMarkers.PathBase.OWN_DESCRIPTORS, json);
+  return json;
 };
 
 

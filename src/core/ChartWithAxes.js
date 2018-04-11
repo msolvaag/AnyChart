@@ -837,7 +837,10 @@ anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, op
  * @protected
  */
 anychart.core.ChartWithAxes.prototype.onMarkersSignal = function(event) {
-  this.invalidate(anychart.ConsistencyState.AXES_CHART_AXES_MARKERS, anychart.Signal.NEEDS_REDRAW);
+  var state = anychart.ConsistencyState.AXES_CHART_AXES_MARKERS;
+  if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
+    state = anychart.ConsistencyState.SCALE_CHART_SCALES | anychart.ConsistencyState.SCALE_CHART_Y_SCALES;
+  this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -922,8 +925,11 @@ anychart.core.ChartWithAxes.prototype.calculate = function() {
     if (marker && markerScale) {
       for (var j = 0; j < scales.length; j++) {
         var scale = scales[j];
-        if (scale === markerScale)
+        if ((scale === markerScale) && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)) {
+          scale.startAutoCalc();
           scale.extendDataRange(marker.value());
+          scale.finishAutoCalc();
+        }
       }
     }
   }
