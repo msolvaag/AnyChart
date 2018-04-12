@@ -1883,12 +1883,15 @@ anychart.core.Axis.prototype.drawLabel_ = function(value, ratio, index, pixelShi
   }
   var positionProvider = {'value': {x: x, y: y}};
   var label = labels.getLabel(index);
+  console.log('!!!');
+
   if (!label) {
     var formatProvider = this.getLabelsFormatProvider(index, value);
     label = labels.add(formatProvider, positionProvider, index);
-    var settings = {};
-    goog.object.extend(settings, labels.themeSettings, labels.ownSettings);
-    label.stateOrder([label.ownSettings, settings]);
+    // var settings = {};
+    // goog.object.extend(settings, labels.themeSettings, labels.ownSettings);
+    debugger
+    label.stateOrder([label.ownSettings, labels.ownSettings, labels.themeSettings]);
   }
   label.positionProvider(positionProvider);
 };

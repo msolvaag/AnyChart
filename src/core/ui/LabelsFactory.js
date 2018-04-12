@@ -1612,7 +1612,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.background = function(opt_value) 
   var makeDefault = goog.isNull(opt_value);
   if (!makeDefault && !this.background_) {
     var background = this.background_ = new anychart.core.ui.Background();
-    background.markConsistent(anychart.ConsistencyState.ALL);
+    this.ownSettings['background'].setup(anychart.getFullTheme('standalones.labelsFactory.background'));
     background.listenSignals(this.backgroundInvalidated_, this);
   }
 
@@ -1994,6 +1994,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(p
       return;
 
     var processedSetting = processor.call(this, state, stateSettings, i, opt_field, opt_handler);
+
     if (goog.isDef(processedSetting)) {
       if (goog.isObject(processedSetting) && !goog.isFunction(processedSetting)) {
         if (goog.isDefAndNotNull(result)) {
@@ -2006,6 +2007,9 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(p
       }
     }
   }, this);
+
+  if (opt_field == 'background')
+    console.log(settings);
 
   return result;
 };
