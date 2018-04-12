@@ -13,6 +13,15 @@ goog.require('anychart.enums');
  */
 anychart.core.drawers.Column = function(series) {
   anychart.core.drawers.Column.base(this, 'constructor', series);
+
+  /**
+   * Flag to decide if pixel shift inversion must be calculated.
+   * Pixel shift inversion is used to show single zero-values in columns.
+   * Waterfall series doesn't need it.
+   * @type {boolean}
+   * @protected
+   */
+  this.calculatePxShiftInversion = true;
 };
 goog.inherits(anychart.core.drawers.Column, anychart.core.drawers.Base);
 anychart.core.drawers.AvailableDrawers[anychart.enums.SeriesDrawerTypes.COLUMN] = anychart.core.drawers.Column;
@@ -89,7 +98,9 @@ anychart.core.drawers.Column.prototype.drawPointShape = function(point, path, ha
     var rightX = leftX + this.pointWidth;
     var shared = point.meta('shared');
     //This inversion allow to show single zero value.
-    var invertShift = this.isVertical ? false : (shared ? !shared.hasNotZero : true);
+    var invertShift = this.calculatePxShiftInversion ?
+        (this.isVertical ? false : (shared ? !shared.hasNotZero : true)) :
+        false;
 
     var thickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(path.stroke()));
     if (this.crispEdges) {
