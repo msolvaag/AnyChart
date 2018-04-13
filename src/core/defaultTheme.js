@@ -1017,7 +1017,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'enabled': true,
     'fontSize': 12,
     'value': 0,
-    'anchor': 'center',
+    'anchor': 'auto',
     'align': 'center',
     'layout': null,
     'offsetX': 0,
@@ -1026,7 +1026,6 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'width': null,
     'height': null,
     'zIndex': 25.3,
-    'scale': 1,
     'padding': 0
   },
 

@@ -601,6 +601,15 @@ anychart.core.ui.LabelBase.prototype.calculateLabelBounds_ = function() {
 
 
 /**
+ * Gets position overridable method.
+ * @return {anychart.enums.Position}
+ */
+anychart.core.ui.LabelBase.prototype.getPosition = function() {
+  return /** @type {anychart.enums.Position} */ (this.getOption('position')) || anychart.enums.Position.CENTER;
+};
+
+
+/**
  * Label drawing.
  * @return {anychart.math.Rect}
  * @protected
@@ -618,7 +627,7 @@ anychart.core.ui.LabelBase.prototype.drawLabel = function() {
   var position = new goog.math.Coordinate(0, 0);
 
   if (this.parentBounds()) {
-    switch (this.getOption('position')) {
+    switch (this.getPosition()) {
       case anychart.enums.Position.LEFT_TOP:
         position.x = parentX;
         position.y = parentY;
