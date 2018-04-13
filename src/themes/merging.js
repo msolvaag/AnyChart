@@ -663,7 +663,8 @@ anychart.themes.merging.mergingMap_ = (function() {
       targets: [
         ['chart.', [
           [['', 'defaultQuarterSettings.'], 'defaultLabelSettings']
-        ]]
+        ]],
+        'defaultTextMarkerSettings'
       ]
     },
     {
