@@ -55,15 +55,15 @@ CLOSURE_BUILDER_PATH = os.path.join(CLOSURE_BIN_PATH, 'build', 'closurebuilder.p
 
 # special files
 STAT_REPORT_OUT_PATH = os.path.join(OUT_PATH, 'size.stat.json')
-MODULES_CONFIG_PATH = os.path.join(PROJECT_PATH, 'bin', 'modules.json')
+MODULES_CONFIG_PATH = os.path.join(PROJECT_PATH, 'bin', 'sources_modules.json')
 VERSION_INI_PATH = os.path.join(PROJECT_PATH, 'version.ini')
 ANYCHART_DEPS_PATH = os.path.join(SRC_PATH, 'deps.js')
 CLOSURE_DEPS_PATH = os.path.join(CLOSURE_SOURCE_PATH, 'deps.js')
 
-CHECKS_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'checks.flags')
-COMMON_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'common.flags')
-BINARIES_WRAPPER_START = os.path.join(PROJECT_PATH, 'bin', 'binaries_wrapper_start.txt')
-BINARIES_WRAPPER_END = os.path.join(PROJECT_PATH, 'bin', 'binaries_wrapper_end.txt')
+CHECKS_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'sources_checks.flags')
+COMMON_FLAGS = os.path.join(PROJECT_PATH, 'bin', 'sources_common.flags')
+BINARIES_WRAPPER_START = os.path.join(PROJECT_PATH, 'bin', 'sources_binaries_wrapper_start.txt')
+BINARIES_WRAPPER_END = os.path.join(PROJECT_PATH, 'bin', 'sources_binaries_wrapper_end.txt')
 GIT_CONTRIBUTORS_URL = 'https://api.github.com/repos/anychart/anychart/contributors?anon=1%s'
 GIT_COMPARE_URL_TEMPLATE = 'https://api.github.com/repos/AnyChart/AnyChart/compare/master...%s%s'
 
@@ -289,15 +289,17 @@ def __version_by_pattern(pattern, path, value=None):
     f = open(path, 'r')
     text = f.read()
     f.close()
-    if value:
-
-        text = re.sub(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', pattern % value, text)
-        f = open(path, 'w')
-        f.write(text)
-        f.close()
-        return re.search(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', text, re.IGNORECASE).group(1)
-    else:
-        return re.search(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', text, re.IGNORECASE).group(1)
+    try:
+        if value:
+            text = re.sub(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', pattern % value, text)
+            f = open(path, 'w')
+            f.write(text)
+            f.close()
+            return re.search(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', text, re.IGNORECASE).group(1)
+        else:
+            return re.search(pattern % '([0-9]+\.[0-9]+\.[0-9]+)', text, re.IGNORECASE).group(1)
+    except:
+        print "No version found in %s" % path
 
 
 def __package_json_version(value=None):

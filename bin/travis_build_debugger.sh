@@ -1,4 +1,23 @@
 #!/usr/bin/env bash
 
-export TRAVIS_BRANCH=$(git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
-./bin/travis_build.sh
+########################################################################################################################
+#
+#  Set variables
+#
+########################################################################################################################
+TRAVIS_BRANCH=$(git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+TATIC_HOST_SSH_STRING=$1
+
+### Declare DRY_RUN flag. To call them set 1 (DRY_RUN=1)
+declare -i DRY_RUN
+declare -i DRY_RUN_RELEASE
+DRY_RUN=1
+DRY_RUN_RELEASE=1
+
+########################################################################################################################
+#
+#  Exec main scrpit
+#  "." it is a "source" command
+#
+########################################################################################################################
+. ./bin/travis_build.sh
