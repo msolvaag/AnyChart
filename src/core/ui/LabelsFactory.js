@@ -1612,7 +1612,7 @@ anychart.core.ui.LabelsFactory.Label.prototype.background = function(opt_value) 
   var makeDefault = goog.isNull(opt_value);
   if (!makeDefault && !this.background_) {
     var background = this.background_ = new anychart.core.ui.Background();
-    this.ownSettings['background'].setup(anychart.getFullTheme('standalones.labelsFactory.background'));
+    this.background_.setup(anychart.getFullTheme('standalones.labelsFactory.background'));
     background.listenSignals(this.backgroundInvalidated_, this);
   }
 
