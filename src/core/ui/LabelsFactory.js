@@ -641,12 +641,7 @@ anychart.core.ui.LabelsFactory.prototype.getChangedSettings = function() {
         key = 'adjustFontSize';
       }
 
-      result[key] = this[key]();
-      if (key == 'padding' || key == 'background') {
-        result[key] = this.getOwnOption(key).serialize();
-      } else {
-        result[key] = this.getOwnOption(key);
-      }
+      result[key] = this.getOwnOption(key);
     }
   }, this);
   return result;
