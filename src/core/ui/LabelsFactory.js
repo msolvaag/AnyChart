@@ -2008,9 +2008,6 @@ anychart.core.ui.LabelsFactory.Label.prototype.iterateDrawingPlans_ = function(p
     }
   }, this);
 
-  if (opt_field == 'background')
-    console.log(settings);
-
   return result;
 };
 
