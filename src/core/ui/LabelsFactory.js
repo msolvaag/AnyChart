@@ -1199,7 +1199,11 @@ anychart.core.ui.LabelsFactory.prototype.setupByJSON = function(config, opt_defa
   var propName = 'background';
   if (propName in config) {
     var background = this.background();
-    background.setupInternal(!!opt_default, config[propName]);
+    if (opt_default) {
+      background.setupInternal(!!opt_default, config[propName]);
+    } else {
+      this.background(config[propName]);
+    }
     this.themeSettings[propName] = background.themeSettings;
     this.ownSettings[propName] = background.ownSettings;
   }
@@ -1207,7 +1211,11 @@ anychart.core.ui.LabelsFactory.prototype.setupByJSON = function(config, opt_defa
   propName = 'padding';
   if (propName in config) {
     var padding = this.padding();
-    padding.setupInternal(!!opt_default, config[propName]);
+    if (opt_default) {
+      padding.setupInternal(!!opt_default, config[propName]);
+    } else {
+      this.padding(config[propName]);
+    }
     this.themeSettings[propName] = padding.themeSettings;
     this.ownSettings[propName] = padding.ownSettings;
   }
@@ -2717,7 +2725,11 @@ anychart.core.ui.LabelsFactory.Label.prototype.setupByJSON = function(config, op
   var propName = 'background';
   if (propName in config) {
     var background = this.background();
-    background.setupInternal(!!opt_default, config[propName]);
+    if (opt_default) {
+      background.setupInternal(!!opt_default, config[propName]);
+    } else {
+      this.background(config[propName]);
+    }
     this.themeSettings[propName] = background.themeSettings;
     this.ownSettings[propName] = background.ownSettings;
   }
@@ -2725,7 +2737,11 @@ anychart.core.ui.LabelsFactory.Label.prototype.setupByJSON = function(config, op
   propName = 'padding';
   if (propName in config) {
     var padding = this.padding();
-    padding.setupInternal(!!opt_default, config[propName]);
+    if (opt_default) {
+      padding.setupInternal(!!opt_default, config[propName]);
+    } else {
+      this.padding(config[propName]);
+    }
     this.themeSettings[propName] = padding.themeSettings;
     this.ownSettings[propName] = padding.ownSettings;
   }
