@@ -1535,8 +1535,11 @@ anychart.core.Axis.prototype.getLabelBounds_ = function(index, isMajor, ticksArr
 
   var label = labels.add(formatProvider, positionProvider, index);
   var settings = {};
-  goog.object.extend(settings, labels.themeSettings, labels.ownSettings);
-  label.stateOrder([label.ownSettings, settings]);
+  // goog.object.extend(settings, , );
+  label.stateOrder([label.ownSettings, labels.ownSettings, labels.themeSettings]);
+
+  console.log(label.ownSettings, labels.themeSettings, labels.ownSettings);
+
   var labelBounds = labels.measure(label, undefined, undefined, index);
 
   switch (this.orientation()) {
@@ -1883,15 +1886,12 @@ anychart.core.Axis.prototype.drawLabel_ = function(value, ratio, index, pixelShi
   }
   var positionProvider = {'value': {x: x, y: y}};
   var label = labels.getLabel(index);
-  console.log('!!!');
-
   if (!label) {
     var formatProvider = this.getLabelsFormatProvider(index, value);
     label = labels.add(formatProvider, positionProvider, index);
-    // var settings = {};
-    // goog.object.extend(settings, labels.themeSettings, labels.ownSettings);
-    debugger
-    label.stateOrder([label.ownSettings, labels.ownSettings, labels.themeSettings]);
+    var settings = {};
+    goog.object.extend(settings, labels.themeSettings, labels.ownSettings);
+    label.stateOrder([label.ownSettings, settings]);
   }
   label.positionProvider(positionProvider);
 };
