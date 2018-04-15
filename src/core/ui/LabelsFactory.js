@@ -2507,7 +2507,6 @@ anychart.core.ui.LabelsFactory.Label.prototype.draw = function() {
       padding = new anychart.core.utils.Padding();
       padding.setup(mergedSettings['padding']);
     }
-    console.log(padding);
 
     var autoWidth;
     var autoHeight;
