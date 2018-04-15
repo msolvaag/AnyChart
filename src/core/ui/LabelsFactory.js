@@ -908,7 +908,8 @@ anychart.core.ui.LabelsFactory.prototype.getDimension = function(formatProviderO
     this.measureCustomLabel_.setup(opt_settings);
     isHtml = goog.isDef(measureLabel.getOption('useHtml')) ? measureLabel.getOption('useHtml') : this.getOption('useHtml');
 
-    var labelPadding = measureLabel.ownSettings['padding'] || measureLabel.themeSettings['padding'] ? measureLabel.padding() : void 0;
+    var labelPadding = !goog.object.isEmpty(measureLabel.ownSettings['padding']) || !goog.object.isEmpty(measureLabel.themeSettings['padding']) ?
+        measureLabel.padding() : void 0;
     padding = labelPadding || this.padding_ || null;
     widthSettings = goog.isDef(measureLabel.getOption('width')) ? measureLabel.getOption('width') : this.getOption('width');
     heightSettings = goog.isDef(measureLabel.getOption('height')) ? measureLabel.getOption('height') : this.getOption('height');
