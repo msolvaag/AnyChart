@@ -907,7 +907,9 @@ anychart.core.ui.LabelsFactory.prototype.getDimension = function(formatProviderO
     }
     this.measureCustomLabel_.setup(opt_settings);
     isHtml = goog.isDef(measureLabel.getOption('useHtml')) ? measureLabel.getOption('useHtml') : this.getOption('useHtml');
-    padding = measureLabel.getFinalSettings('padding') || this.padding_ || null;
+
+    var labelPadding = measureLabel.ownSettings['padding'] || measureLabel.themeSettings['padding'] ? measureLabel.padding() : void 0;
+    padding = labelPadding || this.padding_ || null;
     widthSettings = goog.isDef(measureLabel.getOption('width')) ? measureLabel.getOption('width') : this.getOption('width');
     heightSettings = goog.isDef(measureLabel.getOption('height')) ? measureLabel.getOption('height') : this.getOption('height');
     offsetY = /** @type {number|string} */(measureLabel.getOption('offsetY') || this.getOption('offsetY')) || 0;
