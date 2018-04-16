@@ -12,7 +12,7 @@ TATIC_HOST_SSH_STRING=$1
 declare -i DRY_RUN
 declare -i DRY_RUN_RELEASE
 DRY_RUN=1
-DRY_RUN_RELEASE=1
+DRY_RUN_RELEASE=0
 
 ########################################################################################################################
 #

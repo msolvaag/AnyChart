@@ -244,16 +244,18 @@ def __get_version():
 
     return '%s.%s.%s' % (major, minor, patch)
 
-
-@memoize
-def __get_build_version():
-    # get current branch name
+def __get_current_branch_name():
     (name_output, name_err) = subprocess.Popen(
         ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         cwd=PROJECT_PATH).communicate()
-    branch_name = name_output.strip()
+    return name_output.strip()
+
+
+@memoize
+def __get_build_version():
+    branch_name = __get_current_branch_name()
 
     travis_branch = os.environ.get('TRAVIS_BRANCH') if branch_name == 'HEAD' else None
     github_token = os.environ.get('GITHUB_TOKEN') if 'GITHUB_TOKEN' in os.environ else None
@@ -773,10 +775,13 @@ def __get_bundle_wrapper(bundle_name, modules, file_name='', performance_monitor
         if any(map(lambda item: __get_modules_config()['parts'][item].get('skipCoreCheck', False), modules)) \
         else "throw Error('anychart-base.min.js module should be included first. See modules explanation at https://docs.anychart.com/Quick_Start/Modules for details');"
 
+    branch_name = __get_current_branch_name()
+    date_mask = '%Y-%m-%d' if branch_name == 'master' else '%Y-%m-%d %H:%M'
+    
     start = start % (
         ', '.join(modules),
         __get_build_version(),
-        time.strftime('%Y-%m-%d %H:%M'),
+        time.strftime(date_mask),
         time.strftime('%Y'),
         perf_start,
         core_check

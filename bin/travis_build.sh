@@ -116,7 +116,7 @@ build_dist
 if [ ${IS_RELEASE_BUILD} = "true" ]; then
     ####################################################################################################################
     #
-    #  Check dist files
+    #  Check dist files (if its actual)
     #
     ####################################################################################################################
     GIT_STATUS=$(git status)
@@ -124,7 +124,16 @@ if [ ${IS_RELEASE_BUILD} = "true" ]; then
         echo "Theme files has changes, looks like you forgot update theme files in dist folder"
         exit 1
     fi
-    #### always non actual (build time adding problem) JS / CSS
+
+    if [[ "${GIT_STATUS}" =~ dist/js/.+ ]]; then
+        echo JavaScript files has changes, looks like you forgot update JavaScript files in dist folder
+        exit 1
+    fi
+
+    if [[ "${GIT_STATUS}" =~ dist/css/.+ ]]; then
+        echo CSS files has changes, looks like you forgot update CSS files in dist folder
+        exit 1
+    fi
 
     ####################################################################################################################
     #
