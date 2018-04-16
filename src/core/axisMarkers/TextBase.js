@@ -434,7 +434,7 @@ anychart.core.axisMarkers.TextBase.prototype.parentBounds = function(opt_boundsO
   } else {
     if (this.isReady_() && this.contBounds_) {
       //TODO (A.Kudryavtsev): Cache cloning result.
-      var clone = new anychart.math.Rect(this.contBounds_.left, this.contBounds_.top, this.contBounds_.width, this.contBounds_.height);
+      var clone = this.contBounds_.clone();
       var ratio = this.scale().transform(this.val, 0.5);
       if (this.isHorizontal()) {
         clone.height = 0;
