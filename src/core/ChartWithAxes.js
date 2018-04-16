@@ -144,7 +144,7 @@ anychart.core.ChartWithAxes.prototype.setDefaultScaleForLayoutBasedElements = fu
   else if (anychart.utils.instanceOf(item, anychart.core.axisMarkers.Text)) {
     item.autoScale(sc);
   } else {
-    item.scale(/** @type {anychart.scales.Base} */(scale));
+    item.scale(sc);
   }
 };
 
