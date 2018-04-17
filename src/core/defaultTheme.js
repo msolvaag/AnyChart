@@ -1020,7 +1020,8 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'align': 'center',
     'layout': null,
     'text': 'Text marker',
-    'zIndex': 25.3
+    'zIndex': 25.3,
+    'rotation': NaN
   },
 
   'defaultRangeMarkerSettings': {
