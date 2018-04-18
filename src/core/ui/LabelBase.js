@@ -471,6 +471,15 @@ anychart.core.ui.LabelBase.prototype.calculateFontSize_ = function(originWidth, 
 
 
 /**
+ * Gets bounds for this.calculateLabelBounds_ label width and height correct calculation.
+ * @return {anychart.math.Rect}
+ */
+anychart.core.ui.LabelBase.prototype.getLabelsParentBounds = function() {
+  return /** @type {anychart.math.Rect} */ (this.parentBounds());
+};
+
+
+/**
  * Calculate label bounds.
  * @private
  */
@@ -494,18 +503,17 @@ anychart.core.ui.LabelBase.prototype.calculateLabelBounds_ = function() {
   // canAdjustBy = !auto
   var w = this.getOption('width');
   var h = this.getOption('height');
-  if (parentBounds) {
-    parentWidth = parentBounds.width;
-    parentHeight = parentBounds.height;
+  var whBounds = this.getLabelsParentBounds();
+  if (parentBounds && whBounds) {
     if (goog.isDefAndNotNull(w)) {
-      this.backgroundWidth = width = anychart.utils.normalizeSize(/** @type {number|string} */(w), parentWidth);
+      this.backgroundWidth = width = anychart.utils.normalizeSize(/** @type {number|string} */(w), whBounds.width);
       autoWidth = false;
     } else {
       width = 0;
       autoWidth = true;
     }
     if (goog.isDefAndNotNull(h)) {
-      this.backgroundHeight = height = anychart.utils.normalizeSize(/** @type {number|string} */(h), parentHeight);
+      this.backgroundHeight = height = anychart.utils.normalizeSize(/** @type {number|string} */(h), whBounds.height);
       autoHeight = false;
     } else {
       height = 0;

@@ -419,6 +419,14 @@ anychart.core.axisMarkers.TextBase.prototype.getFinalAnchor = function() {
 /**
  * @inheritDoc
  */
+anychart.core.axisMarkers.TextBase.prototype.getLabelsParentBounds = function() {
+  return /** @type {anychart.math.Rect} */ (this.contBounds_);
+};
+
+
+/**
+ * @inheritDoc
+ */
 anychart.core.axisMarkers.TextBase.prototype.parentBounds = function(opt_boundsOrLeft, opt_top, opt_width, opt_height) {
   if (goog.isDef(opt_boundsOrLeft)) {
     if (goog.isNull(opt_boundsOrLeft) || anychart.utils.instanceOf(opt_boundsOrLeft, anychart.math.Rect)) {
