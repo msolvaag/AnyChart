@@ -1023,7 +1023,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'layout': null,
     'text': 'Text marker',
     'zIndex': 25.3,
-    'rotation': NaN
+    'rotation': null
   },
 
   'defaultRangeMarkerSettings': {

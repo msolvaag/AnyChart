@@ -367,7 +367,7 @@ anychart.core.axisMarkers.TextBase.prototype.checkDrawingNeeded = function() {
  */
 anychart.core.axisMarkers.TextBase.prototype.getFinalRotation = function() {
   var rot = this.getOption('rotation');
-  return /** @type {number} */ (goog.isDef(rot) && !isNaN(rot) ? rot : (this.isHorizontal() ? 0 : -90));
+  return /** @type {number} */ (goog.isDefAndNotNull(rot) && !isNaN(rot) ? rot : (this.isHorizontal() ? 0 : -90));
 };
 
 

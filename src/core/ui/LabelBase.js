@@ -150,7 +150,7 @@ anychart.core.ui.LabelBase.DESCRIPTORS = (function() {
       map,
       anychart.enums.PropertyHandlerType.SINGLE_ARG,
       'rotation',
-      anychart.core.settings.numberNormalizer);
+      anychart.core.settings.numberOrNullNormalizer);
 
   anychart.core.settings.createDescriptor(
       map,
@@ -301,7 +301,7 @@ anychart.core.ui.LabelBase.prototype.autoRotation = function(opt_value) {
  */
 anychart.core.ui.LabelBase.prototype.getFinalRotation = function() {
   var rot = this.getOption('rotation');
-  return goog.isDef(rot) && !isNaN(rot) ? rot : this.autoRotation_;
+  return goog.isDefAndNotNull(rot) && !isNaN(rot) ? rot : this.autoRotation_;
 };
 
 
