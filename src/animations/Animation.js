@@ -25,7 +25,7 @@ anychart.animations.Animation = function(series, start, end, duration, opt_acc) 
 };
 goog.inherits(anychart.animations.Animation, goog.fx.Animation);
 
- 
+
 /**
  * Updates animation params.
  */
