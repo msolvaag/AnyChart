@@ -1062,14 +1062,35 @@ anychart.core.ChartWithAxes.prototype.getContentAreaBounds = function(bounds) {
  * @return {anychart.math.Rect}
  */
 anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAreaBounds, opt_scrollerSize) {
+  // var ___name = 'contentAreaBounds';
+  // if (!this[___name]) this[___name] = this.container().rect().stroke('red').zIndex(1000);
+  // this[___name].setBounds(contentAreaBounds);
+
+  var axesInsideBounds = this.getPixelBounds().clone();
+
+  var ___name = 'pixelBounds___';
+  if (!this[___name]) this[___name] = this.container().rect().stroke('blue').zIndex(1000);
+  this[___name].setBounds(axesInsideBounds);
+
   var i, count;
   var xAxis, yAxis;
   var axes = goog.array.concat(this.xAxes_, this.yAxes_);
   var attempt = 0;
 
+  var firstLeftAxis, firstTopAxis, firstRightAxis, firstBottomAxis;
   for (i = 0, count = this.xAxes_.length; i < count; i++) {
     xAxis = this.xAxes_[i];
     if (xAxis) {
+      switch (xAxis.orientation()) {
+        case anychart.enums.Orientation.TOP:
+          if (!firstTopAxis)
+            firstTopAxis = xAxis;
+          break;
+        case anychart.enums.Orientation.BOTTOM:
+          if (!firstBottomAxis)
+            firstBottomAxis = xAxis;
+          break;
+      }
       xAxis.suspendSignalsDispatching();
       xAxis.padding(0);
     }
@@ -1078,6 +1099,16 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
   for (i = 0, count = this.yAxes_.length; i < count; i++) {
     yAxis = this.yAxes_[i];
     if (yAxis) {
+      switch (yAxis.orientation()) {
+        case anychart.enums.Orientation.RIGHT:
+          if (!firstRightAxis)
+            firstRightAxis = yAxis;
+          break;
+        case anychart.enums.Orientation.LEFT:
+          if (!firstLeftAxis)
+            firstLeftAxis = yAxis;
+          break;
+      }
       yAxis.suspendSignalsDispatching();
       yAxis.padding(0);
     }
@@ -1108,28 +1139,28 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
         if (orientation == anychart.enums.Orientation.TOP) {
           axis.padding()['top'](offsets[0]);
           axis.padding()['bottom'](0);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstTopAxis != axis);
           offsets[0] = contentAreaBounds.height - remainingBounds.height;
           if (isNaN(this.topAxisPadding_))
             this.topAxisPadding_ = axisStrokeThickness;
         } else if (orientation == anychart.enums.Orientation.BOTTOM) {
           axis.padding()['bottom'](offsets[2]);
           axis.padding()['top'](0);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstBottomAxis != axis);
           offsets[2] = contentAreaBounds.height - remainingBounds.height;
           if (isNaN(this.bottomAxisPadding_))
             this.bottomAxisPadding_ = axisStrokeThickness;
         } else if (orientation == anychart.enums.Orientation.LEFT) {
           axis.padding()['left'](offsets[3]);
           axis.padding()['right'](0);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstLeftAxis != axis);
           offsets[3] = contentAreaBounds.width - remainingBounds.width;
           if (isNaN(this.leftAxisPadding_))
             this.leftAxisPadding_ = axisStrokeThickness;
         } else if (orientation == anychart.enums.Orientation.RIGHT) {
           axis.padding()['right'](offsets[1]);
           axis.padding()['left'](0);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstRightAxis != axis);
           offsets[1] = contentAreaBounds.width - remainingBounds.width;
           if (isNaN(this.rightAxisPadding_))
             this.rightAxisPadding_ = axisStrokeThickness;
@@ -1147,23 +1178,69 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
     for (i = axes.length; i--;) {
       axis = /** @type {anychart.core.Axis} */(axes[i]);
       if (axis && axis.enabled()) {
-        var remainingBoundsBeforeSetPadding = axis.getRemainingBounds();
+        var isNotFirstAxis = firstTopAxis != axis && firstBottomAxis != axis && firstLeftAxis != axis && firstRightAxis != axis;
+        var remainingBoundsBeforeSetPadding = axis.getRemainingBounds(isNotFirstAxis);
 
         if (axis.isHorizontal()) {
           axis.padding()['left'](offsets[3]);
           axis.padding()['right'](offsets[1]);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstTopAxis != axis && firstBottomAxis != axis);
           if (remainingBounds.height != remainingBoundsBeforeSetPadding.height) {
             complete = false;
           }
         } else {
           axis.padding()['top'](offsets[0]);
           axis.padding()['bottom'](offsets[2]);
-          remainingBounds = axis.getRemainingBounds();
+          remainingBounds = axis.getRemainingBounds(firstLeftAxis != axis && firstRightAxis != axis);
           if (remainingBounds.width != remainingBoundsBeforeSetPadding.width) {
             complete = false;
           }
         }
+
+        var axisPixelBounds = axis.getPixelBounds(false);
+
+        // var ___name = 'axisPixelBounds' + i;
+        // if (!this[___name]) this[___name] = this.container().rect().zIndex(1000);
+        // this[___name].setBounds(axisPixelBounds);
+
+        var bounds = axesInsideBounds.difference(axisPixelBounds);
+        // console.log('bounds', bounds, axesInsideBounds, axisPixelBounds);
+
+        switch (axis.orientation()) {
+          case anychart.enums.Orientation.TOP:
+            axesInsideBounds = bounds[1] ? bounds[1] : axesInsideBounds;
+            break;
+          case anychart.enums.Orientation.RIGHT:
+            axesInsideBounds = bounds[2] ? bounds[2] : axesInsideBounds;
+            break;
+          case anychart.enums.Orientation.BOTTOM:
+            axesInsideBounds = bounds[0] ? bounds[0] : axesInsideBounds;
+            break;
+          case anychart.enums.Orientation.LEFT:
+            axesInsideBounds = bounds[3] ? bounds[3] : axesInsideBounds;
+            break;
+        }
+
+        // console.log('--->', axesInsideBounds);
+
+        // var ___name = 'boundsWithoutAxes0';
+        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 orange').zIndex(1000);
+        // this[___name].setBounds(bounds[0]);
+        //
+        // var ___name = 'boundsWithoutAxes1';
+        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 red').zIndex(1000);
+        // this[___name].setBounds(bounds[1]);
+        //
+        // var ___name = 'boundsWithoutAxes2';
+        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 blue').zIndex(1000);
+        // this[___name].setBounds(bounds[2]);
+        //
+
+        // if (bounds[3]) {
+        //   var ___name = 'boundsWithoutAxesLeft'+i;
+        //   if (!this[___name]) this[___name] = this.container().rect().stroke('2 yellow').zIndex(1000);
+        //   this[___name].setBounds(bounds[3]);
+        // }
       }
     }
     attempt++;
@@ -1178,6 +1255,10 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
     yAxis = this.yAxes_[i];
     if (yAxis) yAxis.resumeSignalsDispatching(false);
   }
+
+  // var ___name = 'boundsWithoutAxes';
+  // if (!this[___name]) this[___name] = this.container().rect().stroke('green').zIndex(1000);
+  // this[___name].setBounds(axesInsideBounds);
 
   return boundsWithoutAxes.clone().round();
 };

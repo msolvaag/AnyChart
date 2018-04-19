@@ -1268,7 +1268,13 @@ anychart.core.Axis.prototype.getAffectBoundsTickLength = function(ticks, opt_sid
 };
 
 
-anychart.core.Axis.prototype.getMinor
+/**
+ * Convert side position to number representation.
+ * @param {anychart.enums.SidePosition} position
+ */
+anychart.core.Axis.prototype.sidePositionToNumber = function(position) {
+  return position == anychart.enums.SidePosition.OUTSIDE ? 1 : position == anychart.enums.SidePosition.INSIDE ? -1 : 0;
+};
 
 
 /**
@@ -1283,28 +1289,31 @@ anychart.core.Axis.prototype.calcSize = function(maxLabelSize, maxMinorLabelSize
   var ticks = /** @type {!anychart.core.AxisTicks} */(this.ticks());
   var minorTicks = /** @type {!anychart.core.AxisTicks} */(this.minorTicks());
 
-  var ticksLength = this.getAffectBoundsTickLength(ticks);
-  var minorTicksLength = this.getAffectBoundsTickLength(minorTicks);
-
   var sumTicksAndLabelsSizes = 0, sumMinorTicksAndLabelsSizes = 0;
 
   var labelsPosition = this.labels().position();
   var minorLabelsPosition = this.minorLabels().position();
-
-  var ticksPosition = ticks.position() ;
+  var ticksPosition = ticks.position();
   var minorTicksPosition = minorTicks.position();
 
+  var ticksSide = this.sidePositionToNumber(ticksPosition);
+  var minorTicksSide = this.sidePositionToNumber(minorTicksPosition);
+
+  var ticksLength, minorTicksLength;
+
   if (opt_includeInsideContent) {
+    ticksLength = Math.abs(this.getAffectBoundsTickLength(ticks, ticksSide));
+    minorTicksLength = Math.abs(this.getAffectBoundsTickLength(minorTicks, minorTicksSide));
+
     sumTicksAndLabelsSizes = maxLabelSize + ticksLength;
     sumMinorTicksAndLabelsSizes = maxMinorLabelSize + minorTicksLength;
   } else {
-    if (ticksPosition == anychart.enums.SidePosition.OUTSIDE) {
-      sumTicksAndLabelsSizes = ticksLength;
-    } else if (ticksPosition == anychart.enums.SidePosition.CENTER) {
-      sumTicksAndLabelsSizes = ticksLength / 2;
-    } else if (ticksPosition == anychart.enums.SidePosition.INSIDE) {
-      sumTicksAndLabelsSizes = 0;
-    }
+    ticksLength = this.getAffectBoundsTickLength(ticks, 1);
+    minorTicksLength = this.getAffectBoundsTickLength(minorTicks, 1);
+
+    sumTicksAndLabelsSizes = ticksLength;
+    sumMinorTicksAndLabelsSizes = minorTicksLength;
+
     if (labelsPosition == anychart.enums.SidePosition.OUTSIDE) {
       sumTicksAndLabelsSizes += maxLabelSize;
     } else if (labelsPosition == anychart.enums.SidePosition.CENTER) {
@@ -1313,14 +1322,6 @@ anychart.core.Axis.prototype.calcSize = function(maxLabelSize, maxMinorLabelSize
       sumTicksAndLabelsSizes += 0;
     }
 
-
-    if (minorTicksPosition == anychart.enums.SidePosition.OUTSIDE) {
-      sumMinorTicksAndLabelsSizes = minorTicksLength;
-    } else if (minorTicksPosition == anychart.enums.SidePosition.CENTER) {
-      sumMinorTicksAndLabelsSizes = minorTicksLength / 2;
-    } else if (minorTicksPosition == anychart.enums.SidePosition.INSIDE) {
-      sumMinorTicksAndLabelsSizes = 0;
-    }
     if (minorLabelsPosition == anychart.enums.SidePosition.OUTSIDE) {
       sumMinorTicksAndLabelsSizes += maxMinorLabelSize;
     } else if (minorLabelsPosition == anychart.enums.SidePosition.CENTER) {
@@ -1329,7 +1330,6 @@ anychart.core.Axis.prototype.calcSize = function(maxLabelSize, maxMinorLabelSize
       sumMinorTicksAndLabelsSizes += 0;
     }
   }
-
   return Math.max(sumTicksAndLabelsSizes, sumMinorTicksAndLabelsSizes);
 };
 
@@ -1503,12 +1503,25 @@ anychart.core.Axis.prototype.calculateSize = function(parentSize, length, parent
 
 
 /**
+ * @return {boolean}
+ */
+anychart.core.Axis.prototype.hasInsideElements = function() {
+  return ((this.labels().enabled() ? this.sidePositionToNumber(this.labels().position()) : 1) +
+      (this.minorLabels().enabled() ? this.sidePositionToNumber(this.minorLabels().position()) : 1) +
+      (this.ticks().enabled() ? this.sidePositionToNumber(this.ticks().position()) : 1) +
+      (this.minorTicks().enabled() ? this.sidePositionToNumber(this.minorTicks().position()) : 1)) != 4;
+};
+
+
+/**
  * Gets axis pixel bounds.
  * @param {boolean=} opt_includeInsideContent .
  * @return {anychart.math.Rect} Pixel bounds.
  */
 anychart.core.Axis.prototype.getPixelBounds = function(opt_includeInsideContent) {
-  if (!this.pixelBounds || this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
+  var bounds = opt_includeInsideContent && this.hasInsideElements() ? this.pixelBoundsWithInside : this.pixelBounds;
+
+  if (!bounds || this.hasInvalidationState(anychart.ConsistencyState.BOUNDS)) {
     var parentBounds = /** @type {anychart.math.Rect} */(this.parentBounds());
     if (parentBounds) {
       var parentLength, parentSize;
@@ -1561,13 +1574,20 @@ anychart.core.Axis.prototype.getPixelBounds = function(opt_includeInsideContent)
           width = size;
           break;
       }
-      this.pixelBounds = new anychart.math.Rect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
+
+      bounds = new anychart.math.Rect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
+      if (opt_includeInsideContent)
+        this.pixelBoundsWithInside = bounds;
+      else
+        this.pixelBounds = bounds;
+
     } else {
       this.pixelBounds = new anychart.math.Rect(0, 0, 0, 0);
+      this.pixelBoundsWithInside = new anychart.math.Rect(0, 0, 0, 0);
     }
     this.markConsistent(anychart.ConsistencyState.BOUNDS);
   }
-  return this.pixelBounds;
+  return opt_includeInsideContent ? this.pixelBoundsWithInside : this.pixelBounds;
 };
 
 
@@ -1754,7 +1774,7 @@ anychart.core.Axis.prototype.getLabelsFormatProvider = function(index, value) {
  * @return {Object} Label bounds.
  */
 anychart.core.Axis.prototype.getLabelsPositionProvider = function(index, isMajor, ticksArray, opt_parentBounds) {
-  var bounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.getPixelBounds();
+  var bounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.getPixelBounds(true);
   var lineBounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.line.getBounds();
   var ticks = isMajor ? this.ticks() : this.minorTicks();
   var ticksLength = ticks.length();
