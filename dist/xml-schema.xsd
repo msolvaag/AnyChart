@@ -1005,7 +1005,7 @@
         <xsd:attribute name="min_font_size" type="xsd:string"/>
         <xsd:attribute name="max_font_size" type="xsd:string"/>
         <xsd:attribute name="adjust_font_size" type="simple.Bool" default="false"/>
-        <xsd:attribute name="rotation" type="xsd:double"/>
+        <xsd:attribute name="rotation" type="simple.NumberOrNull"/>
         <xsd:attribute name="scale" type="simple.ScaleRef"/>
         <xsd:attribute name="axis" type="simple.AxisRef"/>
         <xsd:attributeGroup ref="attrs.TextSettings"/>
