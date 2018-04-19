@@ -33,7 +33,7 @@ anychart.core.axisMarkers.PathBase = function() {
 
   /**
    * Assigned axis.
-   * @type {anychart.core.Axis}
+   * @type {anychart.core.Axis|anychart.stockModule.Axis}
    * @private
    */
   this.axis_ = null;
@@ -214,8 +214,8 @@ anychart.core.axisMarkers.PathBase.prototype.axisInvalidated_ = function(event) 
 
 /**
  * Sets axis for marker.
- * @param {anychart.core.Axis=} opt_value - Value to be set.
- * @return {(anychart.core.Axis|anychart.core.axisMarkers.PathBase)} - Current value or itself for method chaining.
+ * @param {(anychart.core.Axis|anychart.stockModule.Axis)=} opt_value - Value to be set.
+ * @return {(anychart.core.Axis|anychart.stockModule.Axis|anychart.core.axisMarkers.PathBase)} - Current value or itself for method chaining.
  */
 anychart.core.axisMarkers.PathBase.prototype.axis = function(opt_value) {
   if (goog.isDef(opt_value)) {
@@ -495,7 +495,7 @@ anychart.core.axisMarkers.PathBase.prototype.setupByJSON = function(config, opt_
       if (this.chart_) {
         this.axis((/** @type {anychart.core.CartesianBase} */(this.chart_)).getAxisByIndex(ax));
       }
-    } else if (anychart.utils.instanceOf(ax, anychart.core.Axis)) {
+    } else if (ax.isAxisMarkerProvider && ax.isAxisMarkerProvider()) {
       this.axis(ax);
     }
   }

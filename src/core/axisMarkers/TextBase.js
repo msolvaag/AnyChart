@@ -722,7 +722,7 @@ anychart.core.axisMarkers.TextBase.prototype.setupByJSON = function(config, opt_
       if (this.chart_) {
         this.axis((/** @type {anychart.core.CartesianBase} */(this.chart_)).getAxisByIndex(ax));
       }
-    } else if (anychart.utils.instanceOf(ax, anychart.core.Axis)) {
+    } else if (ax.isAxisMarkerProvider && ax.isAxisMarkerProvider()) {
       this.axis(ax);
     }
   }
