@@ -16,6 +16,7 @@ goog.require('anychart.stockModule.indicators.CMF');
 goog.require('anychart.stockModule.indicators.DMI');
 goog.require('anychart.stockModule.indicators.EMA');
 goog.require('anychart.stockModule.indicators.KDJ');
+goog.require('anychart.stockModule.indicators.KeltnerChannels');
 goog.require('anychart.stockModule.indicators.MACD');
 goog.require('anychart.stockModule.indicators.MFI');
 goog.require('anychart.stockModule.indicators.MMA');
@@ -62,6 +63,7 @@ anychart.stockModule.indicators.config = (function() {
   res[anychart.enums.StockIndicatorTypes.SMA] = anychart.stockModule.indicators.SMA;
   res[anychart.enums.StockIndicatorTypes.STOCHASTIC] = anychart.stockModule.indicators.Stochastic;
   res[anychart.enums.StockIndicatorTypes.WILLIAMS_R] = anychart.stockModule.indicators.WilliamsR;
+  res[anychart.enums.StockIndicatorTypes.KELTNER_CHANNELS] = anychart.stockModule.indicators.KeltnerChannels;
   return res;
 })();
 
