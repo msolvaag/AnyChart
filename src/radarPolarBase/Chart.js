@@ -465,7 +465,6 @@ anychart.radarPolarBaseModule.Chart.prototype.beforeSeriesDraw = function() {
  * @param {anychart.math.Rect} bounds Bounds of cartesian content area.
  */
 anychart.radarPolarBaseModule.Chart.prototype.drawContent = function(bounds) {
-  anychart.radarPolarBaseModule.Chart.base(this, 'drawContent', bounds);
   var i, count, axis;
 
   this.calculate();

@@ -1722,7 +1722,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
     'maxPointWidth': '100%',
     'minPointLength': 0,
     'dataArea': {
-      'zIndex': 29
+      'zIndex': 10
     }
   },
 

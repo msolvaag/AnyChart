@@ -20,7 +20,7 @@ goog.inherits(anychart.core.ui.DataArea, anychart.core.VisualBase);
  * Supported consistency states.
  * @type {number}
  */
-anychart.core.ui.DataArea.prototype.SUPPORTED_CONSISTENCY_STATES = anychart.core.VisualBase.SUPPORTED_CONSISTENCY_STATES |
+anychart.core.ui.DataArea.prototype.SUPPORTED_CONSISTENCY_STATES = anychart.core.VisualBase.prototype.SUPPORTED_CONSISTENCY_STATES |
     anychart.ConsistencyState.APPEARANCE;
 
 
@@ -81,6 +81,7 @@ anychart.core.ui.DataArea.prototype.draw = function() {
 
   if (!this.rootLayer) {
     this.rootLayer = acgraph.layer();
+    this.rootLayer.id('DATAAREA');
   }
 
   if (this.hasInvalidationState(anychart.ConsistencyState.Z_INDEX)) {

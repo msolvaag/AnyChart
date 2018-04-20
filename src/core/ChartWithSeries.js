@@ -118,7 +118,6 @@ goog.inherits(anychart.core.ChartWithSeries, anychart.core.SeparateChart);
  */
 anychart.core.ChartWithSeries.prototype.SUPPORTED_CONSISTENCY_STATES =
     anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
-    anychart.ConsistencyState.SERIES_CHART_DATA_AREA |
     anychart.ConsistencyState.SERIES_CHART_PALETTE |
     anychart.ConsistencyState.SERIES_CHART_MARKER_PALETTE |
     anychart.ConsistencyState.SERIES_CHART_HATCH_FILL_PALETTE |
