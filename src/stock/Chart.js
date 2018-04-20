@@ -1487,7 +1487,7 @@ anychart.stockModule.Chart.prototype.calculateScales_ = function() {
           for (var k = 0; k < axisMarkers.length; k++) {
             var marker = axisMarkers[k];
             if (marker && marker.scale() && marker.scale() == scale && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER))
-              scale.extendDataRange(marker.value());
+              scale.extendDataRange.apply(scale, marker.getReferenceValues());
           }
         }
       }

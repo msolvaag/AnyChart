@@ -927,7 +927,7 @@ anychart.core.ChartWithAxes.prototype.calculate = function() {
         var scale = scales[j];
         if ((scale === markerScale) && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)) {
           scale.startAutoCalc();
-          scale.extendDataRange(marker.value());
+          scale.extendDataRange.apply(scale, marker.getReferenceValues());
           scale.finishAutoCalc();
         }
       }

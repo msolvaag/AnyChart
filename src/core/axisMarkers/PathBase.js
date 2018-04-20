@@ -199,6 +199,15 @@ anychart.core.axisMarkers.PathBase.prototype.valueInternal = function(opt_value)
 };
 
 
+/**
+ * Values for scale extending.
+ * @return {Array}
+ */
+anychart.core.axisMarkers.PathBase.prototype.getReferenceValues = function() {
+  return [this.valueInternal()];
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //  Axis.
 //----------------------------------------------------------------------------------------------------------------------

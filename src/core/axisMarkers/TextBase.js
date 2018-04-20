@@ -392,6 +392,15 @@ anychart.core.axisMarkers.TextBase.prototype.valueInternal = function(opt_value)
 
 
 /**
+ * Values for scale extending.
+ * @return {Array}
+ */
+anychart.core.axisMarkers.TextBase.prototype.getReferenceValues = function() {
+  return [this.valueInternal()];
+};
+
+
+/**
  * Get/set offset x.
  * @param {(number|string)=} opt_newValue TextMarker value settings.
  * @return {number|string|anychart.core.axisMarkers.TextBase} TextMarker value settings or TextMarker instance for method chaining.

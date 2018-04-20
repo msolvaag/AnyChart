@@ -196,6 +196,12 @@ anychart.core.axisMarkers.Range.prototype.to = function(opt_newValue) {
 };
 
 
+/** @inheritDoc */
+anychart.core.axisMarkers.Range.prototype.getReferenceValues = function() {
+  return [this.val.from, this.val.to];
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //  Drawing.
 //----------------------------------------------------------------------------------------------------------------------
