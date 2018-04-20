@@ -921,14 +921,16 @@ anychart.core.ChartWithAxes.prototype.calculate = function() {
   var markers = goog.array.concat(this.lineAxesMarkers_, this.rangeAxesMarkers_, this.textAxesMarkers_);
   for (var i = 0; i < markers.length; i++) {
     var marker = markers[i];
-    var markerScale = marker.scale() ? marker.scale() : this.isVerticalInternal ? this.xScale() : this.yScale();
-    if (marker && markerScale) {
-      for (var j = 0; j < scales.length; j++) {
-        var scale = scales[j];
-        if ((scale === markerScale) && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)) {
-          scale.startAutoCalc();
-          scale.extendDataRange.apply(scale, marker.getReferenceValues());
-          scale.finishAutoCalc();
+    if (marker) {
+      var markerScale = marker.scale() ? marker.scale() : this.isVerticalInternal ? this.xScale() : this.yScale();
+      if (markerScale) {
+        for (var j = 0; j < scales.length; j++) {
+          var scale = scales[j];
+          if ((scale === markerScale) && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)) {
+            scale.startAutoCalc();
+            scale.extendDataRange.apply(scale, marker.getReferenceValues());
+            scale.finishAutoCalc();
+          }
         }
       }
     }
