@@ -950,6 +950,12 @@ anychart.core.Axis.prototype.getOverlappedLabels_ = function(opt_bounds) {
           }
           if (!isMinorLabels) minorLabels = false;
         } else if (anychart.utils.instanceOf(scale, anychart.scales.Base)) {
+          if (this.drawLastLabel()) {
+            bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, scaleTicksArr, opt_bounds);
+            bounds3 = insideLabelSpace ? anychart.math.rectContains(insideLabelSpace, bounds3) ? bounds3 : null : bounds3;
+          } else
+            bounds3 = null;
+
           for (i = 0; i < ticksArrLen; i++) {
             if (isLabels) {
               if ((!i && this.drawFirstLabel()) || (i == ticksArrLen - 1 && this.drawLastLabel()) || (i != 0 && i != ticksArrLen - 1))
@@ -962,26 +968,22 @@ anychart.core.Axis.prototype.getOverlappedLabels_ = function(opt_bounds) {
               else
                 bounds2 = null;
 
-              if (i != ticksArrLen - 1 && this.drawLastLabel())
-                bounds3 = this.getLabelBounds_(ticksArrLen - 1, true, scaleTicksArr, opt_bounds);
-              else
-                bounds3 = null;
-
+              isLabelInInsideSpace = insideLabelSpace ? anychart.math.rectContains(insideLabelSpace, bounds1) : true;
               if (!i) {
-                if (this.drawFirstLabel()) {
+                if (this.drawFirstLabel() && isLabelInInsideSpace) {
                   prevDrawableLabel = i;
                   labels.push(true);
                 } else {
                   labels.push(false);
                 }
               } else if (i == ticksArrLen - 1) {
-                if (this.drawLastLabel()) {
+                if (this.drawLastLabel() && isLabelInInsideSpace) {
                   prevDrawableLabel = i;
                   labels.push(true);
                 } else {
                   labels.push(false);
                 }
-              } else if (anychart.math.rectContains(insideLabelSpace, bounds1) &&
+              } else if (isLabelInInsideSpace &&
                   !(anychart.math.checkRectIntersection(bounds1, insideLabelSpace) ||
                       anychart.math.checkRectIntersection(bounds1, bounds2) ||
                       anychart.math.checkRectIntersection(bounds1, bounds3))) {
@@ -1025,6 +1027,10 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
     var ticksArrLen = scaleTicksArr.length;
     var i, j, k, bounds1, bounds2, bounds3, states;
 
+    var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) <= 0  ?
+        this.insideBounds_ : null;
+    var isLabelInInsideSpace;
+
     if (!goog.isNull(this.staggerLines_)) {
       this.currentStageLines_ = this.staggerLines_;
     } else {
@@ -1060,10 +1066,6 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
         !goog.isNull(this.staggerMaxLines_) && this.staggerAutoLines_ > this.staggerMaxLines_);
 
     if (limitedLineNumber && this.overlapMode() == anychart.enums.LabelsOverlapMode.NO_OVERLAP) {
-      var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) <= 0  ?
-          this.insideBounds_ : null;
-      var isLabelInInsideSpace;
-
       states = [];
       for (j = 0; j < this.currentStageLines_; j++) {
         var prevDrawableLabel = -1;
@@ -1081,7 +1083,6 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
             bounds3 = null;
 
           isLabelInInsideSpace = insideLabelSpace ? anychart.math.rectContains(insideLabelSpace, bounds1) : true;
-          console.log(isLabelInInsideSpace);
           if (!i) {
             if (this.drawFirstLabel() && isLabelInInsideSpace) {
               prevDrawableLabel = i;
@@ -1096,7 +1097,7 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
             } else {
               states[i] = false;
             }
-          } else if (!(anychart.math.checkRectIntersection(bounds1, bounds2) ||
+          } else if (isLabelInInsideSpace && !(anychart.math.checkRectIntersection(bounds1, bounds2) ||
               anychart.math.checkRectIntersection(bounds1, bounds3))) {
             prevDrawableLabel = i;
             states[i] = true;
@@ -1112,7 +1113,7 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
       if (!this.drawFirstLabel() || !this.drawLastLabel()) {
         states = [];
         for (i = 0; i < ticksArrLen; i++) {
-          if (!i && !this.drawFirstLabel()) states[i] = false;
+          if (!i && !this.drawFirstLabel() ) states[i] = false;
           else if (i == ticksArrLen - 1 && !this.drawLastLabel()) states[i] = false;
           else states[i] = true;
         }
@@ -1239,7 +1240,7 @@ anychart.core.Axis.prototype.getLabelBounds_ = function(index, isMajor, ticksArr
 
   switch (this.orientation()) {
     case anychart.enums.Orientation.TOP:
-      labelBounds.top += labelsSidePosition * labelBounds.height / 2;
+      labelBounds.top -= labelsSidePosition * labelBounds.height / 2;
       break;
     case anychart.enums.Orientation.RIGHT:
       labelBounds.left += labelsSidePosition * labelBounds.width / 2;

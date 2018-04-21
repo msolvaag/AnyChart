@@ -1068,9 +1068,9 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
 
   var axesInsideBounds = this.getPixelBounds().clone();
 
-  var ___name = 'pixelBounds___';
-  if (!this[___name]) this[___name] = this.container().rect().stroke('blue').zIndex(1000);
-  this[___name].setBounds(axesInsideBounds);
+  // var ___name = 'pixelBounds___';
+  // if (!this[___name]) this[___name] = this.container().rect().stroke('blue').zIndex(1000);
+  // this[___name].setBounds(axesInsideBounds);
 
   var i, count;
   var xAxis, yAxis;
