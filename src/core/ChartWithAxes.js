@@ -685,7 +685,7 @@ anychart.core.ChartWithAxes.prototype.setYAxisScale = function(axis) {
 
 
 //endregion
-//region -- Scales invalidation.
+//region --- Scales invalidation.
 /** @inheritDoc */
 anychart.core.ChartWithAxes.prototype.getScaleAdditionalInvalidationState = function() {
   return anychart.ConsistencyState.AXES_CHART_AXES; //this overridden method fixes DVF-3678
@@ -1198,49 +1198,25 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
         }
 
         var axisPixelBounds = axis.getPixelBounds(false);
-
-        // var ___name = 'axisPixelBounds' + i;
-        // if (!this[___name]) this[___name] = this.container().rect().zIndex(1000);
-        // this[___name].setBounds(axisPixelBounds);
-
-        var bounds = axesInsideBounds.difference(axisPixelBounds);
-        // console.log('bounds', bounds, axesInsideBounds, axisPixelBounds);
-
+        var side;
         switch (axis.orientation()) {
           case anychart.enums.Orientation.TOP:
-            axesInsideBounds = bounds[1] ? bounds[1] : axesInsideBounds;
+            side = anychart.enums.Orientation.BOTTOM;
             break;
           case anychart.enums.Orientation.RIGHT:
-            axesInsideBounds = bounds[2] ? bounds[2] : axesInsideBounds;
+            side = anychart.enums.Orientation.LEFT;
             break;
           case anychart.enums.Orientation.BOTTOM:
-            axesInsideBounds = bounds[0] ? bounds[0] : axesInsideBounds;
+            side = anychart.enums.Orientation.TOP;
             break;
           case anychart.enums.Orientation.LEFT:
-            axesInsideBounds = bounds[3] ? bounds[3] : axesInsideBounds;
+            side = anychart.enums.Orientation.RIGHT;
             break;
         }
 
-        // console.log('--->', axesInsideBounds);
-
-        // var ___name = 'boundsWithoutAxes0';
-        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 orange').zIndex(1000);
-        // this[___name].setBounds(bounds[0]);
-        //
-        // var ___name = 'boundsWithoutAxes1';
-        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 red').zIndex(1000);
-        // this[___name].setBounds(bounds[1]);
-        //
-        // var ___name = 'boundsWithoutAxes2';
-        // if (!this[___name]) this[___name] = this.container().rect().stroke('2 blue').zIndex(1000);
-        // this[___name].setBounds(bounds[2]);
-        //
-
-        // if (bounds[3]) {
-        //   var ___name = 'boundsWithoutAxesLeft'+i;
-        //   if (!this[___name]) this[___name] = this.container().rect().stroke('2 yellow').zIndex(1000);
-        //   this[___name].setBounds(bounds[3]);
-        // }
+        var bounds = axesInsideBounds.differenceBySide(axisPixelBounds, side);
+        if (bounds)
+          axesInsideBounds = bounds;
       }
     }
     attempt++;
@@ -1248,16 +1224,22 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
 
   for (i = 0, count = this.xAxes_.length; i < count; i++) {
     xAxis = this.xAxes_[i];
-    if (xAxis) xAxis.resumeSignalsDispatching(false);
+    if (xAxis == firstTopAxis || xAxis == firstBottomAxis)
+      xAxis.insideBounds(axesInsideBounds);
+    if (xAxis)
+      xAxis.resumeSignalsDispatching(false);
   }
 
   for (i = 0, count = this.yAxes_.length; i < count; i++) {
     yAxis = this.yAxes_[i];
-    if (yAxis) yAxis.resumeSignalsDispatching(false);
+    if (yAxis == firstLeftAxis || yAxis == firstRightAxis)
+      yAxis.insideBounds(axesInsideBounds);
+    if (yAxis)
+      yAxis.resumeSignalsDispatching(false);
   }
 
   // var ___name = 'boundsWithoutAxes';
-  // if (!this[___name]) this[___name] = this.container().rect().stroke('green').zIndex(1000);
+  // if (!this[___name]) this[___name] = this.container().rect().stroke('4 green').zIndex(1000);
   // this[___name].setBounds(axesInsideBounds);
 
   return boundsWithoutAxes.clone().round();
