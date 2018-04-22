@@ -1031,6 +1031,18 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
         this.insideBounds_ : null;
     var isLabelInInsideSpace;
 
+    states = [];
+    for (var tickIndex = 0; tickIndex < ticksArrLen; tickIndex++) {
+      if (!tickIndex && !this.drawFirstLabel()) {
+        states[tickIndex] = false;
+      } else if (tickIndex == ticksArrLen - 1 && !this.drawLastLabel()) {
+        states[tickIndex] = false;
+      } else {
+        var labelBounds = this.getLabelBounds_(tickIndex, true, scaleTicksArr, opt_bounds);
+        states[tickIndex] = insideLabelSpace ? anychart.math.rectContains(insideLabelSpace, labelBounds) : true;
+      }
+    }
+
     if (!goog.isNull(this.staggerLines_)) {
       this.currentStageLines_ = this.staggerLines_;
     } else {
@@ -1038,13 +1050,12 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
       i = 1;
       while (!isConvergence && i <= ticksArrLen) {
         isConvergence = true;
-
         for (k = 0; k < i; k++) {
           for (j = k; j < ticksArrLen - i; j = j + i) {
             bounds1 = this.getLabelBounds_(j, true, scaleTicksArr, opt_bounds);
             bounds2 = this.getLabelBounds_(j + i, true, scaleTicksArr, opt_bounds);
 
-            if (anychart.math.checkRectIntersection(bounds1, bounds2)) {
+            if (states[j] && anychart.math.checkRectIntersection(bounds1, bounds2)) {
               isConvergence = false;
               i++;
               break;
@@ -1066,7 +1077,6 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
         !goog.isNull(this.staggerMaxLines_) && this.staggerAutoLines_ > this.staggerMaxLines_);
 
     if (limitedLineNumber && this.overlapMode() == anychart.enums.LabelsOverlapMode.NO_OVERLAP) {
-      states = [];
       for (j = 0; j < this.currentStageLines_; j++) {
         var prevDrawableLabel = -1;
         for (i = j; i < ticksArrLen; i = i + this.currentStageLines_) {
@@ -1110,15 +1120,7 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
       if (!this.drawLastLabel()) states[states.length - 1] = false;
       labels = {labels: states, minorLabels: false};
     } else {
-      if (!this.drawFirstLabel() || !this.drawLastLabel()) {
-        states = [];
-        for (i = 0; i < ticksArrLen; i++) {
-          if (!i && !this.drawFirstLabel() ) states[i] = false;
-          else if (i == ticksArrLen - 1 && !this.drawLastLabel()) states[i] = false;
-          else states[i] = true;
-        }
-      }
-      labels = {labels: states ? states : true, minorLabels: false};
+      labels = {labels: states, minorLabels: false};
     }
 
     this.linesSize_ = [];

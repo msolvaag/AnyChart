@@ -1224,18 +1224,20 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
 
   for (i = 0, count = this.xAxes_.length; i < count; i++) {
     xAxis = this.xAxes_[i];
-    if (xAxis == firstTopAxis || xAxis == firstBottomAxis)
-      xAxis.insideBounds(axesInsideBounds);
-    if (xAxis)
+    if (xAxis) {
+      if (xAxis == firstTopAxis || xAxis == firstBottomAxis)
+        xAxis.insideBounds(axesInsideBounds);
       xAxis.resumeSignalsDispatching(false);
+    }
   }
 
   for (i = 0, count = this.yAxes_.length; i < count; i++) {
     yAxis = this.yAxes_[i];
-    if (yAxis == firstLeftAxis || yAxis == firstRightAxis)
-      yAxis.insideBounds(axesInsideBounds);
-    if (yAxis)
+    if (yAxis) {
+      if (yAxis == firstLeftAxis || yAxis == firstRightAxis)
+        yAxis.insideBounds(axesInsideBounds);
       yAxis.resumeSignalsDispatching(false);
+    }
   }
 
   // var ___name = 'boundsWithoutAxes';
