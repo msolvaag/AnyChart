@@ -837,7 +837,7 @@ anychart.core.Axis.prototype.getOverlappedLabels_ = function(opt_bounds) {
         var tempRatio;
         var k = -1;
         var isLabels = this.labels().enabled();
-        var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) <= 0  ?
+        var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) < 0  ?
             this.insideBounds_ : null;
         var isLabelInInsideSpace;
 
@@ -1027,7 +1027,7 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
     var ticksArrLen = scaleTicksArr.length;
     var i, j, k, bounds1, bounds2, bounds3, states;
 
-    var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) <= 0  ?
+    var insideLabelSpace = this.insideBounds_ && this.sidePositionToNumber(this.labels().position()) < 0  ?
         this.insideBounds_ : null;
     var isLabelInInsideSpace;
 
