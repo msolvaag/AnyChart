@@ -4,11 +4,10 @@ goog.require('anychart.stockModule.math.atr');
 goog.require('anychart.stockModule.math.ema');
 goog.require('anychart.utils');
 
-/** @todo take a look at stochastic and its ema\sma (there might be something about parameter types) */
 /**
  * @typedef {{
- *    contextEMA: !anychart.stockModule.math.ema.Context,
- *    contextATR: !anychart.stockModule.math.atr.Context,
+ *    EMAContext: !anychart.stockModule.math.ema.Context,
+ *    ATRContext: !anychart.stockModule.math.atr.Context,
  *    multiplier: number,
  *    emaPeriod: number,
  *    atrPeriod: number,
@@ -38,8 +37,8 @@ anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, 
      * @this {anychart.stockModule.math.keltnerChannels.Context}
      */
     'dispose': function() {
-      this.contextEMA.dispose();
-      this.contextATR.dispose();
+      this.contextEMA['dispose']();
+      this.contextATR['dispose']();
     }
   };
 };
