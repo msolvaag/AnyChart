@@ -1,7 +1,9 @@
+//region --- Requiring and Providing
 goog.provide('anychart.radarPolarBaseModule.RadialAxisTicks');
 goog.require('acgraph');
 goog.require('anychart.color');
 goog.require('anychart.core.VisualBase');
+//endregion
 
 
 
@@ -14,19 +16,12 @@ goog.require('anychart.core.VisualBase');
 anychart.radarPolarBaseModule.RadialAxisTicks = function() {
   anychart.radarPolarBaseModule.RadialAxisTicks.base(this, 'constructor');
 
-  /**
-   * Ticks length.
-   * @type {number|string}
-   * @private
-   */
-  this.length_;
+  anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
+    ['stroke', 0, anychart.Signal.NEEDS_REDRAW],
+    ['length', 0, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
+    ['position', 0, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED]
+  ]);
 
-  /**
-   * Ticks stroke.
-   * @type {acgraph.vector.Stroke|string}
-   * @private
-   */
-  this.stroke_;
 
   /**
    * Path with ticks.
@@ -40,6 +35,7 @@ anychart.radarPolarBaseModule.RadialAxisTicks = function() {
 goog.inherits(anychart.radarPolarBaseModule.RadialAxisTicks, anychart.core.VisualBase);
 
 
+//region --- States and Signals
 /**
  * Supported consistency states.
  * @type {number}
@@ -54,53 +50,29 @@ anychart.radarPolarBaseModule.RadialAxisTicks.prototype.SUPPORTED_SIGNALS = anyc
 anychart.radarPolarBaseModule.RadialAxisTicks.prototype.SUPPORTED_CONSISTENCY_STATES = anychart.core.VisualBase.prototype.SUPPORTED_CONSISTENCY_STATES; // ENABLED CONTAINER Z_INDEX
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//
-//  Properties.
-//
-//----------------------------------------------------------------------------------------------------------------------
+//endregion
+//region --- Descriptors
 /**
- * Getter/setter for length.
- * @param {(number|string)=} opt_value .
- * @return {(string|number|!anychart.radarPolarBaseModule.RadialAxisTicks)} .
+ * Simple descriptors.
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
  */
-anychart.radarPolarBaseModule.RadialAxisTicks.prototype.length = function(opt_value) {
-  if (goog.isDef(opt_value)) {
-    var val = anychart.utils.normalizeNumberOrPercent(opt_value) || 0;
-    if (this.length_ != val) {
-      this.length_ = val;
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-    }
-    return this;
-  } else
-    return this.length_;
-};
+anychart.radarPolarBaseModule.RadialAxisTicks.prototype.SIMPLE_PROPS_DESCRIPTORS = (function() {
+  /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
+  var map = {};
+
+  anychart.core.settings.createDescriptors(map, [
+    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'stroke', anychart.core.settings.strokeNormalizer],
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'length', anychart.utils.normalizeNumberOrPercent],
+    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'position', anychart.enums.normalizeSidePosition]
+  ]);
+
+  return map;
+})();
+anychart.core.settings.populate(anychart.radarPolarBaseModule.RadialAxisTicks, anychart.radarPolarBaseModule.RadialAxisTicks.prototype.SIMPLE_PROPS_DESCRIPTORS);
 
 
-/**
- * Getter/setter for stroke.
- * @param {(acgraph.vector.Stroke|acgraph.vector.ColoredFill|string|null)=} opt_strokeOrFill Fill settings
- *    or stroke settings.
- * @param {number=} opt_thickness [1] Line thickness.
- * @param {string=} opt_dashpattern Controls the pattern of dashes and gaps used to stroke paths.
- * @param {acgraph.vector.StrokeLineJoin=} opt_lineJoin Line joint style.
- * @param {acgraph.vector.StrokeLineCap=} opt_lineCap Line cap style.
- * @return {!(anychart.radarPolarBaseModule.RadialAxisTicks|acgraph.vector.Stroke)} .
- */
-anychart.radarPolarBaseModule.RadialAxisTicks.prototype.stroke = function(opt_strokeOrFill, opt_thickness, opt_dashpattern, opt_lineJoin, opt_lineCap) {
-  if (goog.isDef(opt_strokeOrFill)) {
-    var stroke = acgraph.vector.normalizeStroke.apply(null, arguments);
-    if (this.stroke_ != stroke) {
-      this.stroke_ = stroke;
-      this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
-    }
-    return this;
-  } else {
-    return this.stroke_;
-  }
-};
-
-
+//endregion
+//region --- Drawing
 /** @inheritDoc */
 anychart.radarPolarBaseModule.RadialAxisTicks.prototype.remove = function() {
   if (this.path_) this.path_.parent(null);
@@ -113,7 +85,7 @@ anychart.radarPolarBaseModule.RadialAxisTicks.prototype.remove = function() {
  */
 anychart.radarPolarBaseModule.RadialAxisTicks.prototype.draw = function() {
   this.path_.clear();
-  this.path_.stroke(this.stroke_);
+  this.path_.stroke(this.getOption('stroke'));
 
   if (!this.checkDrawingNeeded())
     return this;
@@ -145,11 +117,12 @@ anychart.radarPolarBaseModule.RadialAxisTicks.prototype.drawTick = function(x, y
 };
 
 
+//endregion
+//region --- Setup and Serialize
 /** @inheritDoc */
 anychart.radarPolarBaseModule.RadialAxisTicks.prototype.serialize = function() {
   var json = anychart.radarPolarBaseModule.RadialAxisTicks.base(this, 'serialize');
-  json['length'] = this.length();
-  json['stroke'] = anychart.color.serialize(/** @type {acgraph.vector.Stroke} */(this.stroke()));
+  anychart.core.settings.serialize(this, this.SIMPLE_PROPS_DESCRIPTORS, json, 'RadialAxisTicks');
   return json;
 };
 
@@ -157,14 +130,17 @@ anychart.radarPolarBaseModule.RadialAxisTicks.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.radarPolarBaseModule.RadialAxisTicks.prototype.setupByJSON = function(config, opt_default) {
   anychart.radarPolarBaseModule.RadialAxisTicks.base(this, 'setupByJSON', config, opt_default);
-  this.length(config['length']);
-  this.stroke(config['stroke']);
+  anychart.core.settings.deserialize(this, this.SIMPLE_PROPS_DESCRIPTORS, config, opt_default);
 };
 
 
+//endregion
+//region --- Export
 //exports
-(function() {
-  var proto = anychart.radarPolarBaseModule.RadialAxisTicks.prototype;
-  proto['length'] = proto.length;
-  proto['stroke'] = proto.stroke;
-})();
+// (function() {
+  // var proto = anychart.radarPolarBaseModule.RadialAxisTicks.prototype;
+  // proto['length'] = proto.length;
+  // proto['stroke'] = proto.stroke;
+  // proto['position'] = proto.position;
+// })();
+//endregion

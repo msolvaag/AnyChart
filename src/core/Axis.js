@@ -654,15 +654,6 @@ anychart.core.Axis.prototype.paddingInvalidated_ = function(event) {
 };
 
 
-/** @inheritDoc */
-anychart.core.Axis.prototype.invalidateParentBounds = function() {
-  this.dropStaggeredLabelsCache_();
-  this.dropOverlappedLabelsCache_();
-  this.dropBoundsCache();
-  this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
-};
-
-
 /**
  * Getter/setter for drawFirstLabel.
  * @param {boolean=} opt_value Drawing flag.
@@ -1272,39 +1263,6 @@ anychart.core.Axis.prototype.dropBoundsCache = function() {
 
 
 /**
- * Returns ticks length that affects axis size calculation.
- * @param {!anychart.core.AxisTicks} ticks Ticks instance.
- * @param {number=} opt_side If value greater than 0 - calculates offset relative outside position,
- * less then 0 - relative inside position, equal to 0 - relative both sides.
- * @return {number} Ticks length.
- */
-anychart.core.Axis.prototype.getAffectBoundsTickLength = function(ticks, opt_side) {
-  var length = 0;
-  var side = goog.isDef(opt_side) ? opt_side : 1;
-  if (ticks.enabled()) {
-    var position = ticks.position();
-    if (position == anychart.enums.SidePosition.OUTSIDE) {
-      length = side > 0 ? ticks.length() : 0;
-    } else if (position == anychart.enums.SidePosition.CENTER) {
-      length = side * ticks.length() / 2;
-    } else if (position == anychart.enums.SidePosition.INSIDE) {
-      length = opt_side < 0 ? -ticks.length() : 0;
-    }
-  }
-  return /** @type {number} */(length);
-};
-
-
-/**
- * Convert side position to number representation.
- * @param {anychart.enums.SidePosition} position
- */
-anychart.core.Axis.prototype.sidePositionToNumber = function(position) {
-  return position == anychart.enums.SidePosition.OUTSIDE ? 1 : position == anychart.enums.SidePosition.INSIDE ? -1 : 0;
-};
-
-
-/**
  * Calculates the size which affects the axis bounds.
  * @param {number} maxLabelSize Max size among of labels.
  * @param {number} maxMinorLabelSize Max size among of minor labels.
@@ -1732,141 +1690,6 @@ anychart.core.Axis.prototype.drawLine = function() {
 
 
 /**
- * Gets format provider for label.
- * @param {number} index Label index.
- * @param {string|number} value Label value.
- * @return {Object} Labels format provider.
- * @protected
- */
-anychart.core.Axis.prototype.getLabelsFormatProvider = function(index, value) {
-  var scale = this.scale();
-
-  var labelText, labelValue;
-  var valueType, tickValueType;
-  var addRange = true;
-  var addIntervals = false;
-  if (anychart.utils.instanceOf(scale, anychart.scales.Ordinal)) {
-    labelText = scale.ticks().names()[index];
-    labelValue = value;
-    tickValueType = valueType = anychart.enums.TokenType.STRING;
-    addRange = false;
-  } else if (anychart.utils.instanceOf(scale, anychart.scales.DateTime)) {
-    labelText = anychart.format.date(/** @type {number} */(value));
-    valueType = anychart.enums.TokenType.STRING; //Not DATE_TIME because it's already formatted.
-    tickValueType = anychart.enums.TokenType.DATE_TIME;
-    labelValue = value;
-    addIntervals = true;
-  } else {
-    labelText = parseFloat(value);
-    labelValue = parseFloat(value);
-    valueType = tickValueType = anychart.enums.TokenType.NUMBER;
-  }
-
-  var values = {
-    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
-    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
-    'value': {value: labelText, type: valueType},
-    'tickValue': {value: labelValue, type: tickValueType},
-    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
-  };
-
-  if (addRange) {
-    values['max'] = {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER};
-    values['min'] = {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER};
-  }
-
-  if (addIntervals) {
-    var ticks = /** @type {anychart.scales.DateTimeTicks} */((/** @type {anychart.scales.DateTime} */(scale)).ticks());
-    values['intervalUnit'] = {value: ticks.getIntervalUnit(), type: anychart.enums.TokenType.STRING};
-    values['intervalUnitCount'] = {value: ticks.getIntervalUnitCount(), type: anychart.enums.TokenType.NUMBER};
-    ticks = /** @type {anychart.scales.DateTimeTicks} */((/** @type {anychart.scales.DateTime} */(scale)).minorTicks());
-    values['minorIntervalUnit'] = {value: ticks.getIntervalUnit(), type: anychart.enums.TokenType.STRING};
-    values['minorIntervalUnitCount'] = {value: ticks.getIntervalUnitCount(), type: anychart.enums.TokenType.NUMBER};
-  }
-
-  var aliases = {};
-  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
-  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'min';
-
-  var tokenCustomValues = {};
-  tokenCustomValues[anychart.enums.StringToken.AXIS_NAME] = {value: this.title().text(), type: anychart.enums.TokenType.STRING};
-
-  var context = new anychart.format.Context(values);
-  context.tokenAliases(aliases);
-  context.tokenCustomValues(tokenCustomValues);
-
-  return context.propagate();
-};
-
-
-/**
- * Returns position provider.
- * @param {number} index Label index.
- * @param {boolean} isMajor Major labels or minor.
- * @param {Array} ticksArray Array with ticks.
- * @param {anychart.math.Rect=} opt_parentBounds Parent bounds.
- * @return {Object} Label bounds.
- */
-anychart.core.Axis.prototype.getLabelsPositionProvider = function(index, isMajor, ticksArray, opt_parentBounds) {
-  var bounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.getPixelBounds(true);
-  var lineBounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.line.getBounds();
-  var ticks = isMajor ? this.ticks() : this.minorTicks();
-  var ticksLength = ticks.length();
-  var stroke = this.stroke();
-  var lineThickness = !stroke || anychart.utils.isNone(stroke) ? 0 : stroke['thickness'] ? parseFloat(this.stroke()['thickness']) : 1;
-
-  var isEnabled = ticks.enabled();
-  var position = ticks.position();
-  var x, y;
-  var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
-
-  var value = ticksArray[index];
-  var ratio;
-  if (goog.isArray(value)) {
-    ratio = (scale.transform(value[0], 0) + scale.transform(value[1], 1)) / 2;
-  } else {
-    ratio = scale.transform(value, .5);
-  }
-
-  switch (this.orientation()) {
-    case anychart.enums.Orientation.TOP:
-      x = Math.round(bounds.left + ratio * bounds.width);
-      y = lineBounds.top - lineThickness / 2;
-      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
-        y -= ticksLength;
-      }
-      break;
-    case anychart.enums.Orientation.RIGHT:
-      x = lineBounds.getRight() + lineThickness / 2;
-      y = Math.round(bounds.top + ratio * bounds.height);
-
-      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
-        x += ticksLength;
-      }
-      break;
-    case anychart.enums.Orientation.BOTTOM:
-      x = Math.round(bounds.left + ratio * bounds.width);
-      y = lineBounds.getBottom() + lineThickness / 2;
-
-      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
-        y += ticksLength;
-      }
-      break;
-    case anychart.enums.Orientation.LEFT:
-      x = lineBounds.left - lineThickness / 2;
-      y = Math.round(bounds.top + ratio * bounds.height);
-
-      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
-        x -= ticksLength;
-      }
-      break;
-  }
-
-  return {'value': {'x': x, 'y': y}};
-};
-
-
-/**
  * Axis labels drawer.
  * @param {number|string} value Scale ratio.
  * @param {number} ratio Scale ratio.
@@ -1919,9 +1742,7 @@ anychart.core.Axis.prototype.drawLabel_ = function(value, ratio, index, pixelShi
   }
 
   var labelsSidePosition = this.sidePositionToNumber(labels.getOption('position'));
-  var ticksSidePosition = this.sidePositionToNumber(ticks.position());
-
-  var tickLength = this.getAffectBoundsTickLength(ticks, ticksSidePosition);
+  var tickLength = this.getAffectBoundsTickLength(ticks, labelsSidePosition);
 
   var x, y;
   switch (orientation) {
@@ -2241,6 +2062,183 @@ anychart.core.Axis.prototype.remove = function() {
 
 //endregion
 //region --- Utils
+/**
+ * Returns ticks length that affects axis size calculation.
+ * @param {!anychart.core.AxisTicks} ticks Ticks instance.
+ * @param {number=} opt_side If value greater than 0 - calculates offset relative outside position,
+ * less then 0 - relative inside position, equal to 0 - relative both sides.
+ * @return {number} Ticks length.
+ */
+anychart.core.Axis.prototype.getAffectBoundsTickLength = function(ticks, opt_side) {
+  var length = 0;
+  var side = goog.isDef(opt_side) ? opt_side : 1;
+  if (ticks.enabled()) {
+    var position = ticks.position();
+    if (position == anychart.enums.SidePosition.OUTSIDE) {
+      length = side > 0 ? ticks.length() : 0;
+    } else if (position == anychart.enums.SidePosition.CENTER) {
+      length = side * ticks.length() / 2;
+    } else if (position == anychart.enums.SidePosition.INSIDE) {
+      length = opt_side < 0 ? -ticks.length() : 0;
+    }
+  }
+  return /** @type {number} */(length);
+};
+
+
+/**
+ * Convert side position to number representation.
+ * @param {anychart.enums.SidePosition} position
+ */
+anychart.core.Axis.prototype.sidePositionToNumber = function(position) {
+  return position == anychart.enums.SidePosition.OUTSIDE ? 1 : position == anychart.enums.SidePosition.INSIDE ? -1 : 0;
+};
+
+
+/** @inheritDoc */
+anychart.core.Axis.prototype.invalidateParentBounds = function() {
+  this.dropStaggeredLabelsCache_();
+  this.dropOverlappedLabelsCache_();
+  this.dropBoundsCache();
+  this.invalidate(this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+};
+
+
+/**
+ * Gets format provider for label.
+ * @param {number} index Label index.
+ * @param {string|number} value Label value.
+ * @return {Object} Labels format provider.
+ * @protected
+ */
+anychart.core.Axis.prototype.getLabelsFormatProvider = function(index, value) {
+  var scale = this.scale();
+
+  var labelText, labelValue;
+  var valueType, tickValueType;
+  var addRange = true;
+  var addIntervals = false;
+  if (anychart.utils.instanceOf(scale, anychart.scales.Ordinal)) {
+    labelText = scale.ticks().names()[index];
+    labelValue = value;
+    tickValueType = valueType = anychart.enums.TokenType.STRING;
+    addRange = false;
+  } else if (anychart.utils.instanceOf(scale, anychart.scales.DateTime)) {
+    labelText = anychart.format.date(/** @type {number} */(value));
+    valueType = anychart.enums.TokenType.STRING; //Not DATE_TIME because it's already formatted.
+    tickValueType = anychart.enums.TokenType.DATE_TIME;
+    labelValue = value;
+    addIntervals = true;
+  } else {
+    labelText = parseFloat(value);
+    labelValue = parseFloat(value);
+    valueType = tickValueType = anychart.enums.TokenType.NUMBER;
+  }
+
+  var values = {
+    'axis': {value: this, type: anychart.enums.TokenType.UNKNOWN},
+    'index': {value: index, type: anychart.enums.TokenType.NUMBER},
+    'value': {value: labelText, type: valueType},
+    'tickValue': {value: labelValue, type: tickValueType},
+    'scale': {value: scale, type: anychart.enums.TokenType.UNKNOWN}
+  };
+
+  if (addRange) {
+    values['max'] = {value: goog.isDef(scale.max) ? scale.max : null, type: anychart.enums.TokenType.NUMBER};
+    values['min'] = {value: goog.isDef(scale.min) ? scale.min : null, type: anychart.enums.TokenType.NUMBER};
+  }
+
+  if (addIntervals) {
+    var ticks = /** @type {anychart.scales.DateTimeTicks} */((/** @type {anychart.scales.DateTime} */(scale)).ticks());
+    values['intervalUnit'] = {value: ticks.getIntervalUnit(), type: anychart.enums.TokenType.STRING};
+    values['intervalUnitCount'] = {value: ticks.getIntervalUnitCount(), type: anychart.enums.TokenType.NUMBER};
+    ticks = /** @type {anychart.scales.DateTimeTicks} */((/** @type {anychart.scales.DateTime} */(scale)).minorTicks());
+    values['minorIntervalUnit'] = {value: ticks.getIntervalUnit(), type: anychart.enums.TokenType.STRING};
+    values['minorIntervalUnitCount'] = {value: ticks.getIntervalUnitCount(), type: anychart.enums.TokenType.NUMBER};
+  }
+
+  var aliases = {};
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MAX] = 'max';
+  aliases[anychart.enums.StringToken.AXIS_SCALE_MIN] = 'min';
+
+  var tokenCustomValues = {};
+  tokenCustomValues[anychart.enums.StringToken.AXIS_NAME] = {value: this.title().text(), type: anychart.enums.TokenType.STRING};
+
+  var context = new anychart.format.Context(values);
+  context.tokenAliases(aliases);
+  context.tokenCustomValues(tokenCustomValues);
+
+  return context.propagate();
+};
+
+
+/**
+ * Returns position provider.
+ * @param {number} index Label index.
+ * @param {boolean} isMajor Major labels or minor.
+ * @param {Array} ticksArray Array with ticks.
+ * @param {anychart.math.Rect=} opt_parentBounds Parent bounds.
+ * @return {Object} Label bounds.
+ */
+anychart.core.Axis.prototype.getLabelsPositionProvider = function(index, isMajor, ticksArray, opt_parentBounds) {
+  var bounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.getPixelBounds(true);
+  var lineBounds = goog.isDef(opt_parentBounds) ? opt_parentBounds : this.line.getBounds();
+  var ticks = isMajor ? this.ticks() : this.minorTicks();
+  var ticksLength = ticks.length();
+  var stroke = this.stroke();
+  var lineThickness = !stroke || anychart.utils.isNone(stroke) ? 0 : stroke['thickness'] ? parseFloat(this.stroke()['thickness']) : 1;
+
+  var isEnabled = ticks.enabled();
+  var position = ticks.position();
+  var x, y;
+  var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
+
+  var value = ticksArray[index];
+  var ratio;
+  if (goog.isArray(value)) {
+    ratio = (scale.transform(value[0], 0) + scale.transform(value[1], 1)) / 2;
+  } else {
+    ratio = scale.transform(value, .5);
+  }
+
+  switch (this.orientation()) {
+    case anychart.enums.Orientation.TOP:
+      x = Math.round(bounds.left + ratio * bounds.width);
+      y = lineBounds.top - lineThickness / 2;
+      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
+        y -= ticksLength;
+      }
+      break;
+    case anychart.enums.Orientation.RIGHT:
+      x = lineBounds.getRight() + lineThickness / 2;
+      y = Math.round(bounds.top + ratio * bounds.height);
+
+      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
+        x += ticksLength;
+      }
+      break;
+    case anychart.enums.Orientation.BOTTOM:
+      x = Math.round(bounds.left + ratio * bounds.width);
+      y = lineBounds.getBottom() + lineThickness / 2;
+
+      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
+        y += ticksLength;
+      }
+      break;
+    case anychart.enums.Orientation.LEFT:
+      x = lineBounds.left - lineThickness / 2;
+      y = Math.round(bounds.top + ratio * bounds.height);
+
+      if (position == anychart.enums.SidePosition.OUTSIDE && isEnabled) {
+        x -= ticksLength;
+      }
+      break;
+  }
+
+  return {'value': {'x': x, 'y': y}};
+};
+
+
 /**
  * Whether an axis is horizontal.
  * @return {boolean} If the axis is horizontal.

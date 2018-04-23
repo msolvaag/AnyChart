@@ -1220,8 +1220,8 @@ anychart.polarModule.Axis.prototype.draw = function() {
     var lineThickness = acgraph.vector.getThickness(this.stroke_);
     var ticks = /** @type {anychart.radarPolarBaseModule.RadialAxisTicks} */(this.ticks());
     ticks.draw();
-    var tickThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(ticks.stroke()));
-    var tickLen = /** @type {number} */(ticks.length());
+    var tickThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(ticks.getOption('stroke')));
+    var tickLen = /** @type {number} */(ticks.getOption('length'));
     if (anychart.utils.isPercent(tickLen)) {
       tickLen = isOrdinal ? anychart.utils.normalizeSize(tickLen, this.originalRadius_ - this.radius_) : parseFloat(tickLen);
     }
@@ -1231,8 +1231,8 @@ anychart.polarModule.Axis.prototype.draw = function() {
 
     ticks = /** @type {anychart.radarPolarBaseModule.RadialAxisTicks} */(this.minorTicks());
     ticks.draw();
-    tickThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(ticks.stroke()));
-    tickLen = /** @type {number} */(ticks.length());
+    tickThickness = acgraph.vector.getThickness(/** @type {acgraph.vector.Stroke} */(ticks.getOption('stroke')));
+    tickLen = /** @type {number} */(ticks.getOption('length'));
     if (anychart.utils.isPercent(tickLen)) {
       tickLen = parseFloat(tickLen);
     }
