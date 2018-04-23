@@ -809,6 +809,7 @@ anychart.themes.merging.mergingMap_ = (function() {
             '',
             '.defaultQuarterSettings'
           ]],
+          'stock.defaultPlotSettings',
           'standalones',
           'map.axesSettings'
         ], '.title']
