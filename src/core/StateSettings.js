@@ -238,8 +238,8 @@ anychart.core.StateSettings.DEFAULT_BACKGROUND_AFTER_INIT_CALLBACK = function(ba
 //endregion
 //region --- Overrides
 /** @inheritDoc */
-anychart.core.StateSettings.prototype.invalidate = function(state, opt_signal) {
-  return this.stateHolder.invalidate(state, opt_signal);
+anychart.core.StateSettings.prototype.invalidate = function(stateOrStoreName, opt_signalOrStates, opt_signal) {
+  return this.stateHolder.invalidate(stateOrStoreName, opt_signalOrStates, opt_signal);
 };
 
 

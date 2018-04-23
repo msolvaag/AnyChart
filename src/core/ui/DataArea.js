@@ -1,5 +1,5 @@
 goog.provide('anychart.core.ui.DataArea');
-goog.require('anychart.core.Base');
+goog.require('anychart.core.VisualBase');
 goog.require('anychart.core.ui.Background');
 
 
@@ -7,7 +7,7 @@ goog.require('anychart.core.ui.Background');
 /**
  * DataArea class.
  * @constructor
- * @extends {anychart.core.Base}
+ * @extends {anychart.core.VisualBase}
  */
 anychart.core.ui.DataArea = function() {
   anychart.core.ui.DataArea.base(this, 'constructor');
@@ -103,11 +103,13 @@ anychart.core.ui.DataArea.prototype.draw = function() {
     var background = this.background();
     background.suspendSignalsDispatching();
     if (!background.container()) background.container(this.rootLayer);
-    background.parentBounds(this.parentBounds());
+    background.parentBounds(/** @type {anychart.math.Rect} */ (this.parentBounds()));
     background.resumeSignalsDispatching(false);
     background.draw();
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
+
+  return this;
 };
 
 

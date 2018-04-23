@@ -74,6 +74,7 @@ anychart.ConsistencyState = {
   BULLET_AXES_MARKERS: 1 << 15,
   BULLET_MARKERS: 1 << 16,
   //---------------------------------- CHART WITH SERIES STATES (CHART) ---------------------------------
+  SERIES_CHART_DATA_AREA: 1 << 4,
   SERIES_CHART_PALETTE: 1 << 12,
   SERIES_CHART_MARKER_PALETTE: 1 << 13,
   SERIES_CHART_HATCH_FILL_PALETTE: 1 << 14,
@@ -426,6 +427,25 @@ anychart.SettingsState = {
 };
 
 
+/**
+ * @typedef {
+ * Object.<string, {
+ *   consistency: number,
+ *   lastUsedBit: number,
+ *   supportedStates: number,
+ *   states: Object.<string, number>
+ * }>
+ * }
+ */
+anychart.ConsistencyStore;
+
+
+/**
+ * @typedef {Object.<string, anychart.ConsistencyStore>}
+ */
+anychart.ConsistencyStorage;
+
+
 
 /**
  * Class implements all the work with consistency states.
@@ -463,6 +483,12 @@ anychart.core.Base = function() {
    * @private
    */
   this.needsForceSignalsDispatching_ = false;
+
+  /**
+   * Storage with consistency states by name.
+   * @type {anychart.ConsistencyStorage}
+   */
+  this.consistencyStorage = {};
 };
 goog.inherits(anychart.core.Base, goog.events.EventTarget);
 
@@ -638,47 +664,171 @@ anychart.core.Base.prototype.unlistenSignals = function(listener, opt_scope) {
 
 
 /**
+ * Add supported consistency state to store.
+ * @param {string} storeName Store name.
+ * @param {string} stateName State name.
+ */
+anychart.core.Base.prototype.addSupportedCS = function(storeName, stateName) {
+  storeName = storeName.toLowerCase();
+  stateName = storeName.toLowerCase();
+
+  if (!this.consistencyStorage[storeName]) {
+    this.consistencyStorage[storeName] = {
+      consistency: 0,
+      supportedStates: 0,
+      lastUsedBit: -1,
+      states: {}
+    };
+  }
+  var store = this.consistencyStorage[storeName];
+  var states = store.states;
+  if (!states[stateName]) {
+    var lastUsedBit = ++store.lastUsedBit;
+    if (lastUsedBit == 31) {
+      console.log('cannot add state. all states for store has been used');
+      return;
+    }
+    states[stateName] = 1 << lastUsedBit;
+    store.supportedStates |= states[stateName];
+    if (lastUsedBit == 31) {
+      console.log('last state for store has been used');
+    }
+  } else {
+    console.log('store-state pair already exists');
+  }
+};
+
+
+/**
+ * Invalidates all supported consistency states.
+ * @param {string} storeName
+ */
+anychart.core.Base.prototype.invalidateAll = function(storeName) {
+  var store = this.consistencyStorage[storeName];
+  if (store) {
+    store.consistency |= store.supportedStates;
+  }
+};
+
+
+/**
  * Sets consistency state to an element {@link anychart.ConsistencyState}.
- * @param {anychart.ConsistencyState|number} state State(s) to be set.
+ * @param {anychart.ConsistencyState|number|string} stateOrStoreName State(s) to be set.
+ * @param {(anychart.Signal|number|string|Array.<string>)=} opt_signalOrStates Signal(s) to be sent to listener, if states have been set.
  * @param {(anychart.Signal|number)=} opt_signal Signal(s) to be sent to listener, if states have been set.
  * @return {number} Actually modified consistency states.
  */
-anychart.core.Base.prototype.invalidate = function(state, opt_signal) {
-  state &= this.SUPPORTED_CONSISTENCY_STATES;
-  var effective = state & ~this.consistency_;
-  this.consistency_ |= effective;
-  if (effective || this.needsForceSignalsDispatching())
-    this.dispatchSignal(opt_signal || 0);
+anychart.core.Base.prototype.invalidate = function(stateOrStoreName, opt_signalOrStates, opt_signal) {
+  var effective;
+  var state;
+  if (goog.isString(stateOrStoreName)) {
+    if (!goog.isDef(opt_signalOrStates) || !this.consistencyStorage[stateOrStoreName])
+      return 0;
+    var store = this.consistencyStorage[stateOrStoreName];
+    state = 0;
+
+    if (goog.isArray(opt_signalOrStates)) {
+      state = goog.array.reduce(opt_signalOrStates, function(lastState, item) {
+        return (lastState | (store.states[item] || 0));
+      }, 0);
+    } else {
+      state = store.states[opt_signalOrStates] || 0;
+    }
+
+    effective = state & ~store.consistency;
+    if (effective || this.needsForceSignalsDispatching())
+      this.dispatchSignal(opt_signal || 0);
+  } else {
+    stateOrStoreName &= this.SUPPORTED_CONSISTENCY_STATES;
+    effective = stateOrStoreName & ~this.consistency_;
+    this.consistency_ |= effective;
+    if (effective || this.needsForceSignalsDispatching())
+      this.dispatchSignal(/** @type {anychart.Signal|number} */ (opt_signalOrStates) || 0);
+  }
   return effective;
 };
 
 
 /**
  * Clears consistency state.
- * @param {anychart.ConsistencyState|number} state State(s) to be cleared.
+ * @param {anychart.ConsistencyState|number|string} stateOrStoreName State(s) to be cleared.
+ * @param {(string|Array.<string>)=} opt_states State(s) to be cleared.
  */
-anychart.core.Base.prototype.markConsistent = function(state) {
-  this.consistency_ &= ~state;
+anychart.core.Base.prototype.markConsistent = function(stateOrStoreName, opt_states) {
+  if (goog.isString(stateOrStoreName)) {
+    var store = this.consistencyStorage[stateOrStoreName];
+    if (store && goog.isDef(opt_states)) {
+      if (goog.isArray(opt_states)) {
+        for (var i = 0; i < opt_states.length; i++)
+          store.consistency &= ~(store.states[opt_states[i]] || 0);
+      } else {
+        store.consistency &= ~(store.states[opt_states] || 0);
+      }
+    }
+  } else
+    this.consistency_ &= ~stateOrStoreName;
+};
+
+
+/**
+ * Clear all consistencies in store.
+ * @param {string} storeName Name of consistency store.
+ */
+anychart.core.Base.prototype.markConsistentAll = function(storeName) {
+  var store = this.consistencyStorage[storeName];
+  if (store) {
+    store.consistency = 0;
+  }
 };
 
 
 /**
  * Checks if an element has any consistency state set.
- * @param {number=} opt_allowState
+ * @param {(number|string)=} opt_allowStateOrStoreName
  * @return {boolean} True if it has it.
  */
-anychart.core.Base.prototype.isConsistent = function(opt_allowState) {
-  return !(this.consistency_ & ~(opt_allowState || 0));
+anychart.core.Base.prototype.isConsistent = function(opt_allowStateOrStoreName) {
+  if (goog.isString(opt_allowStateOrStoreName))
+    return (!!this.consistencyStorage[opt_allowStateOrStoreName] && !this.consistencyStorage[opt_allowStateOrStoreName].consistency);
+  return !(this.consistency_ & ~(opt_allowStateOrStoreName || 0));
+};
+
+
+/**
+ * Is storage consistent.
+ * @return {boolean}
+ */
+anychart.core.Base.prototype.isConsistentAll = function() {
+  for (var storeName in this.consistencyStorage) {
+    if (this.consistencyStorage[storeName].consistency)
+      return false;
+  }
+  return true;
 };
 
 
 /**
  * Checks of an element has a consistency state(s).
- * @param {anychart.ConsistencyState|number} state State(s) to be checked.
+ * @param {anychart.ConsistencyState|number|string} stateOrStoreName State(s) to be checked or store name.
+ * @param {(string|Array.<string>)=} opt_states State(s) to be checked.
  * @return {boolean} True if it has it.
  */
-anychart.core.Base.prototype.hasInvalidationState = function(state) {
-  return !!(this.consistency_ & state);
+anychart.core.Base.prototype.hasInvalidationState = function(stateOrStoreName, opt_states) {
+  if (goog.isString(stateOrStoreName)) {
+    var state;
+    var store = this.consistencyStorage[/** @type {string} */ (stateOrStoreName)];
+    if (store) {
+      if (goog.isArray(opt_states)) {
+        state = goog.array.reduce(opt_states, function(lastState, item) {
+          return (lastState | (store.states[item] || 0));
+        }, 0);
+      } else if (goog.isDef(opt_states))
+        state = store.states[opt_states];
+      return !!(store.consistency & state);
+    }
+    return false;
+  }
+  return !!(this.consistency_ & stateOrStoreName);
 };
 
 
@@ -687,20 +837,20 @@ anychart.core.Base.prototype.hasInvalidationState = function(state) {
  *
  * NOTE: YOU CAN ONLY SEND SIGNALS FROM SUPPORTED_SIGNALS MASK!
  *
- * @param {anychart.Signal|number} state Invalidation state(s).
+ * @param {anychart.Signal|number} signal Invalidation signal(s).
  * @param {boolean=} opt_force Force to dispatch signal.
  */
-anychart.core.Base.prototype.dispatchSignal = function(state, opt_force) {
-  state &= this.SUPPORTED_SIGNALS;
-  if (!state) return;
+anychart.core.Base.prototype.dispatchSignal = function(signal, opt_force) {
+  signal &= this.SUPPORTED_SIGNALS;
+  if (!signal) return;
   if (isNaN(this.suspendedDispatching) || !!opt_force) {
     // Hack to prevent Signal events bubbling. May be we should use all advantages of bubbling but not now.
     var parent = this.getParentEventTarget();
     this.setParentEventTarget(null);
-    this.dispatchEvent(new anychart.SignalEvent(this, state));
+    this.dispatchEvent(new anychart.SignalEvent(this, signal));
     this.setParentEventTarget(parent);
   } else {
-    this.suspendedDispatching |= state;
+    this.suspendedDispatching |= signal;
   }
 };
 

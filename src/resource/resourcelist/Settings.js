@@ -34,8 +34,8 @@ anychart.resourceModule.resourceList.Settings.prototype.SUPPORTED_SIGNALS =
 //endregion
 //region --- OVERRIDES ---
 /** @inheritDoc */
-anychart.resourceModule.resourceList.Settings.prototype.invalidate = function(state, opt_signal) {
-  this.dispatchSignal(opt_signal || 0);
+anychart.resourceModule.resourceList.Settings.prototype.invalidate = function(stateOrStoreName, opt_signalOrStates, opt_signal) {
+  this.dispatchSignal(/** @type {anychart.Signal|number} */ (opt_signalOrStates) || 0);
   return 0;
 };
 

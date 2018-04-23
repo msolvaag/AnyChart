@@ -988,11 +988,12 @@ anychart.core.settings.IObjectWithSettings.prototype.getHook = function(fieldNam
 
 /**
  * Sets consistency state to an element {@link anychart.ConsistencyState}.
- * @param {anychart.ConsistencyState|number} state State(s) to be set.
+ * @param {anychart.ConsistencyState|number|string} stateOrStoreName State(s) to be set.
+ * @param {(anychart.Signal|number|string|Array.<string>)=} opt_signalOrStates Signal(s) to be sent to listener, if states have been set.
  * @param {(anychart.Signal|number)=} opt_signal Signal(s) to be sent to listener, if states have been set.
  * @return {number} Actually modified consistency states.
  */
-anychart.core.settings.IObjectWithSettings.prototype.invalidate = function(state, opt_signal) {};
+anychart.core.settings.IObjectWithSettings.prototype.invalidate = function(stateOrStoreName, opt_signalOrStates, opt_signal) {};
 
 
 /**
