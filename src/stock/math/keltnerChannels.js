@@ -10,7 +10,8 @@ goog.require('anychart.utils');
  *    contextEMA: !anychart.stockModule.math.ema.Context,
  *    contextATR: !anychart.stockModule.math.atr.Context,
  *    multiplier: number,
- *    period: number,
+ *    emaPeriod: number,
+ *    atrPeriod: number,
  *    dispose: Function
  * }}
  */
@@ -18,19 +19,21 @@ anychart.stockModule.math.keltnerChannels.Context;
 
 /**
  * Creates context.
- * @param {number=} opt_period
+ * @param {number=} opt_emaPeriod
  * @param {number=} opt_multiplier
+ * @param {number=} opt_atrPeriod
  * @return {anychart.stockModule.math.keltnerChannels.Context}
- * @todo separate periods for ema and atr
  */
-anychart.stockModule.math.keltnerChannels.initContext = function(opt_period, opt_multiplier) {
-  var period = anychart.utils.normalizeToNaturalNumber(opt_period, 10, false);
+anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, opt_multiplier, opt_atrPeriod) {
+  var emaPeriod = anychart.utils.normalizeToNaturalNumber(opt_emaPeriod, 20, false);
+  var atrPeriod = anychart.utils.normalizeToNaturalNumber(opt_atrPeriod, 10, false);
   var multiplier = anychart.utils.normalizeToNaturalNumber(opt_multiplier, 2, false);
   return {
-    contextEMA: anychart.stockModule.math.ema.initContext(period),
-    contextATR: anychart.stockModule.math.atr.initContext(period),
+    contextEMA: anychart.stockModule.math.ema.initContext(emaPeriod),
+    contextATR: anychart.stockModule.math.atr.initContext(atrPeriod),
     multiplier: multiplier,
-    period: period,
+    emaPeriod: emaPeriod,
+    atrPeriod: atrPeriod,
     /**
      * @this {anychart.stockModule.math.keltnerChannels.Context}
      */
@@ -69,14 +72,14 @@ anychart.stockModule.math.keltnerChannels.calculationFunction = function(row, co
 /**
  * Creates Keltner Channel computer for the given table mapping.
  * @param {anychart.stockModule.data.TableMapping} mapping
- * @param {number=} opt_period
+ * @param {number=} opt_emaPeriod
  * @param {number=} opt_multiplier
+ * @param {number=} opt_atrPeriod
  * @return {anychart.stockModule.data.TableComputer}
- * @todo separate periods for ema and atr
  */
-anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_period, opt_multiplier) {
+anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_multiplier, opt_atrPeriod) {
   var result = mapping.getTable().createComputer(mapping);
-  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_period, opt_multiplier));
+  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_multiplier, opt_atrPeriod));
   result.setStartFunction(anychart.stockModule.math.keltnerChannels.startFunction);
   result.setCalculationFunction(anychart.stockModule.math.keltnerChannels.calculationFunction);
   result.addOutputField('middleResult');
@@ -98,15 +101,11 @@ anychart.stockModule.math.keltnerChannels.calculate = function(context, close, h
   var atr = anychart.stockModule.math.atr.calculate(context.contextATR, close, high, low);
   var result = {};
 
-  if (isNaN(ema) || isNaN(atr)) {
-    result = {ema: NaN, upper: NaN, lower: NaN};
-  } else {
-    result = {
-      ema: ema,
-      upper: ema + (context.multiplier * atr),
-      lower: ema - (context.multiplier * atr)
-    };
-  }
+  result = {
+    ema: ema,
+    upper: ema + (context.multiplier * atr),
+    lower: ema - (context.multiplier * atr)
+  };
 
   return result;
 };

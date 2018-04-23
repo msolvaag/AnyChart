@@ -11,17 +11,16 @@ goog.require('anychart.utils');
  * @param {Array} args [plot, mapping, opt_period, opt_multiplier, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType]
  * @constructor
  * @extends {anychart.stockModule.indicators.Base}
- * @todo separate periods for ema and atr
  */
 anychart.stockModule.indicators.KeltnerChannels = function(args) {
   anychart.stockModule.indicators.KeltnerChannels.base(this, 'constructor', args);
 
   /**
-   * Keltner global period (both for ATR and EMA).
+   * Keltner ema period
    * @type {number}
    * @private
    */
-  this.period_ = anychart.utils.normalizeToNaturalNumber(args[2], 10, false);
+  this.atrPeriod_ = anychart.utils.normalizeToNaturalNumber(args[2], 20, false);
 
   /**
    * Keltner multiplier.
@@ -30,9 +29,16 @@ anychart.stockModule.indicators.KeltnerChannels = function(args) {
    */
   this.multiplier_ = anychart.utils.normalizeToNaturalNumber(args[3], 2, false);
 
-  this.declareSeries('middle', args[4]);
-  this.declareSeries('upper', args[5]);
-  this.declareSeries('lower', args[6]);
+  /**
+   * Keltner atr period
+   * @type {number}
+   * @private
+   */
+  this.emaPeriod_ = anychart.utils.normalizeToNaturalNumber(args[4], 10, false);
+
+  this.declareSeries('middle', args[5]);
+  this.declareSeries('upper', args[6]);
+  this.declareSeries('lower', args[7]);
   this.init();
 };
 goog.inherits(anychart.stockModule.indicators.KeltnerChannels, anychart.stockModule.indicators.Base);
@@ -40,7 +46,7 @@ goog.inherits(anychart.stockModule.indicators.KeltnerChannels, anychart.stockMod
 
 /** @inheritDoc */
 anychart.stockModule.indicators.KeltnerChannels.prototype.createComputer = function(mapping) {
-  return anychart.stockModule.math.keltnerChannels.createComputer(mapping, this.period_, this.multiplier_);
+  return anychart.stockModule.math.keltnerChannels.createComputer(mapping, this.emaPeriod_, this.multiplier_, this.atrPeriod_);
 };
 
 
@@ -103,20 +109,20 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.lowerSeries = function
 };
 
 /**
- * Getter and setter for the period.
+ * Getter and setter for the ema period.
  * @param {number=} opt_value
  * @return {anychart.stockModule.indicators.KeltnerChannels|number}
  */
-anychart.stockModule.indicators.KeltnerChannels.prototype.period = function(opt_value) {
+anychart.stockModule.indicators.KeltnerChannels.prototype.emaPeriod = function(opt_value) {
   if (goog.isDef(opt_value)) {
-    var period = anychart.utils.normalizeToNaturalNumber(opt_value, this.period_, false);
-    if (period != this.period_) {
-      this.period_ = period;
+    var emaPeriod = anychart.utils.normalizeToNaturalNumber(opt_value, this.emaPeriod_, false);
+    if (emaPeriod != this.emaPeriod_) {
+      this.emaPeriod_ = emaPeriod;
       this.reinitComputer();
     }
     return this;
   }
-  return this.period_;
+  return this.emaPeriod_;
 };
 
 /**
@@ -136,11 +142,29 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.multiplier = function(
   return this.multiplier_;
 };
 
+/**
+ * Getter and setter for the atr period
+ * @param {number=} opt_value
+ * @return {anychart.stockModule.indicators.KeltnerChannels|number}
+ */
+anychart.stockModule.indicators.KeltnerChannels.prototype.atrPeriod = function(opt_value) {
+  if (goog.isDef(opt_value)) {
+    var atrPeriod = anychart.utils.normalizeToNaturalNumber(opt_value, this.atrPeriod_, false);
+    if (atrPeriod != this.atrPeriod_) {
+      this.atrPeriod_ = atrPeriod;
+      this.reinitComputer();
+    }
+    return this;
+  }
+  return this.atrPeriod_;
+};
+
 
 //exports
 (function() {
   var proto = anychart.stockModule.indicators.KeltnerChannels.prototype;
-  proto['period'] = proto.period;
+  proto['emaPeriod'] = proto.emaPeriod;
+  proto['atrPeriod'] = proto.atrPeriod;
   proto['multiplier'] = proto.multiplier;
   proto['upperSeries'] = proto.upperSeries;
   proto['lowerSeries'] = proto.lowerSeries;
