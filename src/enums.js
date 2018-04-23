@@ -1910,7 +1910,7 @@ anychart.enums.StockIndicatorTypes = {
   DMI: 'dmi',
   EMA: 'ema',
   KDJ: 'kdj',
-  KELTNER_CHANNELS: 'keltnerChannels',
+  KELTNER_CHANNELS: 'keltner-channels',
   MACD: 'macd',
   MFI: 'mfi',
   MMA: 'mma',
