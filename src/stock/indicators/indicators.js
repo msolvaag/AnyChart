@@ -53,6 +53,7 @@ anychart.stockModule.indicators.config = (function() {
   res[anychart.enums.StockIndicatorTypes.DMI] = anychart.stockModule.indicators.DMI;
   res[anychart.enums.StockIndicatorTypes.EMA] = anychart.stockModule.indicators.EMA;
   res[anychart.enums.StockIndicatorTypes.KDJ] = anychart.stockModule.indicators.KDJ;
+  res[anychart.enums.StockIndicatorTypes.KELTNER_CHANNELS] = anychart.stockModule.indicators.KeltnerChannels;
   res[anychart.enums.StockIndicatorTypes.MACD] = anychart.stockModule.indicators.MACD;
   res[anychart.enums.StockIndicatorTypes.MFI] = anychart.stockModule.indicators.MFI;
   res[anychart.enums.StockIndicatorTypes.MMA] = anychart.stockModule.indicators.MMA;
@@ -63,7 +64,6 @@ anychart.stockModule.indicators.config = (function() {
   res[anychart.enums.StockIndicatorTypes.SMA] = anychart.stockModule.indicators.SMA;
   res[anychart.enums.StockIndicatorTypes.STOCHASTIC] = anychart.stockModule.indicators.Stochastic;
   res[anychart.enums.StockIndicatorTypes.WILLIAMS_R] = anychart.stockModule.indicators.WilliamsR;
-  res[anychart.enums.StockIndicatorTypes.KELTNER_CHANNELS] = anychart.stockModule.indicators.KeltnerChannels;
   return res;
 })();
 
