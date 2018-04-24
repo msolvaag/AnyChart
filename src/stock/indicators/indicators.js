@@ -15,6 +15,7 @@ goog.require('anychart.stockModule.indicators.CHO');
 goog.require('anychart.stockModule.indicators.CMF');
 goog.require('anychart.stockModule.indicators.DMI');
 goog.require('anychart.stockModule.indicators.EMA');
+goog.require('anychart.stockModule.indicators.HA');
 goog.require('anychart.stockModule.indicators.KDJ');
 goog.require('anychart.stockModule.indicators.MACD');
 goog.require('anychart.stockModule.indicators.MFI');
@@ -51,6 +52,7 @@ anychart.stockModule.indicators.config = (function() {
   res[anychart.enums.StockIndicatorTypes.CMF] = anychart.stockModule.indicators.CMF;
   res[anychart.enums.StockIndicatorTypes.DMI] = anychart.stockModule.indicators.DMI;
   res[anychart.enums.StockIndicatorTypes.EMA] = anychart.stockModule.indicators.EMA;
+  res[anychart.enums.StockIndicatorTypes.HA] = anychart.stockModule.indicators.HA;
   res[anychart.enums.StockIndicatorTypes.KDJ] = anychart.stockModule.indicators.KDJ;
   res[anychart.enums.StockIndicatorTypes.MACD] = anychart.stockModule.indicators.MACD;
   res[anychart.enums.StockIndicatorTypes.MFI] = anychart.stockModule.indicators.MFI;

@@ -1909,6 +1909,7 @@ anychart.enums.StockIndicatorTypes = {
   CMF: 'cmf',
   DMI: 'dmi',
   EMA: 'ema',
+  HA: 'ha',
   KDJ: 'kdj',
   MACD: 'macd',
   MFI: 'mfi',
