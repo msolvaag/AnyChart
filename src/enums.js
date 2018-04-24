@@ -1919,7 +1919,9 @@ anychart.enums.StockIndicatorTypes = {
   RSI: 'rsi',
   SMA: 'sma',
   STOCHASTIC: 'stochastic',
-  WILLIAMS_R: 'williams-r'
+  WILLIAMS_R: 'williams-r',
+  TRIX:'trix',
+    OBV:'obv'
 };
 
 
