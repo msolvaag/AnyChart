@@ -671,7 +671,7 @@ anychart.core.Base.prototype.unlistenSignals = function(listener, opt_scope) {
  */
 anychart.core.Base.prototype.addSupportedCS = function(storeName, stateName) {
   storeName = storeName.toLowerCase();
-  stateName = storeName.toLowerCase();
+  stateName = stateName.toLowerCase();
 
   if (!this.consistencyStorage[storeName]) {
     this.consistencyStorage[storeName] = {
@@ -684,11 +684,11 @@ anychart.core.Base.prototype.addSupportedCS = function(storeName, stateName) {
   var store = this.consistencyStorage[storeName];
   var states = store.states;
   if (!states[stateName]) {
-    var lastUsedBit = ++store.lastUsedBit;
-    if (lastUsedBit == 31) {
+    if (store.lastUsedBit == 31) {
       console.log('cannot add state. all states for store has been used');
       return;
     }
+    var lastUsedBit = ++store.lastUsedBit;
     states[stateName] = 1 << lastUsedBit;
     store.supportedStates |= states[stateName];
     if (lastUsedBit == 31) {

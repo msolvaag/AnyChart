@@ -102,6 +102,8 @@ anychart.core.ChartWithSeries = function() {
     ['maxPointWidth', anychart.ConsistencyState.SERIES_CHART_SERIES, anychart.Signal.NEEDS_REDRAW, 0, this.invalidateWidthBasedSeries],
     ['minPointLength', anychart.ConsistencyState.SERIES_CHART_SERIES, anychart.Signal.NEEDS_REDRAW, 0, this.resetSeriesStack]
   ]);
+  this.addSupportedCS('serieschart', 'dataarea');
+  this.invalidateAll('serieschart');
 };
 goog.inherits(anychart.core.ChartWithSeries, anychart.core.SeparateChart);
 
@@ -1184,25 +1186,30 @@ anychart.core.ChartWithSeries.prototype.dataArea = function(opt_value) {
  * @private
  */
 anychart.core.ChartWithSeries.prototype.dataAreaInvalidated_ = function(e) {
-  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW))
-    this.invalidate(anychart.ConsistencyState.SERIES_CHART_DATA_AREA, anychart.Signal.NEEDS_REDRAW);
+  if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
+    this.invalidate('serieschart', 'dataarea', anychart.Signal.NEEDS_REDRAW);
+  }
+    // this.invalidate(anychart.ConsistencyState.SERIES_CHART_DATA_AREA, anychart.Signal.NEEDS_REDRAW);
 };
 
 
 /** @inheritDoc */
 anychart.core.ChartWithSeries.prototype.drawContent = function(bounds) {
+  debugger;
   anychart.core.ChartWithSeries.base(this, 'drawContent', bounds);
-  if (this.isConsistent())
+  if (this.isConsistent('serieschart'))
     return;
 
-  if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_CHART_DATA_AREA)) {
+  // if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_CHART_DATA_AREA)) {
+  if (this.hasInvalidationState('serieschart', 'dataarea')) {
     var dataArea = this.dataArea();
     dataArea.suspendSignalsDispatching();
     if (!dataArea.container()) dataArea.container(this.rootElement);
     dataArea.parentBounds(bounds);
     dataArea.resumeSignalsDispatching(false);
     dataArea.draw();
-    this.markConsistent(anychart.ConsistencyState.SERIES_CHART_DATA_AREA);
+    this.markConsistent('serieschart', 'dataarea');
+    // this.markConsistent(anychart.ConsistencyState.SERIES_CHART_DATA_AREA);
   }
 };
 
