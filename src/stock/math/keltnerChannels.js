@@ -21,9 +21,10 @@ anychart.stockModule.math.keltnerChannels.Context;
  * @param {number=} opt_emaPeriod
  * @param {number=} opt_atrPeriod
  * @param {number=} opt_multiplier
+ * @param {anychart.enums.MovingAverageType=} opt_maType Indicator smoothing type. Defaults to SMA.
  * @return {anychart.stockModule.math.keltnerChannels.Context}
  */
-anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, opt_atrPeriod, opt_multiplier) {
+anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, opt_atrPeriod, opt_multiplier, opt_maType) {
   var emaPeriod = anychart.utils.normalizeToNaturalNumber(opt_emaPeriod, 20, false);
   var atrPeriod = anychart.utils.normalizeToNaturalNumber(opt_atrPeriod, 10, false);
   var multiplier = anychart.utils.normalizeToNaturalNumber(opt_multiplier, 2, false);
@@ -74,9 +75,10 @@ anychart.stockModule.math.keltnerChannels.calculationFunction = function(row, co
  * @param {number=} opt_emaPeriod
  * @param {number=} opt_atrPeriod
  * @param {number=} opt_multiplier
+ * @param {anychart.enums.MovingAverageType=} opt_maType Indicator smoothing type. Defaults to SMA.
  * @return {anychart.stockModule.data.TableComputer}
  */
-anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_atrPeriod, opt_multiplier) {
+anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_atrPeriod, opt_multiplier, opt_maType) {
   var result = mapping.getTable().createComputer(mapping);
   result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_atrPeriod, opt_multiplier));
   result.setStartFunction(anychart.stockModule.math.keltnerChannels.startFunction);
