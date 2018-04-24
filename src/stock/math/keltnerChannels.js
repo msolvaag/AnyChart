@@ -93,18 +93,16 @@ anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt
  * @param {number} close
  * @param {number} high
  * @param {number} low
- * @return {Object}
+ * @return {Array.<number>}
  */
 anychart.stockModule.math.keltnerChannels.calculate = function(context, close, high, low) {
   var ema = anychart.stockModule.math.ema.calculate(context.contextEMA, close);
   var atr = anychart.stockModule.math.atr.calculate(context.contextATR, close, high, low);
   var result = {};
 
-  result = {
-    ema: ema,
-    upper: ema + (context.multiplier * atr),
-    lower: ema - (context.multiplier * atr)
-  };
-
-  return result;
+  return [
+    ema,
+    ema + (context.multiplier * atr),
+    ema - (context.multiplier * atr)
+  ];
 };
