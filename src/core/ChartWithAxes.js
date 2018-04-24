@@ -915,21 +915,37 @@ anychart.core.ChartWithAxes.prototype.getYScales = function() {
 
 
 /** @inheritDoc */
-anychart.core.ChartWithAxes.prototype.calculate = function() {
-  anychart.core.ChartWithAxes.base(this, 'calculate');
-  var scales = goog.array.concat(this.getScales(this.xScales), this.getScales(this.yScales));
+anychart.core.ChartWithAxes.prototype.calculateAdditionalXScalesExtensions = function() {
+  this.extendScalesByMarkers(this.xScales, true);
+};
+
+
+/** @inheritDoc */
+anychart.core.ChartWithAxes.prototype.calculateAdditionalYScalesExtensions = function() {
+  this.extendScalesByMarkers(this.yScales, false);
+};
+
+
+/**
+ * Extend scales by axis markers values.
+ * @param {Object} scalesObject Scales map.
+ * @param {boolean} isX x scales extending.
+ */
+anychart.core.ChartWithAxes.prototype.extendScalesByMarkers = function(scalesObject, isX) {
+  var autoScale = this.isVerticalInternal ? this.xScale() : this.yScale();
+  var scales = this.getScales(scalesObject);
   var markers = goog.array.concat(this.lineAxesMarkers_, this.rangeAxesMarkers_, this.textAxesMarkers_);
   for (var i = 0; i < markers.length; i++) {
     var marker = markers[i];
     if (marker) {
-      var markerScale = marker.scale() ? marker.scale() : this.isVerticalInternal ? this.xScale() : this.yScale();
+      if (!marker.scale() && !!(isX ^ this.isVerticalInternal))
+        continue;
+      var markerScale = marker.scale() ? marker.scale() : autoScale;
       if (markerScale) {
         for (var j = 0; j < scales.length; j++) {
           var scale = scales[j];
           if ((scale === markerScale) && (marker.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)) {
-            scale.startAutoCalc();
             scale.extendDataRange.apply(scale, marker.getReferenceValues());
-            scale.finishAutoCalc();
           }
         }
       }
