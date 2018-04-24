@@ -8,7 +8,7 @@ goog.require('anychart.utils');
 
 /**
  * Keltner Channels indicator class.
- * @param {Array} args [plot, mapping, opt_period, opt_multiplier, opt_middleSeriesType, opt_upperSeriesType, opt_lowerSeriesType]
+ * @param {Array} args [plot, mapping, opt_maPeriod, opt_atrPeriod, opt_multiplier, opt_maType, opt_maSeries, opt_upperSeries, opt_lowerSeries]
  * @constructor
  * @extends {anychart.stockModule.indicators.Base}
  */
@@ -16,29 +16,36 @@ anychart.stockModule.indicators.KeltnerChannels = function(args) {
   anychart.stockModule.indicators.KeltnerChannels.base(this, 'constructor', args);
 
   /**
-   * Keltner ema period
+   * Keltner ma period.
    * @type {number}
    * @private
    */
-  this.atrPeriod_ = anychart.utils.normalizeToNaturalNumber(args[2], 20, false);
+  this.maPeriod_ = anychart.utils.normalizeToNaturalNumber(args[2], 20, false);
+
+  /**
+   * Keltner atr period.
+   * @type {number}
+   * @private
+   */
+  this.atrPeriod_ = anychart.utils.normalizeToNaturalNumber(args[3], 10, false);
 
   /**
    * Keltner multiplier.
    * @type {number}
    * @private
    */
-  this.multiplier_ = anychart.utils.normalizeToNaturalNumber(args[3], 2, false);
+  this.multiplier_ = anychart.utils.normalizeToNaturalNumber(args[4], 2, false);
 
   /**
-   * Keltner atr period
-   * @type {number}
+   * K smooth type.
+   * @type {anychart.enums.MovingAverageType}
    * @private
    */
-  this.emaPeriod_ = anychart.utils.normalizeToNaturalNumber(args[4], 10, false);
+  this.maType_ = anychart.enums.normalizeMovingAverageType(args[5], anychart.enums.MovingAverageType.SMA);
 
-  this.declareSeries('middle', args[5]);
-  this.declareSeries('upper', args[6]);
-  this.declareSeries('lower', args[7]);
+  this.declareSeries('ma', args[6]);
+  this.declareSeries('upper', args[7]);
+  this.declareSeries('lower', args[8]);
   this.init();
 };
 goog.inherits(anychart.stockModule.indicators.KeltnerChannels, anychart.stockModule.indicators.Base);
@@ -46,7 +53,7 @@ goog.inherits(anychart.stockModule.indicators.KeltnerChannels, anychart.stockMod
 
 /** @inheritDoc */
 anychart.stockModule.indicators.KeltnerChannels.prototype.createComputer = function(mapping) {
-  return anychart.stockModule.math.keltnerChannels.createComputer(mapping, this.emaPeriod_, this.multiplier_, this.atrPeriod_);
+  return anychart.stockModule.math.keltnerChannels.createComputer(mapping, this.maPeriod_, this.atrPeriod_, this.multiplier_, this.maType_);
 };
 
 
@@ -57,8 +64,13 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.createNameForSeries = 
       return 'KeltnerChannels U';
     case 'lower':
       return 'KeltnerChannels L';
-    case 'middle':
-      return 'KeltnerChannels M';
+    case 'ma':
+      switch (this.maType_) {
+        case anychart.enums.MovingAverageType.EMA:
+          return 'EMA';
+        case anychart.enums.MovingAverageType.SMA:
+          return 'SMA';
+      }
   }
   return '';
 };
@@ -72,8 +84,8 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.setupMapping = functio
     case 'lower':
       mapping.addField('value', computer.getFieldIndex('lowerResult'));
       break;
-    case 'middle':
-      mapping.addField('value', computer.getFieldIndex('middleResult'));
+    case 'ma':
+      mapping.addField('value', computer.getFieldIndex('maResult'));
       break;
   }
 };
@@ -93,9 +105,9 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.upperSeries = function
  * @param {anychart.enums.StockSeriesType=} opt_type
  * @return {anychart.stockModule.indicators.KeltnerChannels|anychart.stockModule.Series}
  */
-anychart.stockModule.indicators.KeltnerChannels.prototype.middleSeries = function(opt_type) {
+anychart.stockModule.indicators.KeltnerChannels.prototype.maSeries = function(opt_type) {
   return /** @type {anychart.stockModule.indicators.KeltnerChannels|anychart.stockModule.Series} */(
-    this.seriesInternal('middle', opt_type));
+    this.seriesInternal('ma', opt_type));
 };
 
 /**
@@ -168,5 +180,5 @@ anychart.stockModule.indicators.KeltnerChannels.prototype.atrPeriod = function(o
   proto['multiplier'] = proto.multiplier;
   proto['upperSeries'] = proto.upperSeries;
   proto['lowerSeries'] = proto.lowerSeries;
-  proto['middleSeries'] = proto.middleSeries;
+  proto['maSeries'] = proto.maSeries;
 })();
