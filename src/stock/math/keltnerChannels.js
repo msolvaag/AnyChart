@@ -1,16 +1,18 @@
 goog.provide('anychart.stockModule.math.keltnerChannels');
-goog.require('anychart.stockModule.math.CycledQueue');
 goog.require('anychart.stockModule.math.atr');
 goog.require('anychart.stockModule.math.ema');
+goog.require('anychart.stockModule.math.sma');
 goog.require('anychart.utils');
 
 /**
  * @typedef {{
- *    EMAContext: !anychart.stockModule.math.ema.Context,
- *    ATRContext: !anychart.stockModule.math.atr.Context,
+ *    maContext: (anychart.stockModule.math.ema.Context|anychart.stockModule.math.sma.Context),
+ *    maCalculate: Function,
+ *    atrContext: !anychart.stockModule.math.atr.Context,
  *    multiplier: number,
  *    emaPeriod: number,
  *    atrPeriod: number,
+ *    maType: !anychart.enums.MovingAverageType,
  *    dispose: Function
  * }}
  */
@@ -28,18 +30,31 @@ anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, 
   var emaPeriod = anychart.utils.normalizeToNaturalNumber(opt_emaPeriod, 20, false);
   var atrPeriod = anychart.utils.normalizeToNaturalNumber(opt_atrPeriod, 10, false);
   var multiplier = anychart.utils.normalizeToNaturalNumber(opt_multiplier, 2, false);
+  var maType = anychart.enums.normalizeMovingAverageType(opt_maType, anychart.enums.MovingAverageType.SMA);
+
+  var maInitContext;
+  var maCalculate;
+  if (maType == anychart.enums.MovingAverageType.SMA) {
+    maInitContext = anychart.stockModule.math.sma.initContext;
+    maCalculate = anychart.stockModule.math.sma.calculate;
+  } else {
+    maInitContext = anychart.stockModule.math.ema.initContext;
+    maCalculate = anychart.stockModule.math.ema.calculate;
+  }
   return {
-    contextEMA: anychart.stockModule.math.ema.initContext(emaPeriod),
-    contextATR: anychart.stockModule.math.atr.initContext(atrPeriod),
+    maContext: maInitContext(emaPeriod),
+    maCalculate: maCalculate,
+    atrContext: anychart.stockModule.math.atr.initContext(atrPeriod),
     multiplier: multiplier,
     emaPeriod: emaPeriod,
     atrPeriod: atrPeriod,
+    maType: maType,
     /**
      * @this {anychart.stockModule.math.keltnerChannels.Context}
      */
     'dispose': function() {
-      this.contextEMA['dispose']();
-      this.contextATR['dispose']();
+      this.maContext['dispose']();
+      this.atrContext['dispose']();
     }
   };
 };
@@ -49,8 +64,12 @@ anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, 
  * @param {anychart.stockModule.math.keltnerChannels.Context} context
  */
 anychart.stockModule.math.keltnerChannels.startFunction = function(context) {
-  anychart.stockModule.math.ema.startFunction(context.contextEMA);
-  anychart.stockModule.math.atr.startFunction(context.contextATR);
+  if (context.maType == anychart.enums.MovingAverageType.SMA) {
+    anychart.stockModule.math.sma.startFunction(/** @type {anychart.stockModule.math.sma.Context} */ (context.maContext));
+  } else {
+    anychart.stockModule.math.ema.startFunction(/** @type {anychart.stockModule.math.sma.Context} */ (context.maContext));
+  }
+  anychart.stockModule.math.atr.startFunction(context.atrContext);
 };
 
 /**
@@ -64,9 +83,9 @@ anychart.stockModule.math.keltnerChannels.calculationFunction = function(row, co
   var high = anychart.utils.toNumber(row.get('high'));
   var low = anychart.utils.toNumber(row.get('low'));
   var result = anychart.stockModule.math.keltnerChannels.calculate(context, close, high, low);
-  row.set('middleResult', result.ema);
-  row.set('upperResult', result.upper);
-  row.set('lowerResult', result.lower);
+  row.set('maResult', result[0]);
+  row.set('upperResult', result[1]);
+  row.set('lowerResult', result[2]);
 };
 
 /**
@@ -80,10 +99,10 @@ anychart.stockModule.math.keltnerChannels.calculationFunction = function(row, co
  */
 anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_atrPeriod, opt_multiplier, opt_maType) {
   var result = mapping.getTable().createComputer(mapping);
-  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_atrPeriod, opt_multiplier));
+  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_atrPeriod, opt_multiplier, opt_maType));
   result.setStartFunction(anychart.stockModule.math.keltnerChannels.startFunction);
   result.setCalculationFunction(anychart.stockModule.math.keltnerChannels.calculationFunction);
-  result.addOutputField('middleResult');
+  result.addOutputField('maResult');
   result.addOutputField('upperResult');
   result.addOutputField('lowerResult');
   return result;
@@ -98,9 +117,8 @@ anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt
  * @return {Array.<number>}
  */
 anychart.stockModule.math.keltnerChannels.calculate = function(context, close, high, low) {
-  var ema = anychart.stockModule.math.ema.calculate(context.contextEMA, close);
-  var atr = anychart.stockModule.math.atr.calculate(context.contextATR, close, high, low);
-  var result = {};
+  var ema = context.maCalculate(context.maContext, close);
+  var atr = anychart.stockModule.math.atr.calculate(context.atrContext, close, high, low);
 
   return [
     ema,
