@@ -20,14 +20,14 @@ anychart.stockModule.indicators.KeltnerChannels = function(args) {
    * @type {number}
    * @private
    */
-  this.maPeriod_ = anychart.utils.normalizeToNaturalNumber(args[2], 20, false);
+  this.maPeriod_ = anychart.utils.normalizeToNaturalNumber(args[2], 10, false);
 
   /**
    * Keltner atr period.
    * @type {number}
    * @private
    */
-  this.atrPeriod_ = anychart.utils.normalizeToNaturalNumber(args[3], 10, false);
+  this.atrPeriod_ = anychart.utils.normalizeToNaturalNumber(args[3], 20, false);
 
   /**
    * Keltner multiplier.
