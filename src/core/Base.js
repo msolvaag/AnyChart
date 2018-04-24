@@ -74,7 +74,6 @@ anychart.ConsistencyState = {
   BULLET_AXES_MARKERS: 1 << 15,
   BULLET_MARKERS: 1 << 16,
   //---------------------------------- CHART WITH SERIES STATES (CHART) ---------------------------------
-  SERIES_CHART_DATA_AREA: 1 << 4,
   SERIES_CHART_PALETTE: 1 << 12,
   SERIES_CHART_MARKER_PALETTE: 1 << 13,
   SERIES_CHART_HATCH_FILL_PALETTE: 1 << 14,
@@ -737,6 +736,7 @@ anychart.core.Base.prototype.invalidate = function(stateOrStoreName, opt_signalO
     }
 
     effective = state & ~store.consistency;
+    store.consistency |= effective;
     if (effective || this.needsForceSignalsDispatching())
       this.dispatchSignal(opt_signal || 0);
   } else {
@@ -791,7 +791,7 @@ anychart.core.Base.prototype.markConsistentAll = function(storeName) {
 anychart.core.Base.prototype.isConsistent = function(opt_allowStateOrStoreName) {
   if (goog.isString(opt_allowStateOrStoreName))
     return (!!this.consistencyStorage[opt_allowStateOrStoreName] && !this.consistencyStorage[opt_allowStateOrStoreName].consistency);
-  return !(this.consistency_ & ~(opt_allowStateOrStoreName || 0));
+  return !(this.consistency_ & ~(opt_allowStateOrStoreName || 0)) && this.isConsistentAll();
 };
 
 

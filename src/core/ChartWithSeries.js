@@ -180,7 +180,7 @@ anychart.core.ChartWithSeries.ZINDEX_LINE_SERIES = 31;
  * Series config for the chart.
  * @type {!Object.<string, anychart.core.series.TypeConfig>}
  */
-anychart.core.ChartWithSeries.prototype.seriesConfig = (function () { return {}; })();
+anychart.core.ChartWithSeries.prototype.seriesConfig = (function() { return {}; })();
 
 
 /**
@@ -1189,18 +1189,12 @@ anychart.core.ChartWithSeries.prototype.dataAreaInvalidated_ = function(e) {
   if (e.hasSignal(anychart.Signal.NEEDS_REDRAW)) {
     this.invalidate('serieschart', 'dataarea', anychart.Signal.NEEDS_REDRAW);
   }
-    // this.invalidate(anychart.ConsistencyState.SERIES_CHART_DATA_AREA, anychart.Signal.NEEDS_REDRAW);
 };
 
 
 /** @inheritDoc */
-anychart.core.ChartWithSeries.prototype.drawContent = function(bounds) {
-  debugger;
-  anychart.core.ChartWithSeries.base(this, 'drawContent', bounds);
-  if (this.isConsistent('serieschart'))
-    return;
-
-  // if (this.hasInvalidationState(anychart.ConsistencyState.SERIES_CHART_DATA_AREA)) {
+anychart.core.ChartWithSeries.prototype.specialDraw = function(bounds) {
+  anychart.core.ChartWithSeries.base(this, 'specialDraw', bounds);
   if (this.hasInvalidationState('serieschart', 'dataarea')) {
     var dataArea = this.dataArea();
     dataArea.suspendSignalsDispatching();
@@ -1209,7 +1203,6 @@ anychart.core.ChartWithSeries.prototype.drawContent = function(bounds) {
     dataArea.resumeSignalsDispatching(false);
     dataArea.draw();
     this.markConsistent('serieschart', 'dataarea');
-    // this.markConsistent(anychart.ConsistencyState.SERIES_CHART_DATA_AREA);
   }
 };
 
