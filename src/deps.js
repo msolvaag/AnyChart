@@ -530,7 +530,7 @@ goog.addDependency('../../../../src/stock/math/cmf.js', ['anychart.stockModule.m
 goog.addDependency('../../../../src/stock/math/dmi.js', ['anychart.stockModule.math.dmi'], ['anychart.stockModule.math.CycledQueue', 'anychart.utils'], {});
 goog.addDependency('../../../../src/stock/math/ema.js', ['anychart.stockModule.math.ema'], ['anychart.stockModule.math.CycledQueue', 'anychart.utils'], {});
 goog.addDependency('../../../../src/stock/math/kdj.js', ['anychart.stockModule.math.kdj'], ['anychart.stockModule.math.CycledQueue', 'anychart.stockModule.math.stochastic', 'anychart.utils'], {});
-goog.addDependency('../../../../src/stock/math/keltnerChannels.js', ['anychart.stockModule.math.keltnerChannels'], ['anychart.stockModule.math.CycledQueue', 'anychart.stockModule.math.atr', 'anychart.stockModule.math.ema', 'anychart.utils'], {});
+goog.addDependency('../../../../src/stock/math/keltnerChannels.js', ['anychart.stockModule.math.keltnerChannels'], ['anychart.stockModule.math.atr', 'anychart.stockModule.math.ema', 'anychart.stockModule.math.sma', 'anychart.utils'], {});
 goog.addDependency('../../../../src/stock/math/macd.js', ['anychart.stockModule.math.macd'], ['anychart.stockModule.math.CycledQueue', 'anychart.stockModule.math.ema', 'anychart.utils'], {});
 goog.addDependency('../../../../src/stock/math/mfi.js', ['anychart.stockModule.math.mfi'], ['anychart.stockModule.math.CycledQueue', 'anychart.utils'], {});
 goog.addDependency('../../../../src/stock/math/mma.js', ['anychart.stockModule.math.mma'], ['anychart.stockModule.math.CycledQueue', 'anychart.utils'], {});
