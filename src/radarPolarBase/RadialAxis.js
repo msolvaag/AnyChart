@@ -762,15 +762,14 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.getLabelBounds_ = function(in
     return boundsCache[index];
 
   var ticks = isMajor ? this.ticks() : this.minorTicks();
-  // var ticksLength = ticks.getOption('length');
   var ticksPosition = ticks.getOption('position');
-  var ticksSidePosition = this.sidePositionToNumber(ticksPosition);
+  var ticksSidePosition = anychart.utils.sidePositionToNumber(ticksPosition);
 
   var lineThickness = this.stroke()['thickness'] ? this.stroke()['thickness'] : 1;
-  var halfThickness = Math.floor(lineThickness / 2);
+  var halfThickness = ticksSidePosition < 0 ? Math.ceil(lineThickness / 2) : Math.floor(lineThickness / 2);
   var labels = isMajor ? this.labels() : this.minorLabels();
   var labelsPosition = labels.position();
-  var labelsSidePosition = this.sidePositionToNumber(labelsPosition);;
+  var labelsSidePosition = anychart.utils.sidePositionToNumber(labelsPosition);
 
   var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
   var scaleTicks = isMajor ? scale.ticks() : scale.minorTicks();
@@ -783,6 +782,9 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.getLabelBounds_ = function(in
   } else {
     ratio = scale.transform(value, .5);
   }
+  var formatProvider = this.getLabelsFormatProvider_(index, value);
+  var positionProvider = {'value': {'x': 0, 'y': 0}};
+  var labelBounds = labels.measure(formatProvider, positionProvider, undefined, index);
 
   var radius = this.innerLength_ + (this.length_ - this.innerLength_) * ratio;
   var angle = goog.math.standardAngle(this.startAngle() - 90);
@@ -793,26 +795,20 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.getLabelBounds_ = function(in
 
   var angle_ = goog.math.toRadians(goog.math.standardAngle(90 - angle - 270));
 
-  var ticksLength = this.getAffectBoundsTickLength(ticks, ticksSidePosition);
+  var ticksLength = anychart.utils.getAffectBoundsTickLength(ticks, labelsSidePosition);
 
-  console.log(ticksLength, labelsSidePosition, labelsSidePosition, labelsPosition, ticksPosition);
+  var ticksDx = ticksLength * Math.sin(angle_);
+  var ticksDy = ticksLength * Math.cos(angle_);
 
-  var dx = -(labelsSidePosition * ticksLength + halfThickness) * Math.sin(angle_);
-  var dy = -(labelsSidePosition * ticksLength + halfThickness) * Math.cos(angle_);
-
-  var xTick = x + dx;
-  var yTick = y + dy;
-
-  var formatProvider = this.getLabelsFormatProvider_(index, value);
-  var positionProvider = {'value': {'x': xTick, 'y': yTick}};
-  var labelBounds = labels.measure(formatProvider, positionProvider, undefined, index);
+  var lineDx = labelsSidePosition * halfThickness * Math.sin(angle_);
+  var lineDy = labelsSidePosition * halfThickness * Math.cos(angle_);
 
   var offset = this.getLabelPositionOffsetForAngle_(goog.math.standardAngle(angle + 90), labelBounds);
-  labelBounds.left -= offset.x + labelsSidePosition * labelBounds.width / 2;
-  labelBounds.top -= offset.y + labelsSidePosition * labelBounds.height / 2;
+  var labelDx = offset.x * labelsSidePosition;
+  var labelDy = offset.y * labelsSidePosition;
 
-  positionProvider['value']['x'] = labelBounds.left;
-  positionProvider['value']['y'] = labelBounds.top;
+  positionProvider['value']['x'] = x + labelDx + ticksDx + lineDx;
+  positionProvider['value']['y'] = y + labelDy + ticksDy + lineDy;
 
   return boundsCache[index] = labels.measureWithTransform(formatProvider, positionProvider, undefined, index);
 };
@@ -944,39 +940,6 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.getLabelsFormatProvider_ = fu
 };
 
 
-/**
- * Convert side position to number representation.
- * @param {anychart.enums.SidePosition} position
- */
-anychart.radarPolarBaseModule.RadialAxis.prototype.sidePositionToNumber = function(position) {
-  return position == anychart.enums.SidePosition.OUTSIDE ? 1 : position == anychart.enums.SidePosition.INSIDE ? -1 : 0;
-};
-
-
-/**
- * Returns ticks length that affects axis size calculation.
- * @param {!anychart.radarPolarBaseModule.RadialAxisTicks} ticks Ticks instance.
- * @param {number=} opt_side If value greater than 0 - calculates offset relative outside position,
- * less then 0 - relative inside position, equal to 0 - relative both sides.
- * @return {number} Ticks length.
- */
-anychart.radarPolarBaseModule.RadialAxis.prototype.getAffectBoundsTickLength = function(ticks, opt_side) {
-  var length = 0;
-  var side = goog.isDef(opt_side) ? opt_side : 1;
-  if (ticks.enabled()) {
-    var position = ticks.position();
-    if (position == anychart.enums.SidePosition.OUTSIDE) {
-      length = side > 0 ? ticks.length() : 0;
-    } else if (position == anychart.enums.SidePosition.CENTER) {
-      length = side * ticks.length() / 2;
-    } else if (position == anychart.enums.SidePosition.INSIDE) {
-      length = opt_side < 0 ? -ticks.length() : 0;
-    }
-  }
-  return /** @type {number} */(length);
-};
-
-
 //endregion
 //region --- Drawing
 /**
@@ -1026,7 +989,7 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.drawTick_ = function(ratio, i
   var ticksLength = ticks.getOption('length');
   var ticksStroke = ticks.getOption('stroke');
   var ticksPosition = ticks.getOption('position');
-  var ticksSidePosition = this.sidePositionToNumber(ticksPosition);
+  var ticksSidePosition = anychart.utils.sidePositionToNumber(ticksPosition);
 
   var ticksThickness = ticksStroke['thickness'] ? parseFloat(ticksStroke['thickness']) : 1;
   var lineThickness = this.stroke()['thickness'] ? parseFloat(this.stroke()['thickness']) : 1;
@@ -1066,16 +1029,19 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.drawTick_ = function(ratio, i
 
   var dx, dy;
 
-  var halfThickness = Math.floor(lineThickness / 2);
+  var halfThickness = ticksSidePosition < 0 ? Math.ceil(lineThickness / 2) : Math.floor(lineThickness / 2);
 
-  dx = ticksSidePosition * halfThickness * Math.sin(angle_);
-  dy = ticksSidePosition * halfThickness * Math.cos(angle_);
+  var startLength = ticksSidePosition ? ticksSidePosition * halfThickness : -ticksLength / 2;
+  var endLength = ticksSidePosition ? ticksSidePosition * ticksLength : ticksLength;
+
+  dx = startLength * Math.sin(angle_);
+  dy = startLength * Math.cos(angle_);
 
   var xStart = x + dx + xPixelShift;
   var yStart = y + dy + yPixelShift;
 
-  dx = ticksSidePosition * ticksLength * Math.sin(angle_);
-  dy = ticksSidePosition * ticksLength * Math.cos(angle_);
+  dx = endLength * Math.sin(angle_);
+  dy = endLength * Math.cos(angle_);
 
   var xEnd = xStart + dx;
   var yEnd = yStart + dy;
@@ -1103,10 +1069,10 @@ anychart.radarPolarBaseModule.RadialAxis.prototype.drawLabel_ = function(index, 
   var scaleTicksArr = ticks.get();
 
   var formatProvider = this.getLabelsFormatProvider_(index, scaleTicksArr[index]);
-  var bounds = anychart.math.Rect.fromCoordinateBox(this.getLabelBounds_(index, isMajor));
+  var bounds = this.getLabelBounds_(index, isMajor);
 
-  var x = bounds.left + bounds.width / 2;
-  var y = bounds.top + bounds.height / 2;
+  var x = bounds[0] + Math.abs(bounds[2] - bounds[0]) / 2;
+  var y = bounds[1] + Math.abs(bounds[5] - bounds[3]) / 2;
 
   var positionProvider = {'value': {'x': x, 'y': y}};
   labels.add(formatProvider, positionProvider, index);
