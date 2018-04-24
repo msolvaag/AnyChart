@@ -19,11 +19,11 @@ anychart.stockModule.math.keltnerChannels.Context;
 /**
  * Creates context.
  * @param {number=} opt_emaPeriod
- * @param {number=} opt_multiplier
  * @param {number=} opt_atrPeriod
+ * @param {number=} opt_multiplier
  * @return {anychart.stockModule.math.keltnerChannels.Context}
  */
-anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, opt_multiplier, opt_atrPeriod) {
+anychart.stockModule.math.keltnerChannels.initContext = function(opt_emaPeriod, opt_atrPeriod, opt_multiplier) {
   var emaPeriod = anychart.utils.normalizeToNaturalNumber(opt_emaPeriod, 20, false);
   var atrPeriod = anychart.utils.normalizeToNaturalNumber(opt_atrPeriod, 10, false);
   var multiplier = anychart.utils.normalizeToNaturalNumber(opt_multiplier, 2, false);
@@ -72,13 +72,13 @@ anychart.stockModule.math.keltnerChannels.calculationFunction = function(row, co
  * Creates Keltner Channel computer for the given table mapping.
  * @param {anychart.stockModule.data.TableMapping} mapping
  * @param {number=} opt_emaPeriod
- * @param {number=} opt_multiplier
  * @param {number=} opt_atrPeriod
+ * @param {number=} opt_multiplier
  * @return {anychart.stockModule.data.TableComputer}
  */
-anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_multiplier, opt_atrPeriod) {
+anychart.stockModule.math.keltnerChannels.createComputer = function(mapping, opt_emaPeriod, opt_atrPeriod, opt_multiplier) {
   var result = mapping.getTable().createComputer(mapping);
-  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_multiplier, opt_atrPeriod));
+  result.setContext(anychart.stockModule.math.keltnerChannels.initContext(opt_emaPeriod, opt_atrPeriod, opt_multiplier));
   result.setStartFunction(anychart.stockModule.math.keltnerChannels.startFunction);
   result.setCalculationFunction(anychart.stockModule.math.keltnerChannels.calculationFunction);
   result.addOutputField('middleResult');
