@@ -483,7 +483,7 @@ def __call_console_commands(commands):
     return p.returncode, output
 
 
-def __compile(entry_point=None, output=None, js_files=True, level="ADVANCED_OPTIMIZATIONS", theme=None,
+def __compile(entry_point=None, output=None, js_files=True, level="WHITESPACE_ONLY", theme=None,
               flag_file=COMMON_FLAGS, defines=None, version=False, dev_edition=None, perf_mon=None,
               additional_params=None, manifest=None, checks_only=False, debug_files=None, externs=None):
     def make_define(*args):
@@ -1181,9 +1181,9 @@ def __exec_main_script():
                                 check_only=False,
                                 manifest=False,
                                 build=None)
-    # compile_parser.add_argument('-s', '--sources',
-    #                             action='store_true',
-    #                             help='build project sources file (not minimized).')
+    compile_parser.add_argument('-s', '--sources',
+                                 action='store_true',
+                                 help='build project sources file (not minimized).')
     compile_parser.add_argument('-gm', '--manifest',
                                 action='store_true',
                                 help='output build target manifests JSON')
