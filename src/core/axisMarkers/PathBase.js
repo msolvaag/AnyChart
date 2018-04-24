@@ -190,12 +190,23 @@ anychart.core.axisMarkers.PathBase.prototype.valueInternal = function(opt_value)
   if (goog.isDef(opt_value)) {
     if (this.val !== opt_value) {
       this.val = opt_value;
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+      this.invalidate(anychart.ConsistencyState.BOUNDS, this.getValueChangeSignals());
     }
     return this;
   }
   return this.val;
+};
+
+
+/**
+ * Signals dispatched on value change.
+ * @return {number}
+ */
+anychart.core.axisMarkers.PathBase.prototype.getValueChangeSignals = function() {
+  var signals = anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED;
+  if (this.getOption('scaleRangeMode') == anychart.enums.ScaleRangeMode.CONSIDER)
+    signals |= anychart.Signal.NEEDS_RECALCULATION;
+  return signals;
 };
 
 

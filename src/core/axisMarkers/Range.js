@@ -167,8 +167,7 @@ anychart.core.axisMarkers.Range.prototype.from = function(opt_newValue) {
   if (goog.isDef(opt_newValue)) {
     if (this.val.from != opt_newValue) {
       this.val.from = opt_newValue;
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+      this.invalidate(anychart.ConsistencyState.BOUNDS, this.getValueChangeSignals());
     }
     return this;
   }
@@ -186,8 +185,7 @@ anychart.core.axisMarkers.Range.prototype.to = function(opt_newValue) {
   if (goog.isDef(opt_newValue)) {
     if (this.val.to != opt_newValue) {
       this.val.to = opt_newValue;
-      this.invalidate(anychart.ConsistencyState.BOUNDS,
-          anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
+      this.invalidate(anychart.ConsistencyState.BOUNDS, this.getValueChangeSignals());
     }
     return this;
   }

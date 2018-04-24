@@ -839,7 +839,7 @@ anychart.core.ChartWithAxes.prototype.textMarker = function(opt_indexOrValue, op
 anychart.core.ChartWithAxes.prototype.onMarkersSignal = function(event) {
   var state = anychart.ConsistencyState.AXES_CHART_AXES_MARKERS;
   if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION))
-    state = anychart.ConsistencyState.SCALE_CHART_SCALES | anychart.ConsistencyState.SCALE_CHART_Y_SCALES;
+    state |= anychart.ConsistencyState.SCALE_CHART_SCALES | anychart.ConsistencyState.SCALE_CHART_Y_SCALES;
   this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
 };
 
