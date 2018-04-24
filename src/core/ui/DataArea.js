@@ -72,6 +72,16 @@ anychart.core.ui.DataArea.prototype.remove = function() {
 
 
 /**
+ * Applies clip to rootLayer.
+ * @param {acgraph.vector.Path} clip
+ */
+anychart.core.ui.DataArea.prototype.applyClip = function(clip) {
+  if (this.rootLayer)
+    this.rootLayer.clip(clip);
+};
+
+
+/**
  * Draws background for data area
  * @return {anychart.core.ui.DataArea} Self.
  */
